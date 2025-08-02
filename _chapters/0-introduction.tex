@@ -1,0 +1,47 @@
+\newpage\pagestyle{introduction}
+
+% The \unnumberedchapter, \unnumberedsection commands provided by the uninathesis 
+% documentclass add an unnumbered entry to the TOC.
+% If you use the starred version of classic sectioning commands (e.g. \chapter*)
+% no TOC entry will be added!
+
+\chapter*{Introduction}
+% \unnumberedsection{A first unnumbered section}
+
+First-Order Logic (FOL) emerged from the mathematical foundations laid in \textit{Begriffsschrift}~\cite{frege1879} by \citeauthor{frege1879} and in \textit{Principia Mathematica}~\cite{russell1910} by \citeauthor{russell1910}, and has since become a cornerstone formalism in computer science.
+Its formal yet expressive nature makes it particularly well-suited for computational reasoning across diverse domains.
+In knowledge representation, FOL underpins semantic web technologies and ontology languages like OWL, enabling machines to reason about complex relationships in data.
+Meanwhile, in verification, it serves as the logical foundation for model checkers and theorem provers that ensure software correctness, while in artificial intelligence, it historically powered automated reasoning systems and planning algorithms, though modern AI has largely shifted toward statistical and neural approaches that often lack the transparency and formal guarantees that FOL-based systems provide.
+
+However, the expressive power of first-order logic (FOL) comes at a cost: undecidability.
+This was established independently in the 1930s by \citeauthor{church1936}~\cite{church1936} using the lambda calculus, and by \citeauthor{turing1936}~\cite{turing1936} via Turing machines---two distinct formalisms that captured the limits of computation.
+Their results demonstrated that no algorithm can, in general, determine whether an arbitrary FOL formula is valid. This fundamental limitation creates a significant computational barrier for automated reasoning.
+In response, two complementary research directions have emerged: the systematic identification of decidable fragments that retain sufficient expressiveness for practical applications, and the development of automated theorem provers (ATPs) that---while unable to guarantee termination on all inputs---employ sophisticated heuristics and optimizations to solve many real-world problems efficiently.
+
+Among the most prominent automated theorem provers (ATPs) for first-order logic is \textit{Vampire}~\cite{kovacs2013vampire}, a high-performance prover built on advanced saturation-based reasoning.
+Vampire combines ordered resolution with literal selection, term indexing, and clause simplification techniques to explore the space of logical consequences efficiently.
+It also incorporates modern enhancements such as efficient preprocessing, strategy scheduling, and support for first-order logic with built-in theories.
+These features have made Vampire highly successful in competitive settings like the CASC competition, and effective in practical applications ranging from formal verification to software analysis.
+Moreover, Vampire's extensible architecture and open-source nature make it the go-to choice for research and experimentation in the field of automated reasoning.
+
+Among the various decidable fragments of FOL, the Fluted Fragment stands out due to its syntactic constraints that preserve decidability while maintaining expressive power in certain contexts. Despite its theoretical appeal, practical tools often do not take advantage of its structural properties.
+\uninatodo{Add some references to the Fluted Fragment and some of its applications}
+
+Automated theorem provers (ATPs) such as Vampire employ saturation-based reasoning techniques to handle general FOL problems. While powerful, such tools are often designed to address the full scope of FOL, and do not exploit the structural properties of specific fragments like the Fluted Fragment.
+
+% TODO, put emphasis on th efact that is the problem to be undecidable, and not the specific implementation. 
+Moreover, while general-purpose automated theorem provers aim to be as broadly applicable as possible, their completeness comes at the cost of decidability. Since FOL is undecidable in general, such systems may fail to terminate even when the input formula belongs to a decidable fragment. As a result, problems that are in principle solvable — such as those within the Fluted Fragment — may be left unresolved by these tools. In contrast, a specialized decision procedure tailored to the structural constraints of the fragment can guarantee termination and correctness, providing reliable answers where general approaches might not.
+
+This thesis presents the implementation of a saturation-based decision algorithm tailored specifically for the Fluted Fragment. By incorporating structural constraints into the reasoning process, the algorithm aims to provide more efficient decision procedures than general-purpose systems. The performance of the implementation is empirically compared to Vampire to assess the benefits of fragment-specific optimization.
+% TODO: add paragraphs about your work
+
+This is the introduction to your work.
+\blindtext[3]
+
+\unnumberedsection{Another unnumbered section}
+
+\blindtext[3]
+
+\unnumberedsection{About this thesis work}
+
+Thesis structure, etc.

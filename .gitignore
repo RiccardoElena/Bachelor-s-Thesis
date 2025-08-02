@@ -1,0 +1,144 @@
+# LaTeX auxiliary files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.brf
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.nav
+*.snm
+*.vrb
+*.end
+*.figlist
+*.makefile
+*.figs
+*.figlist
+*.makefile
+*.figs
+
+# LaTeX temporary files
+*.tmp
+*.temp
+*~
+
+# Bibliography temporary files
+*.bak
+*.sav
+
+# Output files (comment if you want to track PDFs)
+*.pdf
+*.dvi
+*.ps
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+*.swp
+*.swo
+*~
+
+# Build directories
+_builds/
+build/
+dist/
+
+# Backup files
+*.backup
+*.bak
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# LaTeX Beamer
+*.nav
+*.snm
+*.vrb
+
+# Biber
+*.bbl.bak
+*.bcf.bak
+
+# Glossaries
+*.acn
+*.acr
+*.glg
+*.glo
+*.gls
+*.glsdefs
+*.lzo
+*.lzs
+
+# Hyperref
+*.hd
+
+# Knitr
+*-concordance.tex
+*.figlist
+*.makefile
+*.figs
+*.upa
+*.upb
+
+# Listings package
+*.lol
+
+# Nomenclature
+*.nlo
+*.nls
+
+# SageTeX
+*.sagetex.sage
+*.sagetex.py
+*.sagetex.scmd
+
+# TikZ & PGF
+*.fls
+*.fdb_latexmk
+*.auxlock
+
+# Xindy
+*.xdy
+
+# Todonotes
+*.tdo
+
+# Easy Thesis
+*.atfi
+*.eledsec[1-9]
+*.eledsec[1-9][0-9]
+*.eledsec[1-9][0-9][0-9]
+*.eledsec[1-9]R
+*.eledsec[1-9][0-9]R
+*.eledsec[1-9][0-9][0-9]R
+*.end
+*.?end
+*.[1-9]
+*.[1-9][0-9]
+*.[1-9][0-9][0-9]
+*.[1-9]R
+*.[1-9][0-9]R
+*.[1-9][0-9][0-9]R
+*.eledsec[1-9]
+*.eledsec[1-9][0-9]
+*.eledsec[1-9][0-9][0-9]
+*.eledsec[1-9]R
+*.eledsec[1-9][0-9]R
+*.eledsec[1-9][0-9][0-9]R
