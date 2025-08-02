@@ -24,24 +24,40 @@ It also incorporates modern enhancements such as efficient preprocessing, strate
 These features have made Vampire highly successful in competitive settings like the CASC competition, and effective in practical applications ranging from formal verification to software analysis.
 Moreover, Vampire's extensible architecture and open-source nature make it the go-to choice for research and experimentation in the field of automated reasoning.
 
-Among the various decidable fragments of FOL, the Fluted Fragment stands out due to its syntactic constraints that preserve decidability while maintaining expressive power in certain contexts. Despite its theoretical appeal, practical tools often do not take advantage of its structural properties.
-\uninatodo{Add some references to the Fluted Fragment and some of its applications}
+While general-purpose provers like \textit{Vampire} are designed to handle unrestricted first-order logic, certain decidable fragments offer opportunities for more targeted and efficient reasoning.
+One such fragment is the \emph{Fluted Fragment}, distinguished by its strict syntactic discipline: variables in atomic formulas must follow the order in which they are quantified~\cite{quine1968predicate}.
+This constraint, first introduced by Quine, limits expressiveness in some dimensions but crucially preserves decidability. Subsequent studies have shown that the Fluted Fragment occupies an interesting middle ground—more complex than many guarded or bounded-variable fragments, yet still admitting well-characterized decision procedures~\cite{pratt2019fluted}.
+Applications have emerged in areas such as knowledge representation, database logic and computational linguistics, where the fragment’s regular structure aligns naturally with hierarchical or sequential data.
+\uninatodo{I remember we discussed this application, but I cannot find the reference now.}
+These properties make it a compelling candidate for specialized reasoning techniques that can outperform general ATPs in relevant domains.
 
-Automated theorem provers (ATPs) such as Vampire employ saturation-based reasoning techniques to handle general FOL problems. While powerful, such tools are often designed to address the full scope of FOL, and do not exploit the structural properties of specific fragments like the Fluted Fragment.
+A specialized reasoning technique for the Fluted Fragment is presented by \citeauthor{schmidt2000resolution} in their resolution-based decision procedure~\cite{schmidt2000resolution}.
+Their approach characterizes fluted logic through a novel class of \emph{fluted clauses}, and introduces a calculus ---\textsc{R\textsuperscript{sep}}--- which extends ordered resolution with a dynamic renaming rule called \emph{separation}.
+This rule enables the transformation of non-strongly fluted clauses into strongly fluted ones, thereby preserving a bounded number of variables and ensuring closure under resolution.
+Crucially, the authors prove that their calculus is sound, complete, and terminating for fluted logic, establishing a resolution-based decision procedure for the fragment.
 
-% TODO, put emphasis on th efact that is the problem to be undecidable, and not the specific implementation. 
-Moreover, while general-purpose automated theorem provers aim to be as broadly applicable as possible, their completeness comes at the cost of decidability. Since FOL is undecidable in general, such systems may fail to terminate even when the input formula belongs to a decidable fragment. As a result, problems that are in principle solvable — such as those within the Fluted Fragment — may be left unresolved by these tools. In contrast, a specialized decision procedure tailored to the structural constraints of the fragment can guarantee termination and correctness, providing reliable answers where general approaches might not.
+%This result not only deepens the understanding of the structural properties that make fluted logic decidable, but also provides a foundation for building dedicated automated reasoning tools that leverage the syntactic discipline of the fragment.
 
-This thesis presents the implementation of a saturation-based decision algorithm tailored specifically for the Fluted Fragment. By incorporating structural constraints into the reasoning process, the algorithm aims to provide more efficient decision procedures than general-purpose systems. The performance of the implementation is empirically compared to Vampire to assess the benefits of fragment-specific optimization.
-% TODO: add paragraphs about your work
-
-This is the introduction to your work.
-\blindtext[3]
-
-\unnumberedsection{Another unnumbered section}
-
-\blindtext[3]
+In this thesis, we implement the resolution-based decision procedure for the Fluted Fragment proposed by \citeauthor{schmidt2000resolution}, with the goal of evaluating its practical effectiveness.
+By faithfully realizing the \textsc{R\textsuperscript{sep}} calculus, including the separation rule and associated structural constraints, the implementation provides a concrete instantiation of the theoretical framework.
+To assess the impact of fragment-specific optimization, we conduct an empirical comparison against the general-purpose theorem prover \textit{Vampire}, highlighting the potential advantages of tailored reasoning techniques for decidable fragments of first-order logic.
 
 \unnumberedsection{About this thesis work}
 
-Thesis structure, etc.
+This thesis retraces all the steps of the implementation of the resolution-based decision procedure for the Fluted Fragment mentioned above, starting from the theoretical foundations and culminating in the empirical evaluation of the implemented system.
+
+The work is structured as follows:
+
+\begin{itemize}
+    \item \textbf{Chapter 1} provides an overview of the theoretical foundations of first-order logic, briefly discussing its structure and key concepts such as Skolemization, Naming, and Clausification.
+    \item \textbf{Chapter 2} illustrates the main inference rules of a resolution-based decision procedure, highlighting the differences between their standard and their ordered versions.
+    \item \textbf{Chapter 3} describes the Fluted Fragment and the resolution-based decision procedure for it, detailing the separation rule and the structural constraints that ensure decidability.
+    \item \textbf{Chapter 4} briefly analyses \textit{Vampire} and its architecture, focusing on relevant components for the implementation of the decision procedure.
+    \item \textbf{Chapter 5} presents the implementation of the decision procedure, discussing the design choices made, and the challenges encountered during development.
+    \item \textbf{Chapter 6} discusses the results of the first evaluation, based on the TPTP library, highlighting the strengths and weaknesses of the implemented decision procedure.
+    \item \textbf{Chapter 7} discusses the results of the second evaluation, based on the automatically generated problems, as well as the design and implementation process of the problems generator and the evaluation framework.
+    \item \textbf{Chapter 8} concludes the thesis, summarizing the main findings and discussing potential future work.
+\end{itemize}
+
+
+
