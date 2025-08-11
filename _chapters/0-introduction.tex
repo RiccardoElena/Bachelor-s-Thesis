@@ -48,16 +48,16 @@ This thesis retraces all the steps of the implementation of the resolution-based
 
 The work is structured as follows:
 
-\begin{itemize}
-    \item \textbf{Chapter 1} provides an overview of the theoretical foundations of first-order logic, briefly discussing its structure and key concepts such as Skolemization, Naming, and Clausification.
-    \item \textbf{Chapter 2} illustrates the main inference rules of a resolution-based decision procedure, highlighting the differences between their standard and their ordered versions.
-    \item \textbf{Chapter 3} describes the Fluted Fragment and the resolution-based decision procedure for it, detailing the separation rule and the structural constraints that ensure decidability.
-    \item \textbf{Chapter 4} briefly analyses \textit{Vampire} and its architecture, focusing on relevant components for the implementation of the decision procedure.
-    \item \textbf{Chapter 5} presents the implementation of the decision procedure, discussing the design choices made, and the challenges encountered during development.
-    \item \textbf{Chapter 6} discusses the results of the first evaluation, based on the TPTP library, highlighting the strengths and weaknesses of the implemented decision procedure.
-    \item \textbf{Chapter 7} discusses the results of the second evaluation, based on the automatically generated problems, as well as the design and implementation process of the problems generator and the evaluation framework.
-    \item \textbf{Chapter 8} concludes the thesis, summarizing the main findings and discussing potential future work.
-\end{itemize}
+\begin{description}
+    \item[Chapter 1] provides an overview of the theoretical foundations of first-order logic, briefly discussing its structure and key concepts such as Skolemization, Naming, and Clausification.
+    \item[Chapter 2] illustrates the main inference rules of a resolution-based decision procedure, highlighting the differences between their standard and their ordered versions. In particular, it covers the concept of \textit{liftable orders} and how they can be used for the definition of \textit{ordered inference rules}.
+    \item[Chapter 3] describes the Fluted Fragment and the resolution-based decision procedure for it, detailing the separation rule and the structural constraints that ensure decidability. The chapter discusses the structure of the fluted formulae, the definition of fluted clauses, and the naming procedure that ensures the flutedness of the clauses.
+    \item[Chapter 4] briefly analyses \textit{Vampire} and its architecture, focusing on relevant components for the implementation of the decision procedure. In detail, it discusses the \textit{Preprocessor}, the \textit{Saturation Algorithm}, and the \textit{Clause Selection} components.
+    \item[Chapter 5] presents the implementation of the decision procedure, discussing the design choices made, and the challenges encountered during development, divided into three main parts covering the three main components of the implementation: the \textit{Classifier}, the \textit{Preprocessor}, and the \textit{Fluted Resolution}.
+    \item[Chapter 6] discusses the results of the first evaluation, based on the TPTP library, highlighting the strengths and weaknesses of the implemented decision procedure. These problems have been selected using the \textit{Classifier} component and the evaluation is based on the comparison with the results of \textit{Vampire} and of an \textit{Hibrid model}, composed by the \textit{Fluted Preprocessor} and the \textit{Vampire Resolution}, on the same problems.
+    \item[Chapter 7] discusses the results of the second evaluation, based on the automatically generated problems, as well as the design and implementation process of the problems generator and the evaluation framework. This evaluation required the implementation of another component, the \textit{Fluted Generator}, which is responsible for generating the problems to be solved by the decision procedure and by the other \textit{two models}.
+    \item[Chapter 8] concludes the thesis, summarizing the main findings and discussing potential future work.
+\end{description}
 
 
 
