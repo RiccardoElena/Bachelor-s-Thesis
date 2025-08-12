@@ -1,137 +1,175 @@
-\chapter{This is the first chapter}\label{chap:first}
+\chapter{First Order Logic}\label{chap:first}
 
-\inlineminitoc
+\inlineminitoc{}
 
-\noindent In this chapter I'll show some of the features of the \texttt{uninathesis} documentclass.
+\noindent First-order logic (FOL), or predicate logic, is a formal system used in mathematics, philosophy, linguistics, and computer science to express statements about objects and their relationships.
+It uses \textbf{terms} for the representation of objects in the domain of discourse and \textbf{predicates} to express properties of these objects or relationships between them.
+Moreover, FOL allows for the use of \textbf{quantifiers} to make statements that apply to all objects (universal quantification) or some objects (existential quantification) in the domain, and \textbf{logical connectives} to construct more complex statements.
 
-\section{Typography \& math}
-Some text here. \(\varphi,\phi,\psi\vDash M U k\)
-Here \texttt{true type}. 
-\textsc{here Small Caps}. 
-\textsf{here sans serif}. 
-\emph{here italics}.
-\textbf{\emph{here bold italics}}.
-\textbf{\textsf{bold sans}}.
-\textsf{\emph{Italic sans}}.
-%Here we cite \citeauthor{dijkstra1972humbleprogrammer} and \citeauthor{lamport1982proving}
-%who wrote \cite{dijkstra1972humbleprogrammer,lamport1982proving} respectively.
-\blindmathpaper
+One well-known informal statement, \dquote{All humans are mortal} for example, can be expressed in FOL as:
+\begin{equation*}
+    \forall x \left( \text{H}(x) \implies \text{M}(x) \right)
+\end{equation*}
 
-\section{TODOs}
-The \texttt{uninathesis} documentclass provides a basic todo functionality via 
-the \texttt{uninatodo} command \uninatodo{as i just did. This is a todo note.}. 
+Syntactically speaking, this sentence is composed of:
+\begin{itemize}
+    \item a \textbf{quantifier} \(\forall\)
+    \item a \textbf{variable} \(x\) which ranges over the whole domain of discourse (possibly every object in the universe)
+    \item a \textbf{unary predicate} \(\text{H}\) applied to \(x\)
+    \item a \textbf{unary predicate} \(\text{M}\) applied to \(x\)
+    \item a \textbf{logical connective} \(\implies\)
+\end{itemize}
 
-\section{Lists}
-In this section you can see how lists look like.
-\subsection{Itemize}
-\blinditemize
-\subsection{Enumerate}
-\blindenumerate
-\subsection{Description}
-\blinddescription
-\subsection{Custom enumerate}
-\begin{enumerate}[label=(\roman*)]
-    \item foo;
-    \item bar;
-    \item foobar.
-\end{enumerate}
-\subsection{Inline enumerate}
-You can also write inline enumerates as follows:
-\begin{enumerate*}[label=(\roman*)]
-    \item first item;
-    \item second item;
-    \item third and last item.
-\end{enumerate*}
+Upon this syntactic structure, we can build a semantic interpretation, which assigns meaning to the symbols used in the sentence.
+In this case, we can interpret \(\text{H}(x)\) as \dquote{\(x\) is a human} and \(\text{M}(x)\) as \dquote{\(x\) is mortal}.
+Moreover, the universal quantifier \(\forall\) indicates that the statement applies to all objects in the domain of discourse.
+The connective \(\implies\) is the \textit{material implication} of \textit{propositional logic}, indicating that if the first part is true, then the second part must also be true.
 
-\section{Tables}
-Classic booktabs tables as in Table \ref{tab:table}. \blindtext
-\begin{table}
-    \begin{center}
-      \caption{Table using booktabs.}
-      \label{tab:table}
-      \begin{tabular}{llr}
-        \toprule % <-- Toprule here
-        \textbf{Value 1} & \textbf{Value 2} & \textbf{Value 3}\\
-        $\alpha$ & $\beta$ & $\gamma$ \\
-        \midrule % <-- Midrule here
-        1 & 1110.1 & a\\
-        2 & 10.1 & b\\
-        3 & 23.113231 & c\\
-        \bottomrule % <-- Bottomrule here
-      \end{tabular}
-    \end{center}
-\end{table}
+As we can see, using FOL we can divide the statement into its syntactic and semantic components, which allows us to reason about its structure separately from its meaning.
+This separation permits us to generalize the reasoning process to other statements with similar structures and to deduce new statements solely from the syntactic structure.
+This makes FOL particularly suitable for computational treatment: automated systems can manipulate the syntactic form of statements while guaranteeing that these manipulations reflect valid semantic consequences in all interpretations — a property known as \textit{soundness}, \citeauthor{enderton2001}~\cite{enderton2001}.
 
-\section{Algorithms}
-Algorithm environment is styled to be consistent with booktabs (same heading and bottomline). \blindtext[2]
-\begin{algorithm}
-    \caption{Box alignment procedure}\label{alg:padding}
-    \begin{algorithmic}[1]
-        \Statex \textbf{signature} $\textsc{BoxAlign}$ $CSA\times CSA \to CSA\times CSA$
-        \Statex \textbf{ensure} The returned CSA are box-compatible
-        \Function{$\textsc{BoxAlign}$}{$\mathscr{M},\mathscr{F}$}
-            % I cut a whole part of the algorithm; It doesn't make much sense now!
-            \State $(\mathscr{M}^\prime,\mathscr{F}^\prime)\gets(\mathscr{M},\mathscr{F})$
-            \ForAll{$(b_m,b_f)\in B_{\mathscr{M}^\prime}\times B_{\mathscr{F}^\prime}$}
-                \State $\left(\beta_{\mathscr{M}^\prime},\beta_{\mathscr{F}^\prime}\right)\gets(\varepsilon,\varepsilon)$
-                \For{$0\le i < |\beta_{\mathscr{M}^\prime}(b_m)|$} 
-                    \State $(\mathscr{A}_\mathscr{M},\mathscr{A}_\mathscr{F})\gets\textsc{BoxAlign}(\beta_{\mathscr{M}^\prime}(b_m)_i,\beta_{\mathscr{F}^\prime}(b_f)_i)$
-                    \State $\beta_{\mathscr{M}^\prime}(b_m)\gets\beta_{\mathscr{M}^\prime}\cdot\mathscr{A}_\mathscr{M}$
-                    \State $\beta_{\mathscr{F}^\prime}(b_f)\gets\beta_{\mathscr{F}^\prime}\cdot\mathscr{A}_\mathscr{F}$
-                \EndFor
-            \EndFor
-            \State \textbf{return} $(\mathscr{M}^\prime,\mathscr{F}^\prime)$
-        \EndFunction
-    \end{algorithmic}
-\end{algorithm}
+As we will see later, this clear separation is crucial for the development of automated reasoning systems, such as the Vampire theorem prover, because it allows us to convert the reasoning task into a syntactic manipulation task, treating statements as symbolic strings with a specific syntax, without the need to explicitly encode the meaning of each statement.
+
+In order to preserve the truth value of statements during this manipulation process, we cannot rely on the syntactic structure alone; we must define a set of rules that act only on the syntactic structure while ensuring truth preservation.
+This set of rules is called \textbf{inference rules}, and they allow us to derive new statements from existing ones without altering their truth value.
+\section{Terms and formulae}
+
+\section{Unification}
+
+\section{Skolemization and Normalization}
+\subsection{NNF, ENNF and CNF}
+
+\section{Naming}
+
+% \section{Typography \& maths}
+% Some text here. \(\varphi,\phi,\psi\vDash M U k\)
+% Here \texttt{true type}. 
+% \textsc{here Small Caps}. 
+% \textsf{here sans serif}. 
+% \emph{here italics}.
+% \textbf{\emph{here bold italics}}.
+% \textbf{\textsf{bold sans}}.
+% \textsf{\emph{Italic sans}}.
+% %Here we cite \citeauthor{dijkstra1972humbleprogrammer} and \citeauthor{lamport1982proving}
+% %who wrote \cite{dijkstra1972humbleprogrammer,lamport1982proving} respectively.
+% \blindmathpaper
+
+% \section{TODOs}
+% The \texttt{uninathesis} documentclass provides a basic todo functionality via 
+% the \texttt{uninatodo} command \uninatodo{as i just did. This is a todo note.}. 
+
+% \section{Lists}
+% In this section you can see how lists look like.
+% \subsection{Itemize}
+% \blinditemize
+% \subsection{Enumerate}
+% \blindenumerate
+% \subsection{Description}
+% \blinddescription
+% \subsection{Custom enumerate}
+% \begin{enumerate}[label=(\roman*)]
+%     \item foo;
+%     \item bar;
+%     \item foobar.
+% \end{enumerate}
+% \subsection{Inline enumerate}
+% You can also write inline enumerates as follows:
+% \begin{enumerate*}[label=(\roman*)]
+%     \item first item;
+%     \item second item;
+%     \item third and last item.
+% \end{enumerate*}
+
+% \section{Tables}
+% Classic booktabs tables as in Table \ref{tab:table}. \blindtext
+% \begin{table}
+%     \begin{center}
+%       \caption{Table using booktabs.}
+%       \label{tab:table}
+%       \begin{tabular}{llr}
+%         \toprule % <-- Toprule here
+%         \textbf{Value 1} & \textbf{Value 2} & \textbf{Value 3}\\
+%         $\alpha$ & $\beta$ & $\gamma$ \\
+%         \midrule % <-- Midrule here
+%         1 & 1110.1 & a\\
+%         2 & 10.1 & b\\
+%         3 & 23.113231 & c\\
+%         \bottomrule % <-- Bottomrule here
+%       \end{tabular}
+%     \end{center}
+% \end{table}
+
+% \section{Algorithms}
+% Algorithm environment is styled to be consistent with booktabs (same heading and bottomline). \blindtext[2]
+% \begin{algorithm}
+%     \caption{Box alignment procedure}\label{alg:padding}
+%     \begin{algorithmic}[1]
+%         \Statex \textbf{signature} $\textsc{BoxAlign}$ $CSA\times CSA \to CSA\times CSA$
+%         \Statex \textbf{ensure} The returned CSA are box-compatible
+%         \Function{$\textsc{BoxAlign}$}{$\mathscr{M},\mathscr{F}$}
+%             % I cut a whole part of the algorithm; It doesn't make much sense now!
+%             \State $(\mathscr{M}^\prime,\mathscr{F}^\prime)\gets(\mathscr{M},\mathscr{F})$
+%             \ForAll{$(b_m,b_f)\in B_{\mathscr{M}^\prime}\times B_{\mathscr{F}^\prime}$}
+%                 \State $\left(\beta_{\mathscr{M}^\prime},\beta_{\mathscr{F}^\prime}\right)\gets(\varepsilon,\varepsilon)$
+%                 \For{$0\le i < |\beta_{\mathscr{M}^\prime}(b_m)|$} 
+%                     \State $(\mathscr{A}_\mathscr{M},\mathscr{A}_\mathscr{F})\gets\textsc{BoxAlign}(\beta_{\mathscr{M}^\prime}(b_m)_i,\beta_{\mathscr{F}^\prime}(b_f)_i)$
+%                     \State $\beta_{\mathscr{M}^\prime}(b_m)\gets\beta_{\mathscr{M}^\prime}\cdot\mathscr{A}_\mathscr{M}$
+%                     \State $\beta_{\mathscr{F}^\prime}(b_f)\gets\beta_{\mathscr{F}^\prime}\cdot\mathscr{A}_\mathscr{F}$
+%                 \EndFor
+%             \EndFor
+%             \State \textbf{return} $(\mathscr{M}^\prime,\mathscr{F}^\prime)$
+%         \EndFunction
+%     \end{algorithmic}
+% \end{algorithm}
 
 
-\section{Listings}
-Listings provided by the lstlistings package. Example shown in Listing \ref{lst:code}. \blindtext[2]
-\begin{lstlisting}[language=Python,float,caption=Python example,label={lst:code},basicstyle=\ttfamily,frame=b,framextopmargin=.2ex]
-    import numpy as np
+% \section{Listings}
+% Listings provided by the lstlistings package. Example shown in Listing \ref{lst:code}. \blindtext[2]
+% \begin{lstlisting}[language=Python,float,caption=Python example,label={lst:code},basicstyle=\ttfamily,frame=b,framextopmargin=.2ex]
+%     import numpy as np
      
-    def incmatrix(genl1,genl2):
-        m = len(genl1)
-        n = len(genl2)
-        M = None #to become the incidence matrix
-        VT = np.zeros((n*m,1), int)  #dummy variable
+%     def incmatrix(genl1,genl2):
+%         m = len(genl1)
+%         n = len(genl2)
+%         M = None #to become the incidence matrix
+%         VT = np.zeros((n*m,1), int)  #dummy variable
      
-        #compute the bitwise xor matrix
-        M1 = bitxormatrix(genl1)
-        M2 = np.triu(bitxormatrix(genl2),1) 
-\end{lstlisting}
+%         #compute the bitwise xor matrix
+%         M1 = bitxormatrix(genl1)
+%         M2 = np.triu(bitxormatrix(genl2),1) 
+% \end{lstlisting}
 
 
-\section{Listings, Algorithm and Table: consistent styling}
-The section title and Figure \ref{fig:figure} are pretty self-explanatory.\Blindtext
-\begin{figure}\centering
-\begin{minipage}[t]{.3\textwidth}
-\begin{algorithm}[H]
-    \caption{Test}
-    \begin{algorithmic}[1]
-        \State $z\gets 1+1$
-        \State $z\gets 1+2$
-    \end{algorithmic}
-\end{algorithm}
-\end{minipage}\hfill
-\begin{minipage}[t]{.3\textwidth}%
-    \vspace{.7em}
-    \begin{lstlisting}[language=Python,caption=ex]
-    int foo;
-    foo=1;
-    \end{lstlisting}
-\end{minipage}\hfill%
-\begin{minipage}[t]{.3\textwidth}
-\begin{table}[H]
-    \begin{tabular}{ll}
-        \toprule
-        foo & bar \\
-        \midrule 
-        1 & 2 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-\end{minipage}
-\caption{Algorithm, code and table side by side}\label{fig:figure}
-\end{figure}
+% \section{Listings, Algorithm and Table: consistent styling}
+% The section title and Figure \ref{fig:figure} are pretty self-explanatory.\Blindtext
+% \begin{figure}\centering
+% \begin{minipage}[t]{.3\textwidth}
+% \begin{algorithm}[H]
+%     \caption{Test}
+%     \begin{algorithmic}[1]
+%         \State $z\gets 1+1$
+%         \State $z\gets 1+2$
+%     \end{algorithmic}
+% \end{algorithm}
+% \end{minipage}\hfill
+% \begin{minipage}[t]{.3\textwidth}%
+%     \vspace{.7em}
+%     \begin{lstlisting}[language=Python,caption=ex]
+%     int foo;
+%     foo=1;
+%     \end{lstlisting}
+% \end{minipage}\hfill%
+% \begin{minipage}[t]{.3\textwidth}
+% \begin{table}[H]
+%     \begin{tabular}{ll}
+%         \toprule
+%         foo & bar \\
+%         \midrule 
+%         1 & 2 \\
+%         \bottomrule
+%     \end{tabular}
+% \end{table}
+% \end{minipage}
+% \caption{Algorithm, code and table side by side}\label{fig:figure}
+% \end{figure}
