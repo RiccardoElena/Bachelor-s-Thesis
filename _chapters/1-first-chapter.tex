@@ -33,7 +33,250 @@ As we will see later, this clear separation is crucial for the development of au
 
 In order to preserve the truth value of statements during this manipulation process, we cannot rely on the syntactic structure alone; we must define a set of rules that act only on the syntactic structure while ensuring truth preservation.
 This set of rules is called \textbf{inference rules}, and they allow us to derive new statements from existing ones without altering their truth value.
-\section{Terms and formulae}
+\section{From Terms to Sentences}
+
+First and foremost, we need to rigorously define the structure of first-order logic.
+The most basic building blocks of FOL are \textbf{terms}, which represent objects in the domain of discourse.
+Those are variables (\(x,y,z\)), functions (\(f,g,h\)) and constants symbols (\(a,b,c\)), seen sometimes as function symbols with arity 0.
+Variables are placeholders that can represent any object in the domain, while constants refer to specific objects. Functions map objects to other objects, allowing for more complex expressions.
+
+Hardly any statement in FOL is composed solely of terms; those alone, in fact, do not have a \textit{truth value} already.
+The main focus of FOL is on \textbf{predicates} (\(P,Q,R\)) ---so the name \textit{predicate logic}---, which are used to express properties of objects or relationships between them.
+Examples of predicates include \(\text{H}(\cdot)\) for \dquote{is a human} or \(\text{M}(\cdot)\) for \dquote{is mortal}.
+
+
+Predicates are applied to terms to form \textbf{atomic formulae} (\(\phi,\psi\)), which are the basic units of meaning in FOL, which are the building blocks of more complex and structured statements, called \textbf{formulae}, obtained by combining atomic formulae using logical connectives and quantifiers.
+
+Solely, not even atomic formulae always bear a truth value, as they can contain \textit{free variables}, namely variables that are not bound by a quantifier. These variables do not refer to any specific object in the domain, and thus the truth value of the atomic formula depends on the interpretation of these variables.
+This ambiguity can be illustrated with natural language; for instance, the statement \dquote{X is a human} does not clearly state \textit{which} object \(X\) has to be a human to make the statement true.
+The quantifiers resolve this ambiguity by specifying the scope of the variable \(X\). Indeed, the statement \dquote{All X is a human} clearly has a truth value, as it asserts something about every object, whether is true or not.
+Only (atomic) formulae with all variables bound can be said to have a definite truth value, and does are called (\textbf{atomic}) \textbf{sentences}.
+
+Last but not least, to combine (atomic) formulae/sentences into more complex expressions, we can use logical connectives. Those are symbols that applied to one or more formulae yield a new formula, which truth value depends on the truth values of the original formulae and the used connective semantics.
+In particular, the principal connectives used in FOL are:
+
+\begin{itemize}
+  \item \textbf{Negation} (\(\neg\)): This connective takes a single formula and \textbf{inverts} its truth value.
+  \item \textbf{Conjunction} (\(\land\)): This connective combines two formulas and is \textbf{true} if both are true.
+  \item \textbf{Disjunction} (\(\lor\)): This connective combines two formulas and is \textbf{true} if at least one is true.
+  \item \textbf{Implication} (\(\implies\)): This connective expresses a conditional relationship between two formulas. The new formula is \textbf{false} only if the first formula is true and the second formula is false.
+  \item \textbf{Biconditional} (\(\iff\)): This connective expresses an equivalence between two formulas. The new formula is \textbf{true} if both formulas have the same truth value.
+\end{itemize}
+
+A \textbf{literal} is an atomic formula or its negation.
+
+\subsection{Syntax}
+
+The syntax of FOL formulae can be formalised with a \textit{context free grammar} (CFG).
+In particular, being \(\mathcal{X}\) the set of all variables, \(\mathcal{C}\) the set of all constants, \(\mathcal{F}\) the set of all function symbols, \(\mathcal{P}\) the set of all predicate symbols, we can define the grammar as follows:
+
+\begin{equation}
+  FOL = \left( V , \Sigma, \phi \in V, R\right)
+\end{equation}
+where:
+\begin{itemize}
+  \item \(V = \{\tau, \alpha, \phi\}\)
+  \item \(\Sigma = \mathcal{X} \cup \mathcal{C} \cup \mathcal{F} \cup \mathcal{P} \cup \{\forall, \exists, \land, \lor, \neg, \implies, \iff, \left(,\right), \top, \bot\}\)
+   \item \(R\) = \begin{flalign}
+    \begin{aligned}
+      \tau \rightarrow \ms &x \in \mathcal{X} \ms|\ms 
+                        c \in \mathcal{C} \ms|\ms 
+                        f \in \mathcal{F} \\
+      \alpha \rightarrow \ms &P(\tau,...,\tau), P \in \mathcal{P} \\
+      \phi \rightarrow \ms & \varepsilon \ms|\ms \alpha \ms|\ms \top \ms|\ms \bot \ms|\ms 
+       \neg\phi \ms|
+       \left(\phi\land\phi\right) |
+       \left(\phi\lor\phi\right) |
+       \left(\phi\implies\phi\right) |
+       \left(\phi\iff\phi\right) | \ms
+       \forall x\left(\phi\right) \ms|\ms
+       \exists x\left(\phi\right)
+    \end{aligned} &&
+  \end{flalign}
+  where \(\varepsilon\) is the empty formula.
+\end{itemize}
+
+The language generated by this grammar is the set of all \textit{well-formed formulae} in FOL\@.
+
+Every string of the so generated language can also be represent with a \textit{syntactic tree}, which is a tree representation of the syntactic structure of the formula, highlighting the hierarchical relationships between its components.
+
+An example of a syntactic tree for the formula \(\forall x (H(x) \implies M(x))\) is shown in Figure~\ref{fig:syntactic_tree}.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[syntree]
+        \node[quantifier] {{\(\forall x\)}}
+            child { node[connective] {\(\implies\)} 
+              child { node[literal] {H(x)} }
+              child { node[literal] {M(x)} }
+            };
+    \end{tikzpicture}
+    \caption{Syntactic tree for \(\forall x (H(x) \implies M(x))\)}\label{fig:syntactic_tree}
+\end{figure}
+
+In this representation, is possible to omit the parentheses around the subformulas, as the tree structure already encodes the necessary grouping.
+
+Moreover, is possible to isolate a subgrammar by considering only the rules that generate atomic formulae (excluding so the ones deriving from \(\phi\)). Doing this easily allows to define the concept of \textbf{subterm} as a subtree of the syntactic tree that represents an atomic formula (or by extension a literal).
+
+An example of such a tree is shown in Figure~\ref{fig:subterm_tree} for the atomic formula \(P(f(x, g(y)))\).
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[syntree]
+        \node[literal] {\(P\)}
+            child { node[literal] {\(f\)}
+              child { node[literal] {\(x\)} }
+              child { node[literal] {\(g\)}
+                child { node[literal] {\(y\)} }
+              }
+            };
+    \end{tikzpicture}
+    \caption{Syntactic tree for the atomic formula \(P(f(x, g(y)))\) showing nested function structure}\label{fig:subterm_tree}
+\end{figure}
+
+If we consider multiple atomic formulas (or literals), is possible to represent them as a \textbf{forest} of syntactic trees, where each tree represents an atomic formula.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[syntree]
+            \node[literal] {\(P\)}
+                child { node[literal] {\(f\)}
+                  child { node[literal] {\(x\)} }
+                  child { node[literal] {\(g\)}
+                    child { node[literal] {\(y\)} }
+                  }
+                };
+        \end{tikzpicture}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \begin{tikzpicture}[syntree]
+            \node[literal] {\(\neg P\)}
+                  child { node[literal] {\(f\)}
+                    child { node[literal] {\(x\)} }
+                    child { node[literal] {\(g\)}
+                      child { node[literal] {\(y\)} }
+                    }
+                  };
+        \end{tikzpicture}
+    \end{minipage}
+    \caption{Forest of the literals \(P(f(x, g(y)))\) and \(\neg P(f(x, g(y)))\)}\label{fig:subterm_forest}
+\end{figure}
+
+% Add a line to introduce DAG representation and explain why in practice it's better
+In practice, it is often more convenient to represent these structures as Directed Acyclic Graphs (DAGs) rather than trees. This is because DAGs allow for the sharing of subterms, which can lead to more compact representations and easier manipulation of the formulas.
+
+DAGs can be particularly useful in automated reasoning and theorem proving, where the same subterm may appear in multiple places within a formula. By representing the formula as a DAG, we can avoid redundant copies of the subterm and simplify the reasoning process.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[syntree]
+        % Livello delle variabili (condivise)
+        \node[literal] (x) at (0,0) {\(x\)};
+        \node[literal] (y) at (2,0) {\(y\)};
+        
+        % Livello delle funzioni (condivise)
+        \node[literal] (g) at (2,1) {\(g\)};
+        \node[literal] (f) at (1,2) {\(f\)};
+        
+        % Livello dei predicati (separati)
+        \node[literal] (P_pos) at (-0.5,3) {\(P\)};
+        \node[literal] (P_neg) at (2.5,3) {\(\neg P\)};
+        
+        % Connessioni condivise
+        \draw[-latex, thick] (g) -- (y);
+        \draw[-latex, thick] (f) -- (x);
+        \draw[-latex, thick] (f) -- (g);
+
+        % Connessioni per literal positivo
+        \draw[-latex, thick] (P_pos) -- (f);
+
+        % Connessioni per literal negativo
+        \draw[-latex, thick] (P_neg) -- (f);
+
+
+        % Etichette
+        \node[left=0.3cm of P_pos, font=\footnotesize] {\(P(f(x, g(y)))\)};
+        \node[right=0.3cm of P_neg, font=\footnotesize] {\(\neg P(f(x, g(y)))\)};
+        
+        % Evidenzia i nodi condivisi con colore diverso
+        \tikzset{shared/.style={fill=yellow!20, thick}}
+        \node[literal, shared] at (x) {\(x\)};
+        \node[literal, shared] at (y) {\(y\)};
+        \node[literal, shared] at (g) {\(g\)};
+        \node[literal, shared] at (f) {\(f\)};
+    \end{tikzpicture}
+    \caption{DAG representation showing shared subterms between \(P(f(x, g(y)))\) and \(\neg P(f(x, g(y)))\)}
+    \label{fig:subterm_dag}
+\end{figure}
+
+\subsection{Semantics}
+
+To formalise semantics in FOL, we need to define the meaning of the symbols and the truth conditions for the formulas. This is typically done using a \textit{model}, which consists of a domain of discourse and an interpretation function that assigns meanings to the constants, functions, and predicates.
+
+A \textbf{model} for a FOL language is a pair \(M = (D, I)\), where:
+\begin{itemize}
+  \item \(D\) is a non-empty set, called the \textbf{domain of discourse}.
+  \item \(I\) is an interpretation function that assigns:
+  \begin{itemize}
+    \item Each constant \(c \in \mathcal{C}\) to an element \(I(c) \in D\).
+    \item Each function symbol \(f \in \mathcal{F}\) to a function \(I(f): D^{n_f} \to D\), where \(n_f\) is the arity of \(f\).
+    \item Each predicate symbol \(P \in \mathcal{P}\) to a relation \(I(P) \subseteq D^{n_P}\), where \(n_P\) is the arity of \(P\).
+  \end{itemize}
+\end{itemize}
+
+The truth value of a formula \(\phi\) in a model \(M\) is determined by the interpretation function and the structure of the formula as follows:
+
+\subsubsection{Variable Assignment}
+Given a model \(M = (D, I)\), a \textbf{variable assignment} (or \textbf{valuation}) is a function \(\sigma: \mathcal{V} \to D\) that assigns each variable to an element of the domain. We denote by \(\sigma[x \mapsto d]\) the assignment that is identical to \(\sigma\) except that it maps variable \(x\) to element \(d \in D\).
+
+\subsubsection{Term Evaluation}
+The \textbf{evaluation} of a term \(t\) in model \(M\) under assignment \(\sigma\), denoted \(\llbracket t \rrbracket_M^\sigma\), is defined recursively:
+\begin{itemize}
+  \item If \(t\) is a variable \(x\), then \(\llbracket x \rrbracket_M^\sigma = \sigma(x)\).
+  \item If \(t\) is a constant \(c\), then \(\llbracket c \rrbracket_M^\sigma = I(c)\).
+  \item If \(t = f(t_1, \ldots, t_n)\) where \(f\) is an \(n\)-ary function symbol, then 
+        \[\llbracket f(t_1, \ldots, t_n) \rrbracket_M^\sigma = I(f)(\llbracket t_1 \rrbracket_M^\sigma, \ldots, \llbracket t_n \rrbracket_M^\sigma)\]
+\end{itemize}
+
+\subsubsection{Truth Conditions}
+The \textbf{satisfaction} of a formula \(\phi\) in model \(M\) under assignment \(\sigma\), denoted \(M, \sigma \models \phi\), is defined recursively:
+
+\begin{itemize}
+  \item \textbf{Atomic formulas:}
+  \begin{itemize}
+    \item \(M, \sigma \models P(t_1, \ldots, t_n) \leftrightarrow (\llbracket t_1 \rrbracket_M^\sigma, \ldots, \llbracket t_n \rrbracket_M^\sigma) \in I(P)\)
+    \item \(M, \sigma \models \top\) (always true)
+    \item \(M, \sigma \not\models \bot\) (never true)
+  \end{itemize}
+  
+  \item \textbf{Logical connectives:}
+  \begin{itemize}
+    \item \(M, \sigma \models \neg \phi \leftrightarrow M, \sigma \not\models \phi\)
+    \item \(M, \sigma \models \phi \land \psi \leftrightarrow M, \sigma \models \phi\) and \(M, \sigma \models \psi\)
+    \item \(M, \sigma \models \phi \lor \psi \leftrightarrow M, \sigma \models \phi\) or \(M, \sigma \models \psi\)
+    \item \(M, \sigma \models \phi \implies \psi \leftrightarrow M, \sigma \not\models \phi\) or \(M, \sigma \models \psi\)
+    \item \(M, \sigma \models \phi \iff \psi \leftrightarrow M, \sigma \models \phi \) and \( M, \sigma \models \psi\), or, \(M, \sigma \not\models \phi \) and \( M, \sigma \not\models \psi\)
+  \end{itemize}
+  
+  \item \textbf{Quantifiers:}
+  \begin{itemize}
+    \item \(M, \sigma \models \forall x \, \phi\) if and only if for all \(d \in D\), \(M, \sigma[x \mapsto d] \models \phi\)
+    \item \(M, \sigma \models \exists x \, \phi\) if and only if there exists some \(d \in D\) such that \(M, \sigma[x \mapsto d] \models \phi\)
+  \end{itemize}
+\end{itemize}
+
+\subsubsection{Semantic Notions}
+A formula \(\phi\) is:
+\begin{itemize}
+  \item \textbf{Satisfiable} if there exists a model \(M\) and assignment \(\sigma\) such that \(M, \sigma \models \phi\).
+  \item \textbf{Valid} (or a \textbf{tautology}) if for all models \(M\) and assignments \(\sigma\), \(M, \sigma \models \phi\). We write \(\models \phi\).
+  \item \textbf{Unsatisfiable} (or \textbf{contradictory}) if for all models \(M\) and assignments \(\sigma\), \(M, \sigma \not\models \phi\).
+\end{itemize}
+
+For a set of formulas \(\Gamma\) and a formula \(\phi\), we say \(\Gamma\) \textbf{semantically entails} \(\phi\), written \(\Gamma \models \phi\), if for all models \(M\) and assignments \(\sigma\), if \(M, \sigma \models \psi\) for all \(\psi \in \Gamma\), then \(M, \sigma \models \phi\).
 
 \section{Unification}
 

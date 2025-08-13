@@ -58,7 +58,7 @@
 \Universita{Università degli Studi di Napoli Federico II}
 \Facolta{Scuola Politecnica e delle Scienze di Base}
 \Dipartimento{Dipartimento di Ingegneria Elettrica e Tecnologie dell'Informazione}
-\CorsoDiLaurea{Corso di Laurea Magistrale in Informatica}
+\CorsoDiLaurea{Corso di Laurea Triennale in Informatica}
 %\Materia{Verifica di Sistemi}
 \AnnoAccademico{2024--2025}
 \Titolo{Implementation of a decision procedure for the fluted fragment in Vampire}
@@ -75,6 +75,26 @@
 
 %custom hyphenation
 \hyphenation{ERTMS/ETCS}
+
+\newcommand{\ms}{\,}
+\tikzset{
+    syntree/.style={
+        level distance=1.5cm,
+        sibling distance=2cm,
+        % Stile per quantificatori (rettangolare)
+        quantifier/.style={draw, rectangle, align=center, 
+                           minimum width=1cm, minimum height=0.5cm, 
+                           inner sep=2pt},
+        % Stile per connettivi (diamond/rombo)
+        connective/.style={draw, diamond, align=center, 
+                          minimum width=1cm, minimum height=0.4cm,
+                          inner sep=1pt},
+        % Stile per literal/predicati (ellisse)
+        literal/.style={draw, ellipse, align=center, 
+                       minimum width=1cm, minimum height=0.4cm,
+                       inner sep=1pt}
+    }
+}
 
 \usepackage[title,titletoc]{appendix}
 
