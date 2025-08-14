@@ -17,6 +17,9 @@
   \renewcommand{\contentsname}%
     {\sffamily Contents}%
 }
+\let\openbox\relax
+\usepackage{amsthm}
+
 
 % Math
 \RequirePackage{mathtools}
@@ -75,6 +78,17 @@
 
 %custom hyphenation
 \hyphenation{ERTMS/ETCS}
+
+% Theorem-like environments
+
+\newtheorem{lemma}[theorem]{Lemma}     % Shares numbering with theorems
+\newtheorem{proposition}[theorem]{Proposition}
+
+% Optional: definitions and remarks with different style
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
 
 \newcommand{\ms}{\,}
 \tikzset{
