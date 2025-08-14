@@ -226,8 +226,7 @@ A \textbf{model} for a FOL language is a pair \(M = (D, I)\), where:
 
 The truth value of a formula \(\phi\) in a model \(M\) is determined by the interpretation function and the structure of the formula as follows:
 
-\subsubsection{Variable Assignment}
-\label{subsubsec:variable_assignment}
+\subsubsection{Variable Assignment}\label{subsubsec:variable_assignment}
 Given a model \(M = (D, I)\), a \textbf{variable assignment} (or \textbf{valuation}) is a function \(\sigma: \mathcal{V} \to D\) that assigns each variable to an element of the domain. We denote by \(\sigma[x \mapsto d]\) the assignment that is identical to \(\sigma\) except that it maps variable \(x\) to element \(d \in D\).
 
 \subsubsection{Term Evaluation}
@@ -261,8 +260,8 @@ The \textbf{satisfaction} of a formula \(\phi\) in model \(M\) under assignment 
   
   \item \textbf{Quantifiers:}
   \begin{itemize}
-    \item \(M, \sigma \models \forall x \, \phi\) if and only if for all \(d \in D\), \(M, \sigma[x \mapsto d] \models \phi\)
-    \item \(M, \sigma \models \exists x \, \phi\) if and only if there exists some \(d \in D\) such that \(M, \sigma[x \mapsto d] \models \phi\)
+    \item \(M, \sigma \models \forall x \ms \phi\) if and only if for all \(d \in D\), \(M, \sigma[x \mapsto d] \models \phi\)
+    \item \(M, \sigma \models \exists x \ms \phi\) if and only if there exists some \(d \in D\) such that \(M, \sigma[x \mapsto d] \models \phi\)
   \end{itemize}
 \end{itemize}
 
@@ -297,7 +296,7 @@ The word “simultaneously” means that each replacement is made with respect t
 
 For instance, if \(\tau = f(x_1, x_2)\), then:
 \begin{equation}
-\tau[x_1 \mapsto x_2, \, x_2 \mapsto x_1] = f(x_2, x_1)
+\tau[x_1 \mapsto x_2, \ms x_2 \mapsto x_1] = f(x_2, x_1)
 \end{equation}
 and not \(f(x_1, x_1)\), which would arise from sequential application.
 
@@ -352,7 +351,7 @@ If two terms are not unifiable, then at least one of the following holds:
 
 \subsection{Complexity of Unification}
 The computational complexity of unification has been extensively studied since the 1960s.
-Early approaches exhibited worst-case exponential behavior due to the difficulty of detecting variable obstructions efficiently~\cite{robinson1965}.
+Early approaches exhibited worst-case exponential behaviour due to the difficulty of detecting variable obstructions efficiently~\cite{robinson1965}.
 However, significant theoretical advances in the 1970s led to the development of linear-time unification algorithms that achieve \(O(n)\) complexity, where \(n\) is the combined size of the input terms~\cite{martelli1976, paterson1978}.
 
 These linear-time bounds represent optimal complexity for the unification problem, as any algorithm must examine all symbols in the input terms at least once.
@@ -361,7 +360,208 @@ The unification problem belongs to complexity class \textbf{P}, making it tracta
 
 
 \section{Skolemization and Normalization}
-\subsection{NNF, ENNF and CNF}
+
+\subsection{Skolemization}
+In the context of automated reasoning, \textbf{Skolemization} is the process of eliminating existential quantifiers from a formula by introducing new symbols called \textbf{Skolem functions} or \textbf{Skolem constants}~\cite{skolem1920,chang1997,baader2001}.  
+The result of Skolemization is not logically equivalent to the original formula, but it is \textbf{equisatisfiable}: both formulae are satisfiable in exactly the same set of interpretations.
+
+\subsubsection{Prenex Normal Form.}
+Before Skolemization is applied, it is standard to rewrite a first-order logic formula into \textbf{prenex normal form} (PNF).  
+A formula is in PNF if all its quantifiers are moved to the front as a \emph{quantifier prefix}, followed by a quantifier-free formula called \emph{matrix}.  
+For example:
+\[
+\forall x \ms \exists y \ms \forall z \ms \phi(x,y,z)
+\]
+is in PNF, where \(\phi\) contains no quantifiers.
+
+Formulae in PNF can be described by the following CFG\@:
+\begin{equation}
+  \begin{aligned}
+    S &\to Q \ms M \\
+    Q &\to \forall x \ms Q \mid \exists x \ms Q \mid \epsilon \\
+    M &\to P \mid M \land M \mid M \lor M
+  \end{aligned}
+  \quad\quad \text{where } P \in \mathcal{P}, x \in \mathcal{X}
+\end{equation}
+
+Every first-order logic formula can be transformed into an \emph{equivalent} formula in PNF by systematically moving quantifiers outward using equivalences such as:
+\[
+(\forall x \ms \phi) \land \psi \equiv \forall x (\phi \land \psi) 
+\quad
+(\forall x \ms \phi) \lor \psi \equiv \forall x (\phi \lor \psi)
+\]
+and by applying quantifier dualities:
+\[
+\neg \forall x \ms \phi \equiv \exists x \ms \neg \phi, 
+\quad
+\neg \exists x \ms \phi \equiv \forall x \ms \neg \phi.
+\]
+The equivalences are valid when \(x\) does not appear as a \textit{free variable} of \(\psi\); 
+if \(x\) does appear free in \(\psi\), one can rename the bound \(x\) in \((\exists x\ms\phi)\) 
+and obtain the equivalent \((\exists x'\ms\phi[x\mapsto x'])\).
+
+Transforming into PNF makes the scope and order of quantifiers explicit, which is essential for Skolemization.
+
+\begin{definition}
+Let a formula be in PNF\@:
+\[
+Q_1 x_1 \ms Q_2 x_2 \ms \dots \ms Q_n x_n \ms \psi
+\]
+where each \(Q_i \in \{\forall, \exists\}\) and \(\psi\) is quantifier-free.  
+For every existential quantifier \(\exists x_k\):
+\begin{itemize}
+  \item If \(x_k\) is not in the scope of any universal quantifier, replace it with a new constant symbol \(c\) (a \emph{Skolem constant}).
+  \item If \(x_k\) is in the scope of universal quantifiers over variables \(y_1, \dots, y_m\), replace \(x_k\) with a new function symbol \(f(y_1, \dots, y_m)\) (a \emph{Skolem function}) of arity \(m\).
+\end{itemize}
+All Skolem symbols introduced must be fresh, i.e., not present in the original signature.
+\end{definition}
+
+An example of this process is as follows:
+
+Consider the formula:
+\[
+\forall x \ms \exists y \ms P(x, y)
+\]
+Since \(y\) is existentially quantified within the scope of \(\forall x\), we introduce a Skolem function \(f(x)\):
+\[
+\forall x \ms P(x, f(x))
+\]
+The two formulae are equisatisfiable: any model of one can be extended to a model of the other by interpreting \(f\) appropriately.
+
+The Skolemization process fundamentally transforms the logical structure of a formula while preserving its essential satisfiability characteristics.
+Most notably, it completely eliminates all existential quantifiers from the formula, replacing them with concrete function or constant symbols that capture the dependencies between variables.
+This transformation is particularly valuable because it preserves satisfiability—meaning that the original formula has a model if and only if the Skolemized version does—but it does not preserve validity in the reverse direction.
+A formula that is valid before Skolemization may lose this property afterward, since the introduction of Skolem functions can create additional constraints that weren't present in the original formula.
+However, the resulting formula contains only universal quantifiers, which significantly simplifies the reasoning process by enabling purely universal reasoning techniques. 
+This uniform quantifier structure is especially advantageous for automated theorem provers, as it eliminates the need to handle the complex interactions between universal and existential quantifiers during proof search.
+
+\subsection{NNF and CNF}
+After Skolemization, it is common to transform formulae into restricted and more handleable syntactic forms.  
+This transformation typically proceeds through three stages:  
+\textbf{Negation Normal Form} (NNF), \textbf{Prenex Normal Form} (PNF), and \textbf{Clausal Normal Form} (CNF).
+
+\subsubsection{Negation Normal Form (NNF).}
+A formula is in NNF if it is described by the following CFG\@:
+\begin{equation}
+  \nu \to \top \ms|\ms \bot \ms|\ms L \ms|\ms \nu \land \nu \ms|\ms \nu \lor \nu \ms|\ms \forall x \ms \nu \ms|\ms \exists x \ms \nu
+\end{equation}
+where \(L\) is a \textit{literal}.
+In a practical sense, NNF transformation involves pushing negations inward and eliminating implications and biconditionals.
+In fact, every formula can be brought into this form by replacing implications (\(\implies\)) and equivalences (\(\iff\)) by their definitions, using De Morgan's laws to push negation inwards, and eliminating double negations. This process can be represented using the following rewrite rules:
+
+\begin{equation}
+  \begin{aligned}
+    \phi \implies \psi &\leadsto \neg \phi \lor \psi \\
+    \phi \iff \psi &\leadsto (\neg \phi \lor \psi) \land (\phi \lor \neg \psi) \\
+    \neg (\phi \lor \psi) &\leadsto \neg \phi \land \neg \psi \\
+    \neg (\phi \land \psi) &\leadsto \neg \phi \lor \neg \psi \\
+    \neg \neg \phi &\leadsto \phi \\
+    \neg \exists x \ms \phi &\leadsto \forall x \ms \neg \phi \\
+    \neg \forall x \ms \phi &\leadsto \exists x \ms \neg \phi
+  \end{aligned}
+\end{equation}
+
+\subsubsection{Clausal Normal Form (CNF).}
+A formula is in CNF if it is a conjunction of one or more \textbf{clauses}, each clause being a disjunction of literals.  
+As PNF and NNF, CNF can be described by a CFG too:
+\begin{equation}
+  \begin{aligned}
+    CNF &\to D \ms|\ms D \land CNF \\
+      D &\to L \ms|\ms L \lor D
+  \end{aligned}
+\end{equation}
+where \(L\) is a literal.
+
+Every formula can be transformed into CNF by first transforming it into NNF, then into PNF, removing existential quantifiers with Skolemization, and finally applying distribution to obtain CNF\@.
+Often, CNF formulae are represented as sets of clauses with the following notation:
+\[
+(A \lor B) \land (C \lor D) \equiv \{\ms A \ms|\ms B\ms,\ms C \ms|\ms D\ms\}
+\]
+
+As an example of the full pipeline of the transformation from general formula to CNF, for the formula \( \forall x\ms\big(\ms(\exists y\ms P(x,y)) \leftrightarrow Q(x)\ms\big)\)
+is the following:
+\begin{enumerate}
+    \item \textbf{Convert to NNF:}
+    \begin{itemize}
+        \item Eliminate \(\iff\):
+          \[\forall x \ms\big( (\neg \exists y_1\ms P(x,y_1) \lor Q(x)) \land (\neg Q(x) \lor \exists y_2\ms P(x,y_2))\big)\]
+        \item Push negation inward using De Morgan's laws and quantifier duality:
+    \end{itemize}
+    \[
+    \forall x\ms\Big(\big(\forall y\ms\neg P(x,y)\ \lor\ Q(x)\big)\ \land\ \big(\neg Q(x)\ \lor\ \exists y\ms P(x,y)\big)\Big)
+    \]
+    
+    \item \textbf{Convert to Prenex Normal Form (PNF):}
+    \begin{itemize}
+        \item Move quantifiers to the front\footnote{A variable renaming in this step was also made to avoid conflicts}:
+    \end{itemize}
+    \[
+    \forall x\ms\forall y_1\ms\exists y_2\ms
+    \Big((\neg P(x,y_1)\lor Q(x)) \land (\neg Q(x)\lor P(x,y_2))\Big)
+    \]
+    
+    \item \textbf{Skolemization:}
+    \begin{itemize}
+        \item Replace \(\exists y_2\) (in scope of \(\forall x,\forall y_1\)) with Skolem function \(f(x,y_1)\):
+    \end{itemize}
+    \[
+    \forall x\ms\forall y_1\ms
+    \Big((\neg P(x,y_1)\lor Q(x)) \land (\neg Q(x)\lor P(x,f(x,y_1)))\Big)
+    \]
+    
+    \item \textbf{Convert to CNF:}
+    \begin{itemize}
+        \item Drop universal quantifiers and write as set of clauses:
+        \[
+          \{\ms\neg P(x,y)\ms|\ms Q(x)\ms,\ms\neg Q(x)\ms|\ms P(x,f(x,y))\ms\}
+        \]
+    \end{itemize}
+    
+\end{enumerate}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+      node distance=2.2cm and 0.8cm,
+      stage/.style={draw, rounded corners=3pt, fill=gray!10, align=center, inner sep=4pt, minimum height=2.8cm},
+      >=Latex
+    ]
+
+    % Nodes arranged vertically for better readability
+    \node[stage, text width=7cm] (raw) {\textbf{Raw Formula} \\[4pt]
+      \(\displaystyle \phi_0 = \forall x\ms\big(\ms(\exists y\ms P(x,y)) \iff Q(x)\ms\big)\)};
+
+    \node[stage, below=of raw, text width=7cm] (nnf) {\textbf{Negation Normal Form (NNF)}\\[4pt]
+      \(\displaystyle \forall x\ms\Big(\big(\forall y\ms\neg P(x,y)\ \lor\ Q(x)\big)\) \\
+      \(\displaystyle \qquad\land\ \big(\neg Q(x)\ \lor\ \exists y\ms P(x,y)\big)\Big)\)};
+
+    \node[stage, below=of nnf, text width=7cm] (pnf) {\textbf{Prenex Normal Form (PNF)}\\[4pt]
+      \(\displaystyle \forall x\ms\forall y_1\ms\exists y_2\ms\)\\
+      \(\displaystyle \Big((\neg P(x,y_1)\lor Q(x)) \land (\neg Q(x)\lor P(x,y_2))\Big)\)};
+
+    \node[stage, below=of pnf, text width=7cm] (sko) {\textbf{Skolemization}\\[4pt]
+      \(\displaystyle \forall x\ms\forall y_1\ms\)\\
+      \(\displaystyle \Big((\neg P(x,y_1)\lor Q(x)) \land (\neg Q(x)\lor P(x,f(x,y_1)))\Big)\)};
+
+    \node[stage, below=of sko, text width=7cm] (cnf) {\textbf{Clausal Normal Form (CNF)}\\[4pt]
+      \(\{\ms\neg P(x,y),\ms Q(x)\ms\}\)\\
+      \(\{\ms\neg Q(x),\ms P(x,f(x,y))\ms\}\)};
+
+    % Arrows
+    \draw[->] (raw) -- node[right, text width=3cm, align=left]{\small Eliminate\\biconditionals} (nnf);
+    \draw[->] (nnf) -- node[right, text width=3cm, align=left]{\small Standardize\\variables} (pnf);
+    \draw[->] (pnf) -- node[right, text width=3cm, align=left]{\small Introduce Skolem\\functions} (sko);
+    \draw[->] (sko) -- node[right, text width=3cm, align=left]{\small Convert to\\clause form} (cnf);
+
+  \end{tikzpicture}
+  \caption{Pipeline: Raw formula \(\rightarrow\) NNF \(\rightarrow\) PNF \(\rightarrow\) Skolemization \(\rightarrow\) CNF.}\label{fig:nnf-to-cnf-pipeline}
+\end{figure}
+
+
+Transforming formulae into CNF is a prerequisite for many automated reasoning techniques, particularly \textit{resolution}~\cite{chang1997}.  
+By ensuring that the input is in a uniform syntactic format, inference rules can be applied in a purely mechanical way without further structural transformations.
+
+
 
 \section{Naming}
 
