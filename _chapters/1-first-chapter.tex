@@ -527,7 +527,7 @@ By ensuring that the input is in a uniform syntactic format, inference rules can
 
 This pipeline of transformations, combined with \textit{naming}, is also called \textbf{clausification} and  constitutes the \textbf{preprocessing} phase of automated reasoning systems, a crucial step to prepare formulae for \textit{inferences}.
 
-\subsection{Auxiliary Predicate Introduction in First-Order Logic}
+\section{Auxiliary Predicate Introduction}
 
 In the transformation of first-order logic (FOL) formulas, particularly when converting to clausal form, it is often advantageous to introduce \emph{auxiliary predicates} to represent complex subformulae. The general idea is to replace a subformula \(\psi(\bar{x})\) with\footnote{Here the notation \(\bar{x}\) is used as usual to indicate a sequence of variables} a fresh predicate symbol \(P(\bar{x})\) that does not occur in the original vocabulary, and to accompany this replacement with a \emph{defining axiom} of the form
 \[
