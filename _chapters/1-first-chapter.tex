@@ -33,6 +33,8 @@ As we will see later, this clear separation is crucial for the development of au
 
 In order to preserve the truth value of statements during this manipulation process, we cannot rely on the syntactic structure alone; we must define a set of rules that act only on the syntactic structure while ensuring truth preservation.
 This set of rules is called \textbf{inference rules}, and they allow us to derive new statements from existing ones without altering their truth value.
+A full exploration of these rules, which form the core of automated reasoning, is reserved for a later chapter. However, a simple example is the well-known rule of \textit{Modus Ponens}, which states that if we know that both \(A\) and \(A\implies B\) are true, then we can conclude \(B\). This illustrates how a new truth can be derived purely from the syntactic form of existing statements.
+
 \section{From Terms to Sentences}
 
 First and foremost, we need to rigorously define the structure of first-order logic.
@@ -63,8 +65,6 @@ In particular, the principal connectives used in FOL are:
   \item \textbf{Biconditional} (\(\iff\)): This connective expresses an equivalence between two formulae. The new formula is \textbf{true} if both formulae have the same truth value.
 \end{itemize}
 
-A \textbf{literal} is either a positive atomic formula or a negated atomic formula.
-
 \subsection{Syntax}
 
 The syntax of FOL formulae can be formalized with a \textit{context free grammar} (CFG).
@@ -79,17 +79,17 @@ where:
   \item \(\Sigma = \mathcal{V} \cup \mathcal{C} \cup \mathcal{F} \cup \mathcal{P} \cup \{\forall, \exists, \land, \lor, \neg, \implies, \iff, \left(,\right), \top, \bot\}\)
    \item \(R\) = \begin{flalign}
     \begin{aligned}
-      \tau \rightarrow \ms &x \in \mathcal{V} \ms|\ms 
-                        c \in \mathcal{C} \ms|\ms 
+      \tau \rightarrow  \ms  &x \in \mathcal{V}  \ms | \ms  
+                        c \in \mathcal{C}  \ms | \ms  
                         f(\tau,\ldots,\tau) \in \mathcal{F} \\
-      \alpha \rightarrow \ms &P(\tau,\ldots,\tau), P \in \mathcal{P} \\
-      \phi \rightarrow \ms & \ms|\ms \alpha \ms|\ms \top \ms|\ms \bot \ms|\ms 
-       \neg\phi \ms|
+      \alpha \rightarrow  \ms  &P(\tau,\ldots,\tau), P \in \mathcal{P} \\
+      \phi \rightarrow  \ms  &\alpha  \ms | \ms  \top  \ms | \ms  \bot  \ms | \ms  
+       \neg\phi  \ms |
        \left(\phi\land\phi\right) |
        \left(\phi\lor\phi\right) |
        \left(\phi\implies\phi\right) |
-       \left(\phi\iff\phi\right) | \ms
-       \forall x\left(\phi\right) \ms|\ms
+       \left(\phi\iff\phi\right) |  \ms 
+       \forall x\left(\phi\right)  \ms | \ms 
        \exists x\left(\phi\right)
     \end{aligned} &&
   \end{flalign}
@@ -260,8 +260,8 @@ The \textbf{satisfaction} of a formula \(\phi\) in model \(M\) under assignment 
   
   \item \textbf{Quantifiers:}
   \begin{itemize}
-    \item \(M, \sigma \models \forall x \ms \phi\) if and only if for all \(d \in D\), \(M, \sigma[x \mapsto d] \models \phi\)
-    \item \(M, \sigma \models \exists x \ms \phi\) if and only if there exists some \(d \in D\) such that \(M, \sigma[x \mapsto d] \models \phi\)
+    \item \(M, \sigma \models \forall x  \ms  \phi\) if and only if for all \(d \in D\), \(M, \sigma[x \mapsto d] \models \phi\)
+    \item \(M, \sigma \models \exists x  \ms  \phi\) if and only if there exists some \(d \in D\) such that \(M, \sigma[x \mapsto d] \models \phi\)
   \end{itemize}
 \end{itemize}
 
@@ -274,7 +274,21 @@ A formula \(\phi\) is:
 \end{itemize}
 
 For a set of formulae \(\Gamma\) and a formula \(\phi\), we say \(\Gamma\) \textbf{semantically entails} \(\phi\), written \(\Gamma \models \phi\), if for all models \(M\) and assignments \(\sigma\):
-  \[M, \sigma \models \psi \rightarrow M, \sigma \models \phi,\ms \text{for all } \psi \in \Gamma\]
+  \[\text{if } M, \sigma \models \psi \text{ for all } \psi \in \Gamma, \text{ then } M, \sigma \models \phi\]
+
+It is worth noticing that satisfiability and validity are closely related:
+\begin{theorem}[Validity-Satisfiability Reduction]\label{thm:validity_satisfiability_reduction}
+A formula \(\phi\) is valid if and only if \(\neg\phi\) is unsatisfiable. Formally:
+\[\models \phi \iff \neg\phi \text{ is unsatisfiable}\]
+\end{theorem}
+
+\begin{proof}[Proof Sketch]
+To prove this theorem, we need to show both directions of the equivalence.
+  \begin{description}
+    \item[(\(\Rightarrow\))] If \(\phi\) is valid, then \(M, \sigma \models \phi\) for all models \(M\) and assignments \(\sigma\). Therefore, \(M, \sigma \not\models \neg\phi\) for all \(M, \sigma\), making \(\neg\phi\) unsatisfiable.
+    \item[(\(\Leftarrow\))] If \(\neg\phi\) is unsatisfiable, then there is no model \(M\) and assignment \(\sigma\) such that \(M, \sigma \models \neg\phi\). Therefore, for all \(M, \sigma\), we have \(M, \sigma \models \phi\), making \(\phi\) valid.
+  \end{description}
+\end{proof}
 
 
 \section{Substitutions and Unification}
@@ -296,7 +310,7 @@ The word “simultaneously” means that each replacement is made with respect t
 
 For instance, if \(\tau = f(x_1, x_2)\), then:
 \begin{equation}
-\tau[x_1 \mapsto x_2, \ms x_2 \mapsto x_1] = f(x_2, x_1)
+\tau[x_1 \mapsto x_2,  \ms  x_2 \mapsto x_1] = f(x_2, x_1)
 \end{equation}
 and not \(f(x_1, x_1)\), which would arise from sequential application.
 
@@ -340,14 +354,13 @@ When attempting to unify two terms, two main forms of obstruction can occur:
     are not unifiable because \(x_1\) occurs inside \(k(x_1)\).
 \end{enumerate}
 
-\begin{proposition}
-If two terms are not unifiable, then at least one of the following holds:
+In general so, if two terms are not unifiable, then at least one of the following holds:
 \begin{enumerate}
     \item The terms have different arities.
     \item The terms exhibit a function obstruction.
     \item The terms exhibit a variable obstruction.
 \end{enumerate}
-\end{proposition}
+
 
 \subsection{Complexity of Unification}
 The computational complexity of unification has been extensively studied since the 1960s.
@@ -361,91 +374,19 @@ The unification problem belongs to complexity class \textbf{P}, making it tracta
 
 \section{Skolemization and Normalization}
 
-\subsection{Skolemization}
-In the context of automated reasoning, \textbf{Skolemization} is the process of eliminating existential quantifiers from a formula by introducing new symbols called \textbf{Skolem functions} or \textbf{Skolem constants}~\cite{skolem1920,chang1997,baader2001}.  
-The result of Skolemization is not logically equivalent to the original formula, but it is \textbf{equisatisfiable}: both formulae are satisfiable in exactly the same set of interpretations.
+Often times, First-Order formulae undergo a series of transformations to prepare them for automated reasoning tasks.
+These transformations include renaming variables, converting to normal forms, and Skolemization.
+Raw first-order logic formulae, as naturally expressed, are typically not in a form that automated theorem provers and inference engines can efficiently process.
+The transformation process standardizes the syntactic structure of formulae, eliminates certain logical constructs that complicate automated reasoning, and converts them into canonical forms that enable the systematic application of inference rules and resolution procedures.
 
-\subsubsection{Prenex Normal Form.}
-Before Skolemization is applied, it is standard to rewrite a first-order logic formula into \textbf{prenex normal form} (PNF).  
-A formula is in PNF if all its quantifiers are moved to the front as a \emph{quantifier prefix}, followed by a quantifier-free formula called \emph{matrix}.  
-For example:
-\[
-\forall x \ms \exists y \ms \forall z \ms \phi(x,y,z)
-\]
-is in PNF, where \(\phi\) contains no quantifiers.
+\subsection{Negated Normal Form}
+The first transformation applied is to convert the formula into \textbf{negated normal form} (NNF).
 
-Formulae in PNF can be described by the following CFG\@:
-\begin{equation}
-  \begin{aligned}
-    S &\to Q \ms M \\
-    Q &\to \forall x \ms Q \mid \exists x \ms Q \mid \epsilon \\
-    M &\to P \mid M \land M \mid M \lor M
-  \end{aligned}
-  \quad\quad \text{where } P \in \mathcal{P}, x \in \mathcal{X}
-\end{equation}
-
-Every first-order logic formula can be transformed into an \emph{equivalent} formula in PNF by systematically moving quantifiers outward using equivalences such as:
-\[
-(\forall x \ms \phi) \land \psi \equiv \forall x (\phi \land \psi) 
-\quad
-(\forall x \ms \phi) \lor \psi \equiv \forall x (\phi \lor \psi)
-\]
-and by applying quantifier dualities:
-\[
-\neg \forall x \ms \phi \equiv \exists x \ms \neg \phi, 
-\quad
-\neg \exists x \ms \phi \equiv \forall x \ms \neg \phi.
-\]
-The equivalences are valid when \(x\) does not appear as a \textit{free variable} of \(\psi\); 
-if \(x\) does appear free in \(\psi\), one can rename the bound \(x\) in \((\exists x\ms\phi)\) 
-and obtain the equivalent \((\exists x'\ms\phi[x\mapsto x'])\).
-
-Transforming into PNF makes the scope and order of quantifiers explicit, which is essential for Skolemization.
-
-\begin{definition}
-Let a formula be in PNF\@:
-\[
-Q_1 x_1 \ms Q_2 x_2 \ms \dots \ms Q_n x_n \ms \psi
-\]
-where each \(Q_i \in \{\forall, \exists\}\) and \(\psi\) is quantifier-free.  
-For every existential quantifier \(\exists x_k\):
-\begin{itemize}
-  \item If \(x_k\) is not in the scope of any universal quantifier, replace it with a new constant symbol \(c\) (a \emph{Skolem constant}).
-  \item If \(x_k\) is in the scope of universal quantifiers over variables \(y_1, \dots, y_m\), replace \(x_k\) with a new function symbol \(f(y_1, \dots, y_m)\) (a \emph{Skolem function}) of arity \(m\).
-\end{itemize}
-All Skolem symbols introduced must be fresh, i.e., not present in the original signature.
-\end{definition}
-
-An example of this process is as follows:
-
-Consider the formula:
-\[
-\forall x \ms \exists y \ms P(x, y)
-\]
-Since \(y\) is existentially quantified within the scope of \(\forall x\), we introduce a Skolem function \(f(x)\):
-\[
-\forall x \ms P(x, f(x))
-\]
-The two formulae are equisatisfiable: any model of one can be extended to a model of the other by interpreting \(f\) appropriately.
-
-The Skolemization process fundamentally transforms the logical structure of a formula while preserving its essential satisfiability characteristics.
-Most notably, it completely eliminates all existential quantifiers from the formula, replacing them with concrete function or constant symbols that capture the dependencies between variables.
-This transformation is particularly valuable because it preserves satisfiability—meaning that the original formula has a model if and only if the Skolemized version does—but it does not preserve validity in the reverse direction.
-A formula that is valid before Skolemization may lose this property afterward, since the introduction of Skolem functions can create additional constraints that weren't present in the original formula.
-However, the resulting formula contains only universal quantifiers, which significantly simplifies the reasoning process by enabling purely universal reasoning techniques. 
-This uniform quantifier structure is especially advantageous for automated theorem provers, as it eliminates the need to handle the complex interactions between universal and existential quantifiers during proof search.
-
-\subsection{NNF and CNF}
-After Skolemization, it is common to transform formulae into restricted and more handleable syntactic forms.  
-This transformation typically proceeds through three stages:  
-\textbf{Negation Normal Form} (NNF), \textbf{Prenex Normal Form} (PNF), and \textbf{Clausal Normal Form} (CNF).
-
-\subsubsection{Negation Normal Form (NNF).}
 A formula is in NNF if it is described by the following CFG\@:
 \begin{equation}
-  \nu \to \top \ms|\ms \bot \ms|\ms L \ms|\ms \nu \land \nu \ms|\ms \nu \lor \nu \ms|\ms \forall x \ms \nu \ms|\ms \exists x \ms \nu
+  \nu \to \top  \ms | \ms  \bot  \ms | \ms  L  \ms | \ms  \nu \land \nu  \ms | \ms  \nu \lor \nu  \ms | \ms  \forall x  \ms  \nu  \ms | \ms  \exists x  \ms  \nu \quad\quad \text{where } L \text{is a literal}
 \end{equation}
-where \(L\) is a \textit{literal}.
+where \(L\) is a \textit{literal}, that is defined as an atomic formula or its negation.
 In a practical sense, NNF transformation involves pushing negations inward and eliminating implications and biconditionals.
 In fact, every formula can be brought into this form by replacing implications (\(\implies\)) and equivalences (\(\iff\)) by their definitions, using De Morgan's laws to push negation inwards, and eliminating double negations. This process can be represented using the following rewrite rules:
 
@@ -456,65 +397,93 @@ In fact, every formula can be brought into this form by replacing implications (
     \neg (\phi \lor \psi) &\leadsto \neg \phi \land \neg \psi \\
     \neg (\phi \land \psi) &\leadsto \neg \phi \lor \neg \psi \\
     \neg \neg \phi &\leadsto \phi \\
-    \neg \exists x \ms \phi &\leadsto \forall x \ms \neg \phi \\
-    \neg \forall x \ms \phi &\leadsto \exists x \ms \neg \phi
+    \neg \exists x  \ms  \phi &\leadsto \forall x  \ms  \neg \phi \\
+    \neg \forall x  \ms  \phi &\leadsto \exists x  \ms  \neg \phi
   \end{aligned}
 \end{equation}
 
-\subsubsection{Clausal Normal Form (CNF).}
+The NNF version of a formula is \textit{equivalent} to the original formula, meaning they have the same truth value in every model.
+
+\subsection{Skolemization}
+In the context of automated reasoning, \textbf{Skolemization} is the process of eliminating existential quantifiers from a formula by introducing new symbols called \textbf{Skolem functions} or \textbf{Skolem constants}~\cite{skolem1920}.  
+The result of Skolemization is not logically equivalent to the original formula, but it is \textbf{equisatisfiable}: both formulae are satisfiable in exactly the same set of interpretations.
+The process of Skolemization goes as follows:
+
+Let \(\phi\) be a formula in NNF\@. For every existential quantifier \(\exists x_k\) in \(\phi\):
+\begin{itemize}
+  \item If \(x_k\) is not in the scope of any universal quantifier, replace it with a new constant symbol \(c\) (a \emph{Skolem constant}).
+  \item If \(x_k\) is in the scope of universal quantifiers over variables \(y_1, \dots, y_m\), replace \(x_k\) with a new function symbol \(f(y_1, \dots, y_m)\) (a \emph{Skolem function}) of arity \(m\), where \(y_1, \dots, y_m\) are all the universally quantified variables whose quantifiers appear in positions that bind variables free in the scope of \(\exists x_k\).
+\end{itemize}
+All Skolem symbols introduced must be fresh, i.e., not present in the original signature.
+
+
+An example of this process is as follows:
+
+Consider the formula:
+\[
+\forall x \: \exists y \: P(x, y)
+\]
+Since \(y\) is existentially quantified within the scope of \(\forall x\), we introduce a Skolem function \(f(x)\):
+\[
+\forall x \: P(x, f(x))
+\]
+
+The Skolemization process fundamentally transforms the logical structure of a formula while preserving its essential satisfiability characteristics.
+Most notably, it completely eliminates all existential quantifiers from the formula, replacing them with concrete function or constant symbols that capture the dependencies between variables.
+This transformation is particularly valuable because it preserves satisfiability—meaning that the original formula has a model if and only if the Skolemized version does—but it does not preserve validity in the reverse direction.
+A formula that is valid before Skolemization may lose this property afterward, since the introduction of Skolem functions can create additional constraints that weren't present in the original formula.
+However, the resulting formula contains only universal quantifiers, which significantly simplifies the reasoning process by enabling purely universal reasoning techniques. 
+This uniform quantifier structure is especially advantageous for automated theorem provers, as it eliminates the need to handle the complex interactions between universal and existential quantifiers during proof search.
+
+\subsection{Clausal Normal Form (CNF).}
 A formula is in CNF if it is a conjunction of one or more \textbf{clauses}, each clause being a disjunction of literals.  
-As PNF and NNF, CNF can be described by a CFG too:
+As NNF, CNF can be described by a CFG too:
 \begin{equation}
   \begin{aligned}
-    CNF &\to D \ms|\ms D \land CNF \\
-      D &\to L \ms|\ms L \lor D
+    CNF &\to D  \ms | \ms  D \land CNF \\
+      D &\to L  \ms | \ms  L \lor D
   \end{aligned}
 \end{equation}
 where \(L\) is a literal.
 
-Every formula can be transformed into CNF by first transforming it into NNF, then into PNF, removing existential quantifiers with Skolemization, and finally applying distribution to obtain CNF\@.
+Every NNF formula, after undergoing Skolemization, can be transformed into CNF by applying \(\land\) and \(\lor\) distribution rules and dropping universal quantifiers.
 Often, CNF formulae are represented as sets of clauses with the following notation:
 \[
-(A \lor B) \land (C \lor D) \equiv \{\ms A \ms|\ms B\ms,\ms C \ms|\ms D\ms\}
+(A \lor B) \land (C \lor D) \equiv \{\{A , B\} \ms , \ms \{C , D\}\}
 \]
 
-As an example of the full pipeline of the transformation from general formula to CNF, for the formula \( \forall x\ms\big(\ms(\exists y\ms P(x,y)) \leftrightarrow Q(x)\ms\big)\)
+As an example of the full pipeline of the transformation from general formula to CNF, for the formula \( \forall x  \ms \big( \ms (\exists y  \ms   P(x,y)) \leftrightarrow Q(x)  \ms  \big)\)
 is the following:
 \begin{enumerate}
     \item \textbf{Convert to NNF:}
     \begin{itemize}
         \item Eliminate \(\iff\):
-          \[\forall x \ms\big( (\neg \exists y_1\ms P(x,y_1) \lor Q(x)) \land (\neg Q(x) \lor \exists y_2\ms P(x,y_2))\big)\]
+          \[\forall x  \ms \big( (\neg \exists y_1 \ms  P(x,y_1) \lor Q(x)) \land (\neg Q(x) \lor \exists y_2 \ms  P(x,y_2))\big)\]
         \item Push negation inward using De Morgan's laws and quantifier duality:
     \end{itemize}
     \[
-    \forall x\ms\Big(\big(\forall y\ms\neg P(x,y)\ \lor\ Q(x)\big)\ \land\ \big(\neg Q(x)\ \lor\ \exists y\ms P(x,y)\big)\Big)
+    \forall x \ms \Big(\big(\forall y \ms \neg P(x,y)\ \lor\ Q(x)\big)\ \land\ \big(\neg Q(x)\ \lor\ \exists y \ms  P(x,y)\big)\Big)
     \]
     
-    \item \textbf{Convert to Prenex Normal Form (PNF):}
-    \begin{itemize}
-        \item Move quantifiers to the front\footnote{A variable renaming in this step was also made to avoid conflicts}:
-    \end{itemize}
-    \[
-    \forall x\ms\forall y_1\ms\exists y_2\ms
-    \Big((\neg P(x,y_1)\lor Q(x)) \land (\neg Q(x)\lor P(x,y_2))\Big)
-    \]
     
     \item \textbf{Skolemization:}
     \begin{itemize}
-        \item Replace \(\exists y_2\) (in scope of \(\forall x,\forall y_1\)) with Skolem function \(f(x,y_1)\):
+        \item Replace \(\exists y\) (in scope of \(\forall x\)) with Skolem function \(f(x)\):
     \end{itemize}
     \[
-    \forall x\ms\forall y_1\ms
-    \Big((\neg P(x,y_1)\lor Q(x)) \land (\neg Q(x)\lor P(x,f(x,y_1)))\Big)
+      \forall x \ms \Big(\big(\forall y \ms \neg P(x,y)\ \lor\ Q(x)\big)\ \land\ \big(\neg Q(x)\ \lor\ P(x,f(x))\big)\Big)
     \]
-    
+    \\
     \item \textbf{Convert to CNF:}
     \begin{itemize}
-        \item Drop universal quantifiers and write as set of clauses:
-        \[
-          \{\ms\neg P(x,y)\ms|\ms Q(x)\ms,\ms\neg Q(x)\ms|\ms P(x,f(x,y))\ms\}
-        \]
+    \item Move all universal quantifiers to the front:
+    \[
+      \forall x \ms  \forall y \ms  \Big(\big(\neg P(x,y)\ \lor\ Q(x)\big)\ \land\ \big(\neg Q(x)\ \lor\ P(x,f(x))\big)\Big)
+    \]
+    \item Drop universal quantifiers and write as set of clauses:
+    \[
+      \{\{\neg P(x,y), Q(x)\}, \ms  \{\neg Q(x), P(x,f(x))\}\}
+    \]
     \end{itemize}
     
 \end{enumerate}
@@ -522,179 +491,109 @@ is the following:
 \begin{figure}[H]
   \centering
   \begin{tikzpicture}[
+      scale=0.8, % <-- SCALING FACTOR
+      transform shape, % <-- ENSURE NODES AND TEXT ARE SCALED
       node distance=2.2cm and 0.8cm,
       stage/.style={draw, rounded corners=3pt, fill=gray!10, align=center, inner sep=4pt, minimum height=2.8cm},
       >=Latex
     ]
 
     % Nodes arranged vertically for better readability
-    \node[stage, text width=7cm] (raw) {\textbf{Raw Formula} \\[4pt]
-      \(\displaystyle \phi_0 = \forall x\ms\big(\ms(\exists y\ms P(x,y)) \iff Q(x)\ms\big)\)};
+    \node[stage] (raw) {\textbf{Raw Formula} \\[4pt]
+      \(\displaystyle \forall x \ms \big( \ms (\exists y \ms  P(x,y)) \iff Q(x) \ms \big)\)};
 
-    \node[stage, below=of raw, text width=7cm] (nnf) {\textbf{Negation Normal Form (NNF)}\\[4pt]
-      \(\displaystyle \forall x\ms\Big(\big(\forall y\ms\neg P(x,y)\ \lor\ Q(x)\big)\) \\
-      \(\displaystyle \qquad\land\ \big(\neg Q(x)\ \lor\ \exists y\ms P(x,y)\big)\Big)\)};
+    \node[stage, below=of raw] (nnf) {\textbf{Negation Normal Form (NNF)}\\[4pt]
+      \(\displaystyle \forall x \ms \Big(\big(\forall y \ms \neg P(x,y)\ \lor\ Q(x)\big) \land\ \big(\neg Q(x)\ \lor\ \exists y \ms  P(x,y)\big)\Big)\)};
 
-    \node[stage, below=of nnf, text width=7cm] (pnf) {\textbf{Prenex Normal Form (PNF)}\\[4pt]
-      \(\displaystyle \forall x\ms\forall y_1\ms\exists y_2\ms\)\\
-      \(\displaystyle \Big((\neg P(x,y_1)\lor Q(x)) \land (\neg Q(x)\lor P(x,y_2))\Big)\)};
 
-    \node[stage, below=of pnf, text width=7cm] (sko) {\textbf{Skolemization}\\[4pt]
-      \(\displaystyle \forall x\ms\forall y_1\ms\)\\
-      \(\displaystyle \Big((\neg P(x,y_1)\lor Q(x)) \land (\neg Q(x)\lor P(x,f(x,y_1)))\Big)\)};
+    \node[stage, below=of nnf] (sko) {\textbf{Skolemization}\\[4pt]
+      \(\displaystyle \forall x \ms \Big(\big(\forall y \ms \neg P(x,y)\ \lor\ Q(x)\big)\ \land\ \big(\neg Q(x)\ \lor\ P(x,f(x))\big)\Big)\)};
 
-    \node[stage, below=of sko, text width=7cm] (cnf) {\textbf{Clausal Normal Form (CNF)}\\[4pt]
-      \(\{\ms\neg P(x,y),\ms Q(x)\ms\}\)\\
-      \(\{\ms\neg Q(x),\ms P(x,f(x,y))\ms\}\)};
+    \node[stage, below=of sko] (cnf) {\textbf{Clausal Normal Form (CNF)}\\[4pt]
+      \(\{\{ \ms \neg P(x,y), \ms  Q(x) \ms \} \ms , \ms \{ \ms \neg Q(x), \ms  P(x,f(x)) \ms \}\}\)};
 
     % Arrows
     \draw[->] (raw) -- node[right, text width=3cm, align=left]{\small Eliminate\\biconditionals} (nnf);
-    \draw[->] (nnf) -- node[right, text width=3cm, align=left]{\small Standardize\\variables} (pnf);
-    \draw[->] (pnf) -- node[right, text width=3cm, align=left]{\small Introduce Skolem\\functions} (sko);
+    \draw[->] (nnf) -- node[right, text width=3cm, align=left]{\small Introduce Skolem\\functions} (sko);
     \draw[->] (sko) -- node[right, text width=3cm, align=left]{\small Convert to\\clause form} (cnf);
 
   \end{tikzpicture}
-  \caption{Pipeline: Raw formula \(\rightarrow\) NNF \(\rightarrow\) PNF \(\rightarrow\) Skolemization \(\rightarrow\) CNF.}\label{fig:nnf-to-cnf-pipeline}
+  \caption{Clausification: Raw formula \(\rightarrow\) NNF  \(\rightarrow\) Skolemization \(\rightarrow\) CNF.}\label{fig:nnf-to-cnf-pipeline}
 \end{figure}
 
 
 Transforming formulae into CNF is a prerequisite for many automated reasoning techniques, particularly \textit{resolution}~\cite{chang1997}.  
 By ensuring that the input is in a uniform syntactic format, inference rules can be applied in a purely mechanical way without further structural transformations.
 
-This pipeline of transformations, combined with \textit{naming} is what consitute the \textbf{preprocessing} phase of automated reasoning systems, a crucial step to prepare formulae for \textit{inferences}.
+This pipeline of transformations, combined with \textit{naming}, is also called \textbf{clausification} and  constitutes the \textbf{preprocessing} phase of automated reasoning systems, a crucial step to prepare formulae for \textit{inferences}.
+
+\subsection{Auxiliary Predicate Introduction in First-Order Logic}
+
+In the transformation of first-order logic (FOL) formulas, particularly when converting to clausal form, it is often advantageous to introduce \emph{auxiliary predicates} to represent complex subformulae. The general idea is to replace a subformula \(\psi(\bar{x})\) with\footnote{Here the notation \(\bar{x}\) is used as usual to indicate a sequence of variables} a fresh predicate symbol \(P(\bar{x})\) that does not occur in the original vocabulary, and to accompany this replacement with a \emph{defining axiom} of the form
+\[
+\forall \bar{x}\ \big(P(\bar{x}) \iff \psi(\bar{x})\big).
+\]
+This method is referred to in the literature under various names, including \emph{auxiliary predicate introduction}, \emph{definition introduction}, and, in some contexts, \emph{axiomatization}. The defining axiom ensures that \(P\) is logically equivalent to the original subformula, thereby preserving satisfiability and logical consequence.
+
+One of the main motivations for this technique in automated theorem proving is the avoidance of an exponential increase in formula size during \emph{clausification}.
+A naïve elimination of biconditionals and the distribution of disjunctions over conjunctions can lead to a number of clauses that grows exponentially with the size of the input.
+By introducing auxiliary predicates for large or deeply nested subformulae, the number of resulting clauses can be kept proportional to the size of the original formula.
+
+Another important application arises in the context of syntactically restricted fragments of FOL, such as the \emph{guarded fragment} or the \emph{fluted fragment}.
+In these fragments, unrestricted formula transformations may produce formulas that fall outside the fragment, thereby forfeiting desirable properties such as decidability or favourable complexity bounds.
+Here, auxiliary predicate introduction serves as a \emph{structure-preserving} transformation: rather than expanding a subformula in a way that would violate syntactic restrictions, a fresh predicate is introduced, with a defining axiom that maintains semantic equivalence while preserving the fragment membership of the formula.
+
+\subsection{Polarity of Subformulae}
+
+The concept of \emph{polarity} provides a finer-grained analysis of where and how a subformula occurs within a larger formula.
+Intuitively, polarity describes whether an occurrence of a subformula is in a \emph{positive}, \emph{negative}, or \emph{neutral} position.
+A subformula occurs positively if it is under the scope of an even number of negations, and negatively if it is under the scope of an odd number of negations.
+The \emph{neutral} (or \emph{zero}) polarity occurs in positions where a subformula is required in both directions of entailment, most notably when it appears under a biconditional, where neither purely positive nor purely negative reasoning suffices.
+
+Polarity is defined inductively as follows:
+\[
+\begin{aligned}
+&\text{(Base case)} && \mathrm{pol}(\varphi) = + \quad \text{if } \varphi \text{ is the whole formula}, \\[2pt]
+&\text{(Negation)} && \mathrm{pol}(\neg \varphi) = -\mathrm{pol}(\varphi), \\[2pt]
+&\text{(Conjunction / Disjunction)} && 
+\begin{cases}
+\mathrm{pol}(\varphi) = \mathrm{pol}(\varphi \landor \psi), \\
+\mathrm{pol}(\psi) = \mathrm{pol}(\varphi \landor \psi),
+\end{cases} \\[4pt]
+&\text{(Implication)} && 
+\begin{cases}
+\mathrm{pol}(\varphi) = -\mathrm{pol}(\varphi \rightarrow \psi), \\
+\mathrm{pol}(\psi) = \mathrm{pol}(\varphi \rightarrow \psi),
+\end{cases} \\[4pt]
+&\text{(Biconditional)} && 
+\begin{cases}
+\mathrm{pol}(\varphi) = 0, \\
+\mathrm{pol}(\psi) = 0,
+\end{cases} \quad \text{for } \varphi \leftrightarrow \psi \text{ with any polarity}, \\[4pt]
+&\text{(Quantifiers)} && \mathrm{pol}(\varphi) = \mathrm{pol}(\mathcal{Q} x\, \varphi), \quad \mathcal{Q} \in \{\forall, \exists\}.
+\end{aligned}
+\]
+Here, \(+\) denotes positive polarity, \(-\) denotes negative polarity, and \(0\) denotes neutral polarity.
 
 
 
-\section{Naming}
+\subsection{Polarity-Aware Auxiliary Predicate Introduction}
 
-% \section{Typography \& maths}
-% Some text here. \(\varphi,\phi,\psi\vDash M U k\)
-% Here \texttt{true type}. 
-% \textsc{here Small Caps}. 
-% \textsf{here sans serif}. 
-% \emph{here italics}.
-% \textbf{\emph{here bold italics}}.
-% \textbf{\textsf{bold sans}}.
-% \textsf{\emph{Italic sans}}.
-% %Here we cite \citeauthor{dijkstra1972humbleprogrammer} and \citeauthor{lamport1982proving}
-% %who wrote \cite{dijkstra1972humbleprogrammer,lamport1982proving} respectively.
-% \blindmathpaper
+Polarity analysis allows for an optimization of auxiliary predicate introduction. If a subformula \(\psi(\bar{x})\) occurs only positively in the formula, it is sufficient to introduce the fresh predicate \(P(\bar{x})\) together with the implication
+\[
+\forall \bar{x}\ \big(P(\bar{x}) \rightarrow \psi(\bar{x})\big),
+\]
+rather than the full biconditional. Conversely, if \(\psi(\bar{x})\) occurs only negatively, it suffices to add
+\[
+\forall \bar{x}\ \big(\psi(\bar{x}) \rightarrow P(\bar{x})\big).
+\]
+The full biconditional is necessary only when \(\psi(\bar{x})\) occurs with zero polarity.
 
-% \section{TODOs}
-% The \texttt{uninathesis} documentclass provides a basic todo functionality via 
-% the \texttt{uninatodo} command \uninatodo{as i just did. This is a todo note.}. 
-
-% \section{Lists}
-% In this section you can see how lists look like.
-% \subsection{Itemize}
-% \blinditemize
-% \subsection{Enumerate}
-% \blindenumerate
-% \subsection{Description}
-% \blinddescription
-% \subsection{Custom enumerate}
-% \begin{enumerate}[label=(\roman*)]
-%     \item foo;
-%     \item bar;
-%     \item foobar.
-% \end{enumerate}
-% \subsection{Inline enumerate}
-% You can also write inline enumerates as follows:
-% \begin{enumerate*}[label=(\roman*)]
-%     \item first item;
-%     \item second item;
-%     \item third and last item.
-% \end{enumerate*}
-
-% \section{Tables}
-% Classic booktabs tables as in Table \ref{tab:table}. \blindtext
-% \begin{table}
-%     \begin{center}
-%       \caption{Table using booktabs.}
-%       \label{tab:table}
-%       \begin{tabular}{llr}
-%         \toprule % <-- Toprule here
-%         \textbf{Value 1} & \textbf{Value 2} & \textbf{Value 3}\\
-%         $\alpha$ & $\beta$ & $\gamma$ \\
-%         \midrule % <-- Midrule here
-%         1 & 1110.1 & a\\
-%         2 & 10.1 & b\\
-%         3 & 23.113231 & c\\
-%         \bottomrule % <-- Bottomrule here
-%       \end{tabular}
-%     \end{center}
-% \end{table}
-
-% \section{Algorithms}
-% Algorithm environment is styled to be consistent with booktabs (same heading and bottomline). \blindtext[2]
-% \begin{algorithm}
-%     \caption{Box alignment procedure}\label{alg:padding}
-%     \begin{algorithmic}[1]
-%         \Statex \textbf{signature} $\textsc{BoxAlign}$ $CSA\times CSA \to CSA\times CSA$
-%         \Statex \textbf{ensure} The returned CSA are box-compatible
-%         \Function{$\textsc{BoxAlign}$}{$\mathscr{M},\mathscr{F}$}
-%             % I cut a whole part of the algorithm; It doesn't make much sense now!
-%             \State $(\mathscr{M}^\prime,\mathscr{F}^\prime)\gets(\mathscr{M},\mathscr{F})$
-%             \ForAll{$(b_m,b_f)\in B_{\mathscr{M}^\prime}\times B_{\mathscr{F}^\prime}$}
-%                 \State $\left(\beta_{\mathscr{M}^\prime},\beta_{\mathscr{F}^\prime}\right)\gets(\varepsilon,\varepsilon)$
-%                 \For{$0\le i < |\beta_{\mathscr{M}^\prime}(b_m)|$} 
-%                     \State $(\mathscr{A}_\mathscr{M},\mathscr{A}_\mathscr{F})\gets\textsc{BoxAlign}(\beta_{\mathscr{M}^\prime}(b_m)_i,\beta_{\mathscr{F}^\prime}(b_f)_i)$
-%                     \State $\beta_{\mathscr{M}^\prime}(b_m)\gets\beta_{\mathscr{M}^\prime}\cdot\mathscr{A}_\mathscr{M}$
-%                     \State $\beta_{\mathscr{F}^\prime}(b_f)\gets\beta_{\mathscr{F}^\prime}\cdot\mathscr{A}_\mathscr{F}$
-%                 \EndFor
-%             \EndFor
-%             \State \textbf{return} $(\mathscr{M}^\prime,\mathscr{F}^\prime)$
-%         \EndFunction
-%     \end{algorithmic}
-% \end{algorithm}
+This optimization is widely used in \emph{definitional CNF transformations} for first-order theorem proving. By introducing only the necessary direction of the equivalence, the number of clauses generated during clausification can be reduced, often substantially, while still preserving the correctness of the transformation with respect to satisfiability and logical consequence.
 
 
-% \section{Listings}
-% Listings provided by the lstlistings package. Example shown in Listing \ref{lst:code}. \blindtext[2]
-% \begin{lstlisting}[language=Python,float,caption=Python example,label={lst:code},basicstyle=\ttfamily,frame=b,framextopmargin=.2ex]
-%     import numpy as np
-     
-%     def incmatrix(genl1,genl2):
-%         m = len(genl1)
-%         n = len(genl2)
-%         M = None #to become the incidence matrix
-%         VT = np.zeros((n*m,1), int)  #dummy variable
-     
-%         #compute the bitwise xor matrix
-%         M1 = bitxormatrix(genl1)
-%         M2 = np.triu(bitxormatrix(genl2),1) 
-% \end{lstlisting}
 
 
-% \section{Listings, Algorithm and Table: consistent styling}
-% The section title and Figure \ref{fig:figure} are pretty self-explanatory.\Blindtext
-% \begin{figure}\centering
-% \begin{minipage}[t]{.3\textwidth}
-% \begin{algorithm}[H]
-%     \caption{Test}
-%     \begin{algorithmic}[1]
-%         \State $z\gets 1+1$
-%         \State $z\gets 1+2$
-%     \end{algorithmic}
-% \end{algorithm}
-% \end{minipage}\hfill
-% \begin{minipage}[t]{.3\textwidth}%
-%     \vspace{.7em}
-%     \begin{lstlisting}[language=Python,caption=ex]
-%     int foo;
-%     foo=1;
-%     \end{lstlisting}
-% \end{minipage}\hfill%
-% \begin{minipage}[t]{.3\textwidth}
-% \begin{table}[H]
-%     \begin{tabular}{ll}
-%         \toprule
-%         foo & bar \\
-%         \midrule 
-%         1 & 2 \\
-%         \bottomrule
-%     \end{tabular}
-% \end{table}
-% \end{minipage}
-% \caption{Algorithm, code and table side by side}\label{fig:figure}
-% \end{figure}
+
+
+

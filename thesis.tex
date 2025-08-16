@@ -19,6 +19,7 @@
 }
 \let\openbox\relax
 \usepackage{amsthm}
+\usepackage{proof}
 
 
 % Math
@@ -110,6 +111,8 @@
     }
 }
 
+\newcommand{\landor}{\mathrel{\land\mkern-3mu\lor}}
+
 \usepackage[title,titletoc]{appendix}
 
 \begin{document}
@@ -133,7 +136,7 @@
 
     \input{_chapters/1-first-chapter.tex}
 
-    %\input{_chapters/2-second-chapter.tex}
+    \input{_chapters/2-second-chapter.tex}
 
    % other chapters here..
 
