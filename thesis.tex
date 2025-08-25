@@ -90,12 +90,12 @@
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 
-
+% Thesis specific custom commands
 \newcommand{\ms}{\,}
 \tikzset{
     syntree/.style={
         level distance=1.5cm,
-        sibling distance=2cm,
+        sibling distance=2.5cm,
         % Stile per quantificatori (rettangolare)
         quantifier/.style={draw, rectangle, align=center, 
                            minimum width=1cm, minimum height=0.5cm, 
@@ -110,6 +110,8 @@
                        inner sep=1pt}
     }
 }
+
+\NewDocumentCommand{\flseq}{o m}{(\overline{\IfValueTF{#1}{#1}{u}}_{#2})}
 
 \newcommand{\landor}{\mathrel{\land\mkern-3mu\lor}}
 
@@ -134,15 +136,25 @@
 
     \newpage\pagestyle{main}
 
-    \input{_chapters/1-first-chapter.tex}
+    \input{_chapters/1-first-order-logic.tex}
 
-    \input{_chapters/2-second-chapter.tex}
+    \input{_chapters/2-inference-systems.tex}
+
+    \input{_chapters/3-fluted-fragment.tex}
+
+    \input{_chapters/4-vampire-theorem-prover.tex}
+
+    \input{_chapters/5-fluted-fragment-implementation.tex}
+
+    \input{_chapters/6-tptp-benchmarking.tex}
+
+    \input{_chapters/7-generated-benchmarking.tex}
 
    % other chapters here..
 
-    % \input{_chapters/3-conclusions.tex}
+    \input{_chapters/8-conclusions.tex}
 
-    % \input{_chapters/4-appendix.tex}
+    \input{_chapters/A1-appendix.tex}
     
     \newpage
     \pagestyle{backmatter}

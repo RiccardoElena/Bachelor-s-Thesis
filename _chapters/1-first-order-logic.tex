@@ -1,4 +1,4 @@
-\chapter{First Order Logic}\label{chap:first}
+\chapter{First Order Logic}\label{chap:first-order-logic}
 
 \inlineminitoc{}
 
@@ -23,17 +23,17 @@ Syntactically speaking, this sentence is composed of:
 Upon this syntactic structure, we can build a semantic interpretation, which assigns meaning to the symbols used in the sentence.
 In this case, we can interpret \(\text{H}(x)\) as \dquote{\(x\) is a human} and \(\text{M}(x)\) as \dquote{\(x\) is mortal}.
 Moreover, the universal quantifier \(\forall\) indicates that the statement applies to all objects in the domain of discourse.
-The connective \(\implies\) is the \textit{material implication} of \textit{propositional logic}, indicating that if the first part is true, then the second part must also be true.
+The connective \(\implies\) is the \emph{material implication} of \emph{propositional logic}, indicating that if the first part is true, then the second part must also be true.
 
 As we can see, using FOL we can divide the statement into its syntactic and semantic components, which allows us to reason about its structure separately from its meaning.
 This separation permits us to generalize the reasoning process to other statements with similar structures and to deduce new statements solely from the syntactic structure.
-This makes FOL particularly suitable for computational treatment: automated systems can manipulate the syntactic form of statements while guaranteeing that these manipulations reflect valid semantic consequences in all interpretations — a property known as \textit{soundness}, \citeauthor{enderton2001}~\cite{enderton2001}.
+This makes FOL particularly suitable for computational treatment: automated systems can manipulate the syntactic form of statements while guaranteeing that these manipulations reflect valid semantic consequences in all interpretations — a property known as \emph{soundness}, \citeauthor{enderton2001}~\cite{enderton2001}.
 
 As we will see later, this clear separation is crucial for the development of automated reasoning systems, such as the Vampire theorem prover, because it allows us to convert the reasoning task into a syntactic manipulation task, treating statements as symbolic strings with a specific syntax, without the need to explicitly encode the meaning of each statement.
 
 In order to preserve the truth value of statements during this manipulation process, we cannot rely on the syntactic structure alone; we must define a set of rules that act only on the syntactic structure while ensuring truth preservation.
 This set of rules is called \textbf{inference rules}, and they allow us to derive new statements from existing ones without altering their truth value.
-A full exploration of these rules, which form the core of automated reasoning, is reserved for a later chapter. However, a simple example is the well-known rule of \textit{Modus Ponens}, which states that if we know that both \(A\) and \(A\implies B\) are true, then we can conclude \(B\). This illustrates how a new truth can be derived purely from the syntactic form of existing statements.
+A full exploration of these rules, which form the core of automated reasoning, is reserved for a later chapter. However, a simple example is the well-known rule of \emph{Modus Ponens}, which states that if we know that both \(A\) and \(A\implies B\) are true, then we can conclude \(B\). This illustrates how a new truth can be derived purely from the syntactic form of existing statements.
 
 \section{From Terms to Sentences}
 
@@ -42,15 +42,15 @@ The most basic building blocks of FOL are \textbf{terms}, which represent object
 Those are variables (\(x,y,z\)), functions (\(f,g,h\)) and  symbols (\(a,b,c\)), sometimes viewed as function symbols with arity 0.
 Variables are placeholders that can represent any object in the domain, while constants refer to specific objects. Functions map objects to other objects, allowing for more complex expressions.
 
-Terms alone do not constitute statements in FOL, as they lack an associated \textit{truth value}.
-The main focus of FOL is on \textbf{predicates} (\(P,Q,R\)) ---so the name \textit{predicate logic}---, which are used to express properties of objects or relationships between them.
+Terms alone do not constitute statements in FOL, as they lack an associated \emph{truth value}.
+The main focus of FOL is on \textbf{predicates} (\(P,Q,R\)) ---so the name \emph{predicate logic}---, which are used to express properties of objects or relationships between them.
 Examples of predicates include \(\text{H}(x)\) for \dquote{is a human} or \(\text{M}(x)\) for \dquote{is mortal}.
 
 
 Predicates are applied to terms to form \textbf{atomic formulae} (\(A,B\)), the basic units of meaning in FOL\@. They serve as the building blocks of more complex and structured statements, called \textbf{formulae} \(\phi, \psi\), obtained by combining atomic formulae using logical connectives and quantifiers.
 
-Solely, not even atomic formulae always bear a truth value, as they can contain \textit{free variables}, namely variables that are not bound by a quantifier. These variables do not refer to any specific object in the domain, and thus the truth value of the atomic formula depends on the interpretation of these variables.
-This ambiguity can be illustrated with natural language; for instance, the statement \dquote{X is a human} does not clearly state \textit{which} object \(X\) has to be a human to make the statement true.
+Solely, not even atomic formulae always bear a truth value, as they can contain \emph{free variables}, namely variables that are not bound by a quantifier. These variables do not refer to any specific object in the domain, and thus the truth value of the atomic formula depends on the interpretation of these variables.
+This ambiguity can be illustrated with natural language; for instance, the statement \dquote{X is a human} does not clearly state \emph{which} object \(X\) has to be a human to make the statement true.
 The quantifiers resolve this ambiguity by specifying the scope of the variable \(X\). Indeed, the statement \dquote{For all X, X is a human} clearly has a truth value, as it asserts something about every object, whether it is true or not.
 Only (atomic) formulae with all variables bound can be said to have a definite truth value, and those are called (\textbf{atomic}) \textbf{sentences}.
 
@@ -67,7 +67,7 @@ In particular, the principal connectives used in FOL are:
 
 \subsection{Syntax}
 
-The syntax of FOL formulae can be formalized with a \textit{context free grammar} (CFG).
+The syntax of FOL formulae can be formalized with a \emph{context free grammar} (CFG).
 In particular, being \(\mathcal{V}\) the set of all variables, \(\mathcal{C}\) the set of all constants, \(\mathcal{F}\) the set of all function symbols, \(\mathcal{P}\) the set of all predicate symbols, we can define the grammar as follows:
 
 \begin{equation}
@@ -95,9 +95,9 @@ where:
   \end{flalign}
 \end{itemize}
 
-The language generated by this grammar is the set of all \textit{well-formed formulae} in FOL\@.
+The language generated by this grammar is the set of all \emph{well-formed formulae} in FOL\@.
 
-Every string of the so generated language can also be represented with a \textit{syntactic tree}, which is a tree representation of the syntactic structure of the formula, highlighting the hierarchical relationships between its components.
+Every string of the so generated language can also be represented with a \emph{syntactic tree}, which is a tree representation of the syntactic structure of the formula, highlighting the hierarchical relationships between its components.
 
 An example of a syntactic tree for the formula \(\forall x \left(\text{H}(x) \implies \text{M}(x)\right)\) is shown in Figure~\ref{fig:syntactic_tree}.
 
@@ -115,7 +115,7 @@ An example of a syntactic tree for the formula \(\forall x \left(\text{H}(x) \im
 
 In this representation, it is possible to omit the parentheses around the subformulae, as the tree structure already encodes the necessary grouping.
 
-Moreover, is possible to isolate a \textit{subgrammar} by considering only the rules that generate atomic formulae (excluding so the ones deriving from \(\phi\)). Doing this easily allows to define the concept of \textbf{subterm} as a \textit{proper subtree} of the syntactic tree that represents an atomic formula (or by extension a literal).
+Moreover, is possible to isolate a \emph{subgrammar} by considering only the rules that generate atomic formulae (excluding so the ones deriving from \(\phi\)). Doing this easily allows to define the concept of \textbf{subterm} as a \emph{proper subtree} of the syntactic tree that represents an atomic formula (or by extension a literal).
 
 An example of such a tree is shown in Figure~\ref{fig:subterm_tree} for the atomic formula \(P(f(x, g(y)))\).
 \begin{figure}[H]
@@ -209,9 +209,9 @@ DAGs can be particularly useful in automated reasoning and theorem proving, wher
     \caption{DAG representation showing shared subterms between \(P(f(x, g(y)))\) and \(\neg P(f(x, g(y)))\)}\label{fig:subterm_dag}
 \end{figure}
 
-\subsection{Semantics}
+\subsection{Semantics}\label{subsec:semantics}
 
-To formalize semantics in FOL, we need to define the meaning of the symbols and the truth conditions for the formulae. This is typically done using a \textit{model}, which consists of a domain of discourse and an interpretation function that assigns meanings to the constants, functions, and predicates.
+To formalize semantics in FOL, we need to define the meaning of the symbols and the truth conditions for the formulae. This is typically done using a \emph{model}, which consists of a domain of discourse and an interpretation function that assigns meanings to the constants, functions, and predicates.
 
 A \textbf{model} for a FOL language is a pair \(M = (D, I)\), where:
 \begin{itemize}
@@ -386,7 +386,7 @@ A formula is in NNF if it is described by the following CFG\@:
 \begin{equation}
   \nu \to \top  \ms | \ms  \bot  \ms | \ms  L  \ms | \ms  \nu \land \nu  \ms | \ms  \nu \lor \nu  \ms | \ms  \forall x  \ms  \nu  \ms | \ms  \exists x  \ms  \nu \quad\quad \text{where } L \text{is a literal}
 \end{equation}
-where \(L\) is a \textit{literal}, that is defined as an atomic formula or its negation.
+where \(L\) is a \emph{literal}, that is defined as an atomic formula or its negation.
 In a practical sense, NNF transformation involves pushing negations inward and eliminating implications and biconditionals.
 In fact, every formula can be brought into this form by replacing implications (\(\implies\)) and equivalences (\(\iff\)) by their definitions, using De Morgan's laws to push negation inwards, and eliminating double negations. This process can be represented using the following rewrite rules:
 
@@ -402,7 +402,7 @@ In fact, every formula can be brought into this form by replacing implications (
   \end{aligned}
 \end{equation}
 
-The NNF version of a formula is \textit{equivalent} to the original formula, meaning they have the same truth value in every model.
+The NNF version of a formula is \emph{equivalent} to the original formula, meaning they have the same truth value in every model.
 
 \subsection{Skolemization}
 In the context of automated reasoning, \textbf{Skolemization} is the process of eliminating existential quantifiers from a formula by introducing new symbols called \textbf{Skolem functions} or \textbf{Skolem constants}~\cite{skolem1920}.  
@@ -522,10 +522,10 @@ is the following:
 \end{figure}
 
 
-Transforming formulae into CNF is a prerequisite for many automated reasoning techniques, particularly \textit{resolution}~\cite{chang1997}.  
+Transforming formulae into CNF is a prerequisite for many automated reasoning techniques, particularly \emph{resolution}~\cite{chang1997}.  
 By ensuring that the input is in a uniform syntactic format, inference rules can be applied in a purely mechanical way without further structural transformations.
 
-This pipeline of transformations, combined with \textit{naming}, is also called \textbf{clausification} and  constitutes the \textbf{preprocessing} phase of automated reasoning systems, a crucial step to prepare formulae for \textit{inferences}.
+This pipeline of transformations, combined with \emph{naming}, is also called \textbf{clausification} and  constitutes the \textbf{preprocessing} phase of automated reasoning systems, a crucial step to prepare formulae for \emph{inferences}.
 
 \section{Auxiliary Predicate Introduction}
 

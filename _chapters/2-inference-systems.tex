@@ -1,6 +1,6 @@
-\chapter{Inferenc systems}\label{chap:second}
+\chapter{Inference systems}\label{chap:inference-systems}
 
-In chapter~\ref{chap:first} we introduced FOL as a formal representation of knowledge, and we discussed its syntax and semantics.
+In chapter~\ref{chap:first-order-logic} we introduced FOL as a formal representation of knowledge, and we discussed its syntax and semantics.
 Representation of knowledge alone is not sufficient for formalizing reasoning processes.
 What is needed is a formalization of some reasoning mechanisms that can operate on this knowledge, rules that, given a set of premises, can derive new conclusions.
 
@@ -107,7 +107,7 @@ Being \(A_1\) and \(A_2\) complementary, it is impossible for both to be true at
 
 From this consideration, we can see that resolution is \textbf{sound} because it only derives conclusions that are logically entailed by the premises.
 However, resolution is \textbf{not complete} because there are valid conclusions that cannot be derived using this rule alone.
-An example of this is the \textit{disjunction introduction} rule \(A \models A \lor B\), which allows for the introduction of a disjunction from a single clause.
+An example of this is the \emph{disjunction introduction} rule \(A \models A \lor B\), which allows for the introduction of a disjunction from a single clause.
 
 The absence of complementary literals in the premises prevents resolution from deriving any conclusions, and therefore to be complete.
 
@@ -174,7 +174,7 @@ An example of non-terminating input is the set of clauses
 \begin{equation}\label{eq:non_terminating}
   \{ \{P(c)\}, \{\neg P(x) \lor P(f(x))\} \}
 \end{equation}
-which is satisfiable by \textit{Peano Arithmetic} (interpreting \(c\) as \(0\) and \(f\) as the successor function), but leads to an infinite loop in the saturation algorithm.
+which is satisfiable by \emph{Peano Arithmetic} (interpreting \(c\) as \(0\) and \(f\) as the successor function), but leads to an infinite loop in the saturation algorithm.
 
 \begin{equation}
    \begin{aligned}

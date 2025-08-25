@@ -8,7 +8,7 @@
 \chapter*{Introduction}
 % \unnumberedsection{A first unnumbered section}
 
-First-Order Logic (FOL) emerged from the mathematical foundations laid in \textit{Begriffsschrift}~\cite{frege1879} by \citeauthor{frege1879} and in \textit{Principia Mathematica}~\cite{russell1910} by \citeauthor{russell1910}, and has since become a cornerstone formalism in computer science.
+First-Order Logic (FOL) emerged from the mathematical foundations laid in \emph{Begriffsschrift}~\cite{frege1879} by \citeauthor{frege1879} and in \emph{Principia Mathematica}~\cite{russell1910} by \citeauthor{russell1910}, and has since become a cornerstone formalism in computer science.
 Its formal yet expressive nature makes it particularly well-suited for computational reasoning across diverse domains.
 In knowledge representation, FOL underpins semantic web technologies and ontology languages like OWL, enabling machines to reason about complex relationships in data.
 Meanwhile, in verification, it serves as the logical foundation for model checkers and theorem provers that ensure software correctness, while in artificial intelligence, it historically powered automated reasoning systems and planning algorithms, though modern AI has largely shifted toward statistical and neural approaches that often lack the transparency and formal guarantees that FOL-based systems provide.
@@ -18,13 +18,13 @@ This was established independently in the 1930s by \citeauthor{church1936}~\cite
 Their results demonstrated that no algorithm can, in general, determine whether an arbitrary FOL formula is valid. This fundamental limitation creates a significant computational barrier for automated reasoning.
 In response, two complementary research directions have emerged: the systematic identification of decidable fragments that retain sufficient expressiveness for practical applications, and the development of automated theorem provers (ATPs) that---while unable to guarantee termination on all inputs---employ sophisticated heuristics and optimizations to solve many real-world problems efficiently.
 
-Among the most prominent ATPs for first-order logic is \textit{Vampire}~\cite{kovacs2013vampire}, a high-performance prover built on advanced saturation-based reasoning.
+Among the most prominent ATPs for first-order logic is \emph{Vampire}~\cite{kovacs2013vampire}, a high-performance prover built on advanced saturation-based reasoning.
 Vampire combines ordered resolution with literal selection, term indexing, and clause simplification techniques to explore the space of logical consequences efficiently.
 It also incorporates modern enhancements such as efficient preprocessing, strategy scheduling, and support for first-order logic with built-in theories.
 These features have made Vampire highly successful in competitive settings like the CADE ATP System Competition (CASC)\footnote{The CADE ATP System Competition (CASC) is the annual evaluation of fully automatic, classical logic, ATP systems --- the world championship for such systems.}, and effective in practical applications ranging from formal verification to software analysis.
 Moreover, Vampire's extensible architecture and open-source nature make it the go-to choice for research and experimentation in the field of automated reasoning.
 
-While general-purpose provers like \textit{Vampire} are designed to handle unrestricted first-order logic, certain decidable fragments offer opportunities for more targeted and efficient reasoning.
+While general-purpose provers like \emph{Vampire} are designed to handle unrestricted first-order logic, certain decidable fragments offer opportunities for more targeted and efficient reasoning.
 One such fragment is the \emph{Fluted Fragment}, distinguished by its strict syntactic discipline: variables in atomic formulas must follow the order in which they are quantified~\cite{quine1968predicate}.
 This constraint, first introduced by Quine, limits expressiveness in some dimensions but crucially preserves decidability. Subsequent studies have shown that the Fluted Fragment occupies an interesting middle ground—more complex than many guarded or bounded-variable fragments, yet still admitting well-characterized decision procedures~\cite{pratt2019fluted}.
 Applications have emerged in areas such as knowledge representation, database logic and computational linguistics, where the fragment’s regular structure aligns naturally with hierarchical or sequential data.
@@ -40,23 +40,23 @@ Crucially, the authors prove that their calculus is sound, complete, and termina
 
 In this thesis, we implement this resolution-based decision procedure for the Fluted Fragment, with the goal of evaluating its practical effectiveness.
 By faithfully realizing the \textsc{R\textsuperscript{sep}} calculus, including the separation rule and associated structural constraints, the implementation provides a concrete instantiation of the theoretical framework.
-To assess the impact of fragment-specific optimization, we conduct an empirical comparison against the general-purpose theorem prover \textit{Vampire}, highlighting the potential advantages of tailored reasoning techniques for decidable fragments of first-order logic.
+To assess the impact of fragment-specific optimization, we conduct an empirical comparison against the general-purpose theorem prover \emph{Vampire}, highlighting the potential advantages of tailored reasoning techniques for decidable fragments of first-order logic.
 
-\unnumberedsection{About this thesis work}
+  \unnumberedsection{About this thesis work}
 
 This thesis retraces all the steps of the implementation of the resolution-based decision procedure for the Fluted Fragment mentioned above, starting from the theoretical foundations and culminating in the empirical evaluation of the implemented system.
 
 The work is structured as follows:
 
 \begin{description}
-    \item[Chapter 1] provides an overview of the theoretical foundations of first-order logic, briefly discussing its structure and key concepts such as Skolemization, Naming, and Clausification.
-    \item[Chapter 2] illustrates the main inference rules of a resolution-based decision procedure, highlighting the differences between their standard and their ordered versions. In particular, it covers the concept of \textit{liftable orders} and how they can be used for the definition of \textit{ordered inference rules}.
-    \item[Chapter 3] describes the Fluted Fragment and the resolution-based decision procedure for it, detailing the separation rule and the structural constraints that ensure decidability. The chapter discusses the structure of the fluted formulae, the definition of fluted clauses, and the naming procedure that ensures the flutedness of the clauses.
-    \item[Chapter 4] briefly analyses \textit{Vampire} and its architecture, focusing on relevant components for the implementation of the decision procedure. In detail, it discusses the \textit{Preprocessor}, the \textit{Saturation Algorithm}, and the \textit{Clause Selection} components.
-    \item[Chapter 5] presents the implementation of the decision procedure, discussing the design choices made, and the challenges encountered during development, divided into three main parts covering the three main components of the implementation: the \textit{Classifier}, the \textit{Preprocessor}, and the \textit{Fluted Resolution}.
-    \item[Chapter 6] discusses the results of the first evaluation, based on the TPTP library, highlighting the strengths and weaknesses of the implemented decision procedure. These problems have been selected using the \textit{Classifier} component and the evaluation is based on the comparison with the results of \textit{Vampire} and of a \textit{Hybrid model}, composed by the \textit{Fluted Preprocessor} and the \textit{Vampire Resolution}, on the same problems.
-    \item[Chapter 7] discusses the results of the second evaluation, based on the automatically generated problems, as well as the design and implementation process of the problems generator and the evaluation framework. This evaluation required the implementation of another component, the \textit{Fluted Generator}, which is responsible for generating the problems to be solved by the decision procedure and by the other \textit{two models}.
-    \item[Chapter 8] concludes the thesis, summarizing the main findings and discussing potential future work.
+    \item[Chapter~\ref{chap:first-order-logic}] provides an overview of the theoretical foundations of first-order logic, briefly discussing its structure and key concepts such as Skolemization, Naming, and Clausification.
+    \item[Chapter~\ref{chap:inference-systems}] illustrates the main inference rules of a resolution-based decision procedure, highlighting the differences between their standard and their ordered versions. In particular, it covers the concept of \emph{liftable orders} and how they can be used for the definition of \emph{ordered inference rules}.
+    \item[Chapter~\ref{chap:fluted-fragment}] describes the Fluted Fragment and the resolution-based decision procedure for it, detailing the separation rule and the structural constraints that ensure decidability. The chapter discusses the structure of the fluted formulae, the definition of fluted clauses, and the naming procedure that ensures the flutedness of the clauses.
+    \item[Chapter~\ref{chap:vampire-theorem-prover}] briefly analyses \emph{Vampire} and its architecture, focusing on relevant components for the implementation of the decision procedure. In detail, it discusses the \emph{Preprocessor}, the \emph{Saturation Algorithm}, and the \emph{Clause Selection} components.
+    \item[Chapter~\ref{chap:fluted-fragment-implementation}] presents the implementation of the decision procedure, discussing the design choices made, and the challenges encountered during development, divided into three main parts covering the three main components of the implementation: the \emph{Classifier}, the \emph{Preprocessor}, and the \emph{Fluted Resolution}.
+    \item[Chapter~\ref{chap:tptp-benchmarking}] discusses the results of the first evaluation, based on the TPTP library, highlighting the strengths and weaknesses of the implemented decision procedure. These problems have been selected using the \emph{Classifier} component and the evaluation is based on the comparison with the results of \emph{Vampire} and of a \emph{Hybrid model}, composed by the \emph{Fluted Preprocessor} and the \emph{Vampire Resolution}, on the same problems.
+    \item[Chapter~\ref{chap:generated-benchmarking}] discusses the results of the second evaluation, based on the automatically generated problems, as well as the design and implementation process of the problems generator and the evaluation framework. This evaluation required the implementation of another component, the \emph{Fluted Generator}, which is responsible for generating the problems to be solved by the decision procedure and by the other \emph{two models}.
+    \item[Chapter~\ref{chap:conclusions}] concludes the thesis, summarizing the main findings and discussing potential future work.
 \end{description}
 
 

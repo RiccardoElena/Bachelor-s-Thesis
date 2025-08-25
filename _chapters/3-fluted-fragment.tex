@@ -1,0 +1,139 @@
+\chapter{Fluted Fragment}\label{chap:fluted-fragment}
+
+As previously mentioned, undecidability of FOL has led to the systematic exploration of fragments that retain desirable properties while being decidable with resolution-based systems.
+
+The definition of these fragments is tied to syntactic restrictions on the formulae, allowing the formulation of a terminating decision procedure exploiting the structure of the fragments.
+
+Early investigations into decidable fragments often focused on restricting quantification, limiting formulae to a specific quantifier pattern.
+Some notable examples are the \emph{Bernays-Schönfinkel class} (\(\exists^*\forall^*\)), the \emph{initially extended Ackermann class} (\(\exists^*\forall\exists^*\)), and the \emph{initially extended Gödel class} (\(\exists^*\forall\forall\exists^*\)).
+
+Another notable example is the \emph{(loosely) guarded fragment}, which restricts quantification to conditional quantifiers of the form \(\forall \bar{y} (G(\bar{x},\bar{y}) \rightarrow \phi)\) or \(\exists \bar{y} (G(\bar{x},\bar{y}) \land \phi)\), where \(G\) is a \emph{guard} formula satisfying certain restrictions.
+
+Other form of restrictions involve the arity of predicates, such as the \emph{monadic fragment}, which only allows unary predicates, or the \emph{two-variable fragment} (\(\text{FO}^2\)), which restricts formulae to at most two variables.
+
+By contrast, the restriction of first-order logic which ensures decidability for fluted logic is an ordering on variables and arguments.
+
+This variable-ordering approach is significant because it does not limit formulae structure or predicate arity, but only predicate application on variables.
+
+Another significant aspect of fluted logic is the relationship to non-classical logics, such as extended modal logics and expressive description logics, which play an increasingly important role in various areas of computer science.
+Fluted logic may be viewed as a generalization of modal logic, a characteristic shared with the guarded fragments. 
+However, fluted logic offers advantages over guarded fragments for modal logic embeddings because it allows negation of relation atoms, enabling it to capture enriched modal logics like Boolean modal logic~\cite{gargov1990boolean}, and expressive description logics such as \(\mathcal{ALB}\) (without converse)~\cite{hustadt2000issues}.
+
+Additionally, in~\cite{purdy1999quine}~\citeauthor{purdy1999quine} describes an application in computational linguistics of fluted logics for
+modelling ordinary English.
+
+Finally, fluted logic has the finite model property~\cite{purdy1996decidability,purdy1996fluted,purdy1999quine}, which means that every satisfiable formula has a finite model.
+This property is crucial because it enables decidable satisfiability checking through systematic enumeration of finite structures.
+
+\section{Fluted Formulae}
+
+Formally, the syntactic structure of fluted formulae can be defined as follows~\cite{schmidt2000resolution}:
+
+\begin{definition}\label{def:fluted-formulae}
+  Let \(\mathcal{P}\) be a finite set of predicate symbols and let \(X_m = \{x_1, \ldots, x_m\} \subseteq \mathcal{V}\)\uninatodo{this definition is taken directly from the paper but seems to not include the \(\emptyset\). Should I change it?} be an \emph{ordered} set of variables.
+  An \emph{atomic fluted formula} of \(\mathcal{P} \text{ over } X_i\) is an \(n\)-ary atom \(P(x_l,\ldots, x_i)\), with \(l = i - n + 1 \text{ and } n \leq i\).
+  \emph{Fluted formulae} are defined inductively as follows:
+  \begin{enumerate}
+    \item Any atomic fluted formula over \(X_i\) is a fluted formula over \(X_i\).
+    \item \(\exists x_{i+1}\phi \text{ and } \forall x_{i+1}\phi\) are fluted formulae over \(X_{i}\), if \(\phi\) is a fluted formula over \(X_{i+1}\).
+    \item Any Boolean combination of fluted formulae over \(X_i\) is a fluted formula over \(X_i\). That is, \(\phi \implies \psi, \neg \phi, \phi \land \psi\) are all fluted formulae over \(X_i\), if both \(\phi\) and \(\psi\) are.
+  \end{enumerate}
+\end{definition}
+
+By definition, for any formula \(\phi\), if there is a variable renaming \(h\) such that \(h(\phi)\) is a fluted formula according to the above definition then \(\phi\) is a fluted formula.
+
+Moreover, as a consequence of the definition, any fluted formula over \(X_i\) has \(X_i\) as its set of free variables, and therefore fluted sentences can be seen as over \(X_0 = \emptyset\).
+
+In this definition, to quantify a fluted formula the quantified variable is forced to be the last free variable occurring in all predicate. In this sense, quantifying a formula to a sentence can be informally thought of as popping off variables from the list of free variables, which converges to \(X_0\).
+
+% The semantics of fluted logic is defined as in FOL (\ref{subsec:semantics}).
+
+Examples of fluted formulae are:
+\begin{equation}\label{eq:fluted-example}
+  \begin{aligned}
+    \forall x_1 (P(x_1) \iff &\exists x_2(Q(x_2) \land R(x_1, x_2)))\\
+    \forall x_1,x_2 (P(x_1,x_2) \iff &  (Q(x_1,x_2) \land\\
+                                     &  \forall x_3 (R(x_1,x_2,x_3) \implies \exists x_4 Q(x_3,x_4))))
+  \end{aligned}
+\end{equation}
+
+While the following examples are not fluted formulae:
+
+\begin{equation}\label{eq:not-fluted-example}
+  \begin{aligned}
+    \forall x_1,x_2(P(x_1,x_2) \land \forall x_3(Q(x_3,x_1,x_2) \implies R(x_3)))\\
+    \forall x_1,x_2(P(x_1,x_2) \land \exists x_3(Q(x_1,x_2,x_3) \implies \exists x_4 R(x_4,x_3)))
+  \end{aligned}
+\end{equation}
+because the ordering of arguments is violated.
+
+These constraints can be expressed less formally with a top-down approach too, where the variables of atoms from a string \(fs\), where \(f\) is a possibly empty string of free variables, and \(s\) is a suffix of the string of the bound variables from the outermost quantifier to the innermost.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[syntree, scale=0.9]
+        \node[quantifier] {\(\forall x_1\)}
+          child{ node [quantifier] {\(\forall x_2\)}
+            child { node[connective] {\(\iff\)}
+              child { node[literal] {\(P(x_1, x_2)\)} }
+              child { node[connective] {\(\land\)}
+                child { node[literal] {\(Q(x_1, x_2)\)} }
+                child { node[quantifier] {\(\forall x_3\)}
+                  child { node[connective] {\(\implies\)}
+                    child { node[literal] {\(R(x_1, x_2, x_3)\)} }
+                    child { node[quantifier] {\(\exists x_4\)}
+                      child { node[literal] {\(Q(x_3, x_4)\)} }
+                    }
+                }
+              }
+              }
+            }
+          };
+    \end{tikzpicture}
+    \caption{Syntactic tree for last example in Equation~\ref{eq:fluted-example} without quantifiers flattening}\label{fig:fluted_syntree}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[syntree,scale=0.9]
+        \node[quantifier] {\(\forall x_1\)}
+          child{ node [quantifier] {\(\forall x_2\)}
+            child { node[connective] {\(\land\)}
+              child { node[literal] {\(P(x_1, x_2)\)} }
+              child { node[quantifier] {\(\exists x_3\)}
+                child { node[connective] {\(\implies\)}
+                  child { node[literal] {\(Q(x_1, x_2, x_3)\)} }
+                  child { node[quantifier] {\(\exists x_4\)}
+                    child { node[literal] {\(R(x_4, x_3)\)} }
+                  }
+                }
+              }
+            }
+          };
+    \end{tikzpicture}
+    \caption{Syntactic tree for first example in Equation~\ref{eq:not-fluted-example} without quantifiers flattening}\label{fig:not_fluted_syntree}
+\end{figure}
+
+From the syntactic tree in Figure~\ref{fig:fluted_syntree}, it is easy to see that each atom has as arguments a suffix of the string of bound variables obtained from the traversal of the branch of the tree with the atom as leaf.
+
+By contrast, in Figure~\ref{fig:not_fluted_syntree}, the atom \(R(x_4, x_3)\) had as argument string \(x_4 x_3\), which is not a suffix of the string of bound variables \(x_1 x_2 x_3 x_4\).
+
+This observation leads to the fact that, in \dquote{\emph{constructing}} a fluted sentence top-down, one can only \emph{introduce} new variables at the end of the string and the variables an atom \(P\) is applied to is completely determined by the quantifiers it is in scope of and its arity, while everything remains arbitrary.
+
+\section{Fluted Clauses}
+
+In~\cite{schmidt2000resolution}, \citeauthor{schmidt2000resolution} introduces a restricted class of clauses named \textbf{fluted clauses}.
+These clauses are characterized by a specific structure that adheres to the constraints outlined in the previous sections and such that any fluted formula, after the necessary naming, can be transformed into a fluted clause.
+
+Before we delve into the formal definition of the fluted clauses class, we need to introduce some notation.
+
+The notation \(\flseq{i}\) will denote a finite, possibly empty, sequence \((u_i,u_{i+1}, \ldots, u_m)\) of terms. Unless specified otherwise each non-empty sequence \(\flseq{i}\) will be assumed to end with \(u_m\).
+
+The sequences \(\flseq{1},\flseq{2},\ldots,\flseq{m}\) are therefore linearly ordered by the converse of the proper suffix relation and the sequence \(\flseq{m}\).
+
+\section{From Fluted Formulae to Fluted Clauses}
+\section{Separation}
+\section{Fluted Resolution}
+\subsection{Improving Ordered Resolution Applicability}
+
+
