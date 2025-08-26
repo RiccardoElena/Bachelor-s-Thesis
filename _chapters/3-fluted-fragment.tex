@@ -130,6 +130,88 @@ Before we delve into the formal definition of the fluted clauses class, we need 
 The notation \(\flseq{i}\) will denote a finite, possibly empty, sequence \((u_i,u_{i+1}, \ldots, u_m)\) of terms. Unless specified otherwise each non-empty sequence \(\flseq{i}\) will be assumed to end with \(u_m\).
 
 The sequences \(\flseq{1},\flseq{2},\ldots,\flseq{m}\) are therefore linearly ordered by the converse of the proper suffix relation and the sequence \(\flseq{m}\).
+Therefore, the following notations will be used:
+\begin{itemize}
+  \item \(\flseq{i}[t]\) will denote the sequence \((u_i,u_{i+1}, \ldots, u_m,t)\).
+  \item \(f\flseq{i}\) will denote the term \(f(u_i,u_{i+1}, \ldots, u_m)\).
+  \item \(P\flseq{i}\) will denote the predicate \(P(u_i,u_{i+1}, \ldots, u_m)\).
+  \item \(C\flseq{i}\) will denote a (possibly empty) clause of literals of the form \((\neg)P\flseq{i}\).
+\end{itemize}
+
+For \(f\flseq{i},P\flseq{i} \text{ and } C\flseq{i} \), \(\flseq{i}\) is called the \emph{argument sequence} of the corresponding term, predicate or clause.
+
+If \(\flseq{i}\) is empty, then \(f\flseq{i}, P\flseq{i} \text{ and } C\flseq{i}\) respectively denote a constant, a propositional literal and a (possibly empty) propositional clause.
+
+\begin{definition}\label{def:fluted-sequence}
+Given \(m,n \in \mathbb{N} \text{ and } X_m = \{x_1,x_2,\ldots,x_m\}\) as previously defined, we will refer as to the sequence of terms \(\overline{u} = (u_1,u_2,\ldots,u_n)\) as a \emph{fluted sequence} over \(X_m\), if all the following conditions hold:
+\begin{enumerate}[label= (\roman*)]
+  \item \(n > m\);
+  \item \(u_1=x_1,\ldots,u_m=x_m\);
+  \item the number of variables occurring in \((u_{m+1},\ldots,u_n)\) is \(m\);
+  \item for every \(k \in \{m+1,\ldots,n\}\), there is an \(i \in \{1,\ldots,k-1\}\) such that \\\(u_k = f(u_i,\ldots,u_{k-1})\) for some function symbol \(f\).
+\end{enumerate}
+The sequence \((x_1, \ldots, x_m)\) will be called the \emph{variable prefix} of \(\overline{u}\).
+\end{definition}
+
+This set of conditions serves the purpose of ensuring that the sequence of terms \(\overline{u}\) is constructed naturally extending the ordered set of variables \(X_m\) by introducing new functional terms whose argument sequences are suffixes of the \emph{fluted sequence} that precedes them.
+
+Examples of fluted sequences are:
+\begin{itemize}
+  \item \((a)\), a fluted sequence over \(X_0=\emptyset\)
+  \item \((x_1,x_2,x_3,f(x_1,x_2,x_3))\)
+  \item \((x_1,x_2,x_3,f(x_2,x_3),g(x_1,x_2,x_3,f(x_2,x_3)))\)
+  \item \((x_1,x_2,f(x_1,x_2),g(f(x_1,x_2)),h(x_2,f(x_1,x_2),g(f(x_1,x_2))))\)
+\end{itemize}
+while the following are not:
+\begin{enumerate}[label= (\roman*)]
+  \item \((x_1,x_2)\) over \(X_3\);\footnote{The sequence would have been fluted if it had been over \(X_2\) or \(X_1\) or \(X_0\).};
+  \item \((x_1,x_2,f(x_3,x_4),x_3)\);
+  \item \((x_1,x_2,x_3,f(x_3))\);
+  \item \((x_1,x_2,x_3,f(x_3),g(x_1,x_2,x_3))\);
+\end{enumerate}
+because they violate respectively conditions (i), (iv), (iv) and (iv) of Definition~\ref{def:fluted-sequence}.
+
+Moreover, these constraints ensure that the DAG representation of the fluted sequence has a unique total topological ordering providing another possible order on functional terms\footnote{Technically, the sequence ordering corresponds to the topological ordering in the \emph{transposed DAG}, with the one induced by the edges in the original DAG being its dual.}.
+This can be easily shown by observing that, for every \(n\) only the vertex corresponding to \(u_n\) has in-degree zero, and therefore it must be the first vertex in any topological ordering of the DAG\@. Removing that vertex (and therefore that term) will again leave a DAG (and a fluted sequence) where only one vertex has in-degree zero (\(u_{n-1}\)), and so on until all vertices \(u_{m+1},\ldots, u_n\) are removed.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[syntree]
+  % Nodi
+  \node[literal] (x) at (-2,0) {\(X_m\)};
+  \node[literal] (f) at (0,0) {\(f\)};
+  \node[literal] (g) at (2,0) {\(g\)};
+  \node[literal] (h) at (4,0) {\(h\)};
+  
+  \draw[-latex, thick] (f) -- (x);
+  \draw[-latex, thick, bend right=30] (g) to (x);
+  \draw[-latex, thick] (g) -- (f);
+  \draw[-latex, thick, bend right=30] (h) to (x);
+  \draw[-latex, thick, bend left=30] (h) to (f);
+  \draw[-latex, thick] (h) -- (g);
+\end{tikzpicture}
+\caption{DAG of last example of fluted sequences}
+\end{figure}
+Is possible now to define the class of fluted clauses.
+
+\begin{definition}\label{def:fluted-clauses}
+  A clause \(C\) is a \emph{fluted clause} over \(X_m\) if one of the following conditions holds:
+  \begin{description}
+    \item[(FL0)] \(C\) is a (possibly empty) propositional clause.
+    \item[(FL1)] \(C\) is not empty, the set of variables occurring in \(C\) (denoted \(\var{C}\)) is exactly \(X_m\), and for any literal \(L\) in \(C\), there is some \(i \in \{1,\ldots,m\}\) such that the argument sequence of \(L\) is
+      \[(x_i, x_{i+1}, \ldots, x_m).\]
+    \item[(FL2)] \(C\) is functional and not empty, \(\var{C} = X_m\), and for any literal \(L\) in \(C\), the argument sequence of \(L\) is one of
+      \[(x_{i},x_{i+1}, \ldots, x_{i_m}) \text{ or }\]
+      \[(u_j, u_{j+1}, \ldots, u_{n}),\]
+    where \(1 \leq i \leq m\) and \((u_j, u_{j+1}, \ldots, u_{n})\) is a suffix of some fluted sequence \(\overline{u} \text{ over } \{x_k, \ldots, x_m\}\) with \(k \in \{1,\ldots,m\}\).
+    \(\overline{u}\) will be referred to as the \emph{fluted sequence associated} with \(L\).
+    \item[(FL3)] \(C\) is not empty, \(\var{C} = X_{m+1}\), and for any literal \(L\) in \(C\), the argument sequence of \(L\) is either
+      \[(x_{1},x_{2}, \ldots, x_{m}) \text{ or }\]
+      \[(x_{i},x_{i+1}, \ldots, x_{m},x_{m+1}),\]
+    where \(1 \leq i \leq m+1\).
+  \end{description}
+  A fluted clause will be called \emph{strongly fluted clause} if it is either ground or has a literal which contains all the variables of the clause.
+\end{definition}
 
 \section{From Fluted Formulae to Fluted Clauses}
 \section{Separation}

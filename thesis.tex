@@ -92,6 +92,7 @@
 
 % Thesis specific custom commands
 \newcommand{\ms}{\,}
+\NewDocumentCommand{\var}{m}{\text{var} (#1)}
 \tikzset{
     syntree/.style={
         level distance=1.5cm,
@@ -111,7 +112,7 @@
     }
 }
 
-\NewDocumentCommand{\flseq}{o m}{(\overline{\IfValueTF{#1}{#1}{u}}_{#2})}
+\NewDocumentCommand{\flseq}{o m o}{(\overline{\IfValueTF{#1}{#1}{u}}_{#2}\IfValueTF{#3}{,#3}{})}
 
 \newcommand{\landor}{\mathrel{\land\mkern-3mu\lor}}
 
