@@ -84,7 +84,7 @@ However, Modus Ponens alone cannot derive this contradiction because there are n
 This limitation of Modus Ponens motivates the need for more general inference rules that can handle cases where no unit clauses are available to trigger inferences.
 The resolution rule addresses this limitation by allowing inferences between any clauses containing complementary literals, regardless of their structure.
 
-\section{Resolution and Factoring}
+\section{Resolution and Factoring}\label{sec:resolution-factoring}
 
 A common inference system used in FOL is based on the \textbf{resolution} rule, which allows for the derivation of new clauses from existing ones, with the addition of the \textbf{factoring} rule, that allows for the simplification of clauses by removing redundant literals.
 
@@ -125,7 +125,7 @@ Using resolution, we can easily show that the previous example set of clauses~\r
   \end{aligned}
 \end{equation}
 \uninatodo{Not sure if this is the correct place for saturation algorithm. Maybe the vampire chapter is better suited?}
-This can be achieved by a \textbf{saturation} process, where we repeatedly apply resolution to derive new clauses until either the empty clause is derived or no new clauses can be generated.
+This can be achieved by a \textbf{saturation} process, where we repeatedly apply inferences to derive new clauses until either the empty clause is derived or no new clauses can be generated.
 
 Formally, a set of clauses \(S\) is \textbf{saturated} under resolution if no new clauses can be derived by applying resolution to clauses in \(S\).
 A possible implementation of a saturation algorithm is implemented partitioning the set of clauses into two collections: 
@@ -214,7 +214,7 @@ For instance, without factoring, we might derive increasingly complex clauses wh
 
 While resolution and factoring provide a refutationally complete inference system, unrestricted application of these rules can lead to an explosion of irrelevant clauses, severely impacting efficiency. The key insight is that many inferences are redundant or unnecessary for finding a refutation.
 
-Ordered inference rules address this problem by imposing systematic restrictions on when resolution and factoring can be applied, dramatically reducing the search space while preserving refutational completeness.
+Ordered inference rules address this problem by imposing systematic restrictions on when resolution and factoring can be applied, dramatically reducing the search space while preserving refutational completeness allowing inferences only on \emph{eligible} literals.
 
 \subsection{Admissible Ordering}
 

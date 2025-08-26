@@ -82,8 +82,8 @@
 
 % Theorem-like environments
 
-\newtheorem{lemma}[theorem]{Lemma}     % Shares numbering with theorems
-\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}{Lemma}     % Shares numbering with theorems
+\newtheorem{proposition}{Proposition}
 
 % Optional: definitions and remarks with different style
 
@@ -91,12 +91,18 @@
 \newtheorem{remark}[theorem]{Remark}
 
 % Thesis specific custom commands
+
+\newcommand{\landor}{\mathrel{\land\mkern-3mu\lor}}
 \newcommand{\ms}{\,}
 \NewDocumentCommand{\var}{m}{\text{var} (#1)}
+\NewDocumentCommand{\flseq}{o m o}{(\overline{\IfValueTF{#1}{#1}{u}}_{#2}\IfValueTF{#3}{,#3}{})}
+\NewDocumentCommand{\fldef}{m o m}{\text{Def}_{#1}\IfValueTF{#2}{^{#2}}{}(#3)} %chktex 36
+
 \tikzset{
     syntree/.style={
         level distance=1.5cm,
         sibling distance=2.5cm,
+        grow=down,
         % Stile per quantificatori (rettangolare)
         quantifier/.style={draw, rectangle, align=center, 
                            minimum width=1cm, minimum height=0.5cm, 
@@ -111,10 +117,6 @@
                        inner sep=1pt}
     }
 }
-
-\NewDocumentCommand{\flseq}{o m o}{(\overline{\IfValueTF{#1}{#1}{u}}_{#2}\IfValueTF{#3}{,#3}{})}
-
-\newcommand{\landor}{\mathrel{\land\mkern-3mu\lor}}
 
 \usepackage[title,titletoc]{appendix}
 

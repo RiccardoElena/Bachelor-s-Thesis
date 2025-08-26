@@ -164,7 +164,7 @@ If we consider multiple atomic formulae (or literals), is possible to represent 
     \caption{Forest of the literals \(P(f(x, g(y)))\) and \(\neg P(f(x, g(y)))\)}\label{fig:subterm_forest}
 \end{figure}
 
-% Add a line to introduce DAG representation and explain why in practice it's better
+
 In practice, it is often more convenient to represent these structures as Directed Acyclic Graphs (DAGs) rather than trees. This is because DAGs allow for the sharing of subterms, which can lead to more compact representations and easier manipulation of the formulae.
 
 DAGs can be particularly useful in automated reasoning and theorem proving, where the same subterm may appear in multiple places within a formula. By representing the formula as a DAG, we can avoid redundant copies of the subterms and simplify the reasoning process.
@@ -372,7 +372,7 @@ Modern implementations incorporate various optimization techniques such as term 
 The unification problem belongs to complexity class \textbf{P}, making it tractable for practical applications in automated reasoning and logic programming systems.
 
 
-\section{Skolemization and Normalization}
+\section{Skolemization and Normalization}\label{sec:skolemization_and_normalization}
 
 Often times, First-Order formulae undergo a series of transformations to prepare them for automated reasoning tasks.
 These transformations include renaming variables, converting to normal forms, and Skolemization.
@@ -431,7 +431,7 @@ Since \(y\) is existentially quantified within the scope of \(\forall x\), we in
 The Skolemization process fundamentally transforms the logical structure of a formula while preserving its essential satisfiability characteristics.
 Most notably, it completely eliminates all existential quantifiers from the formula, replacing them with concrete function or constant symbols that capture the dependencies between variables.
 This transformation is particularly valuable because it preserves satisfiability—meaning that the original formula has a model if and only if the Skolemized version does—but it does not preserve validity in the reverse direction.
-A formula that is valid before Skolemization may lose this property afterward, since the introduction of Skolem functions can create additional constraints that weren't present in the original formula.
+A formula that is valid before Skolemization may lose this property afterward, since the introduction of Skolem functions can create additional constraints that were not present in the original formula.
 However, the resulting formula contains only universal quantifiers, which significantly simplifies the reasoning process by enabling purely universal reasoning techniques. 
 This uniform quantifier structure is especially advantageous for automated theorem provers, as it eliminates the need to handle the complex interactions between universal and existential quantifiers during proof search.
 
@@ -527,13 +527,13 @@ By ensuring that the input is in a uniform syntactic format, inference rules can
 
 This pipeline of transformations, combined with \emph{naming}, is also called \textbf{clausification} and  constitutes the \textbf{preprocessing} phase of automated reasoning systems, a crucial step to prepare formulae for \emph{inferences}.
 
-\section{Auxiliary Predicate Introduction}
+\section{Auxiliary Predicate Introduction}\label{sec:auxiliary_predicate_introduction}
 
 In the transformation of first-order logic (FOL) formulas, particularly when converting to clausal form, it is often advantageous to introduce \emph{auxiliary predicates} to represent complex subformulae. The general idea is to replace a subformula \(\psi(\bar{x})\) with\footnote{Here the notation \(\bar{x}\) is used as usual to indicate a sequence of variables} a fresh predicate symbol \(P(\bar{x})\) that does not occur in the original vocabulary, and to accompany this replacement with a \emph{defining axiom} of the form
 \[
 \forall \bar{x}\ \big(P(\bar{x}) \iff \psi(\bar{x})\big).
 \]
-This method is referred to in the literature under various names, including \emph{auxiliary predicate introduction}, \emph{definition introduction}, and, in some contexts, \emph{axiomatization}. The defining axiom ensures that \(P\) is logically equivalent to the original subformula, thereby preserving satisfiability and logical consequence.
+This method is referred to in the literature under various names, including \emph{auxiliary predicate introduction}, \emph{renaming}, and, in some contexts, \emph{axiomatization}. The defining axiom ensures that \(P\) is logically equivalent to the original subformula, thereby preserving satisfiability and logical consequence.
 
 One of the main motivations for this technique in automated theorem proving is the avoidance of an exponential increase in formula size during \emph{clausification}.
 A naïve elimination of biconditionals and the distribution of disjunctions over conjunctions can lead to a number of clauses that grows exponentially with the size of the input.
