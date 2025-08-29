@@ -1,8 +1,408 @@
 \chapter{Vampire Theorem Prover}\label{chap:vampire-theorem-prover}
-\section{Problem Representation}
-\section{Preprocessing}
-\section{Saturation Algorithm}
-\subsection{Literal Selection}
-\section{AVATAR Architecture}
+Vampire~\cite{AVATAR,kovacs2013vampire,riazanov2002design} is a state-of-the-art first-order theorem prover written in C++ that employs a sophisticated array of techniques to automate reasoning tasks, including resolution-based methods, superposition calculus, and various preprocessing strategies.
+It is widely used in both academic research and industrial applications for its efficiency and effectiveness in solving complex logical problems across diverse domains.
+Its open-source nature and carefully designed modular architecture allow for easy integration of new techniques and algorithms, making it a flexible and extensible platform for researchers and practitioners in automated reasoning.
+
+The system's development began in 1998 as a research project by \citeauthor{riazanov2002design} at the University of Manchester, and it is currently maintained by a broader team in the Computer Science department.
+Over more than two decades of active development, Vampire has evolved into one of the most sophisticated theorem provers available, incorporating numerous theoretical advances from the automated reasoning community and practical optimizations derived from extensive empirical evaluation.
+This long development history has resulted in a mature system that balances theoretical soundness with practical performance considerations.
+
+Vampire's most defining quality is its exceptional efficiency, which has been the primary focus of its development and a key factor in establishing its prominence within the automated theorem proving community.
+This efficiency is consistently demonstrated through its outstanding performance in the annual CADE ATP System Competition (CASC), the premier international competition for automated theorem provers.
+Vampire has maintained a position among the top-performing systems for many years, winning in at least one category annually and achieving a particularly impressive milestone in 2025 when Vampire 5.0 secured victories in all competition categories.
+These consistent competitive successes reflect not only the system's computational efficiency but also the effectiveness of its proof search strategies and heuristic selection mechanisms.
+
+However, this relentless focus on efficiency has resulted in significant trade-offs regarding code readability and maintainability.
+While the high-level architecture and component design are well-documented in various academic papers, the actual implementation is often complex and lacks comprehensive documentation.
+This complexity makes it challenging for new contributors to understand and work with the codebase, frequently requiring them to \dquoteit{reverse engineer} existing functionality to understand the intricate details of specific algorithms and their implementations.
+The situation is further complicated by recent development efforts that, while attempting to improve code organization, have removed, replaced, or restructured several components, making extensions written for previous versions incompatible with newer releases.
+This creates additional challenges for researchers who have invested effort in developing custom modifications to the system.
+
+This chapter discusses, from a high-level perspective, the components of Vampire that are necessary for implementing the decision procedure for the fluted fragment and that are involved in the experimental analysis presented in this thesis.
+It should be noted that both this description and the development work are based on Vampire version 4.9, which is the latest version available at the time of writing.
+
+\section{Components Overview}\label{sec:components-overview}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{Vampire-package-diagram.pdf}
+  \caption{Vampire theorem prover modular architecture overview.}\label{fig:vampire-architecture}
+\end{figure}
+
+Vampire's architecture is organized around a modular design that divides computational responsibilities across distinct modules, each handling specific aspects of the theorem proving process.
+
+The \code{Kernel} module serves as the central component containing the system's fundamental data structures and control mechanisms.
+This module houses representations for \bold{terms}, \bold{clauses}, and \bold{formulas}, which form the basic building blocks of first-order logic manipulation within Vampire.
+The Kernel also contains the \code{Main Loop} of the program, which coordinates the overall execution flow and manages interactions between the various modules.
+
+Several modules address specific computational tasks within the theorem proving process.
+The \code{Parse} module handles the parsing of input problems expressed in various standard formats.
+The \code{Saturation} module implements the saturation algorithms that drive the theorem proving process, systematically exploring logical consequences through controlled inference generation and clause management.
+The \code{Inferences} module provides implementations of the inference rules employed during saturation, encapsulating the logical transformations that generate new clauses from existing ones.
+
+The system includes several utility modules that provide supporting functionality.
+The \code{Lib} module contains fundamental data structures used throughout the system, along with utility functions for manipulating these structures.
+These components are designed to handle the specific access patterns and performance requirements typical of theorem proving applications.
+
+The \code{Indexing} module provides data structures and algorithms for efficient storage, retrieval, and matching of terms during the reasoning process.
+This module enables unification operations and term matching, which are required for the application of inference rules.
+The performance characteristics of these indexing mechanisms directly affect the overall speed of the theorem prover.
+
+User interaction and system configuration are managed by the \code{Shell} module, which handles command-line argument processing, configuration file management, and the various options that control Vampire's behaviour during execution.
+This module translates user specifications and problem files into the internal representations required by the core modules.
+It also contains preprocessing functionality to prepare the input for the theorem proving process.
+
+Finally, the \code{Debug} module provides infrastructure for performance analysis and system monitoring.
+It contains classes and macros for time measurements, statistics collection, and debugging support that enable performance analysis and system optimization.
+
+\section{Problems Representation}\label{sec:problems-representation}
+
+Vampire represents logical problems using a combination of data structures that encapsulate the various components of first-order logic.
+
+\subsection{Terms and Literals}\label{subsec:terms-and-literals}
+
+As discussed earlier, terms and literals are the basic building blocks of first-order logic expressions, and they therefore need to be represented in the most efficient way possible.
+
+In Vampire, terms are represented by the \code{TermList} class, implemented as a \code{union} that can encapsulate different types of terms, including variables, constants, and function applications.
+If \code{TermList} represents a variable, it stores an \code{unsigned integer} identifier that uniquely identifies it, while for complex terms it stores a pointer to a \code{Term} object, that actually represents the term.
+A \code{TermList} can also store a 64 bit \code{BitField}, named \code{info}, which is used to store term-specific information.
+The \code{Term} class contains the function symbol represented by a globally unique \code{unsigned integer} defined by the \code{Signature} class, which contains information about the function's arity, name and index.
+Moreover, the \code{Term} contains a \code{TermList Array} of size equal to \(n+1\) where \(n\) is the function's arity.
+This \code{Array} stores arguments term from right to left, reserving index \(0\) for storing term's information via the \code{info} field.
+In addition, literals are represented by the \code{Literal} class, which is subclass of \code{Term}, unifying the representation of literals and functions, whose symbols are in fact both represented in \code{Signature} without any distinction.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{Terms-and-literals.pdf}
+  \caption{Terms and literals representation in Vampire.}\label{fig:terms-representation}
+\end{figure}
+
+Terms, and therefore literals, are represented by their DAG representation, in structure called \emph{Perfectly Shared} because their key principle is that everything that can be shared is shared.
+In Figure~\ref{fig:dag_representation}, we illustrate the concrete representations of literals \(P(x_2,g(x_2),f(x_1,x_2,g(x_2)))\) and \(Q(x_1,x_2,g(x_1))\).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{Perfectly-shared-literals.pdf}
+  \caption{DAG representation of literals \(P(x_2,g(x_2),f(x_1,x_2,g(x_2)))\) and \(Q(x_1,x_2,g(x_1))\).}\label{fig:dag_representation}
+
+\end{figure}
+
+\subsection{Clauses, Formulae and Units}\label{subsec:clauses-formulae-units}
 
 
+Vampire represents input problems through a hierarchical structure that provides a unified framework for handling various types of logical statements.
+At the top level, each input problem is encapsulated within a \code{Problem} class instance, which serves as the primary container for all logical content and associated metadata.
+
+The core of this representation lies in the \code{UnitList} component, which is maintained as a member of the \code{Problem} class.
+This \code{UnitList} contains a collection of \code{Unit} objects, each representing an individual logical statement from the input problem.
+These \code{Unit} objects collectively represent the axioms, assumptions, and assertions that define the logical context of the problem being solved.
+
+From a logical perspective, the \code{UnitList} can be interpreted as a large conjunction \(A_1 \land A_2 \land \ldots \land A_n\), where each \(A_i\) corresponds to an individual \code{Unit} in the list.
+This conjunctive interpretation reflects the assumption that all statements in the problem are simultaneously true, forming the foundation upon which reasoning proceeds.
+
+When the input problem includes a conjecture \(C\) that needs to be proven, Vampire employs the classical proof by refutation strategy.
+Rather than attempting to derive the conjecture directly from the given axioms, the system negates the conjecture to obtain \(\neg C\) and adds this negated formula to the existing \code{Unit} list.
+The resulting logical system becomes \(A_1 \land A_2 \land \ldots \land A_n \land \neg C\), and Vampire then searches for unsatisfiability in this augmented formula set.
+If unsatisfiability is detected, this constitutes a proof that the original conjecture \(C\) follows logically from the given axioms.
+
+The individual \code{Unit} objects within the \code{UnitList} can take one of two distinct forms.
+A \code{Unit} may be represented as a \code{Clause} object, which directly contains a clause in conjunctive normal form, represented as a list of \code{Literal} objects.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]{Unit.pdf}
+  \caption{Clause representation in Vampire.}\label{fig:clause-representation}
+\end{figure}
+
+
+
+Alternatively, it may be represented as a \code{FormulaUnit}, which contains a pointer to a separate \code{Formula} object that can represent more complex logical structures that have not yet been converted to clausal form.
+
+\code{Formula} objects resemble closely the syntactic tree representation of logical formulas showed in Figure~\ref{fig:syntactic_tree}.\ \code{Formula} class is in fact \emph{abstract}, specialized into several subclasses representing different syntactic constructs.
+All of these subclasses, represent a subtree with the specific syntactic structure of the formula they represent as root.
+These subclasses are:
+
+\begin{description}
+  \item[AtomicFormula]  Represents a basic atomic formula, composed by just one literal represented as a \code{Literal} object and is the only subclass not having continuation, representing a single-leaf tree.
+  \item[QuantifiedFormula]  Represents a formula whose syntactic tree has a quantifier as root.
+                            For compactness, if multiple consecutive quantifiers of the same type are present, they are represented with a single \code{QuantifiedFormula} object.
+                            This class contains in fact a \code{VList}, a list of variables, storing the variables that are quantified by the sequence of quantifiers represented by the object.
+                            It contains only one continuation \code{arg}, which is the subtree representing the formula being quantified.
+  \item[NegatedFormula] Represents a formula whose syntactic tree has a negation as root.
+                        As for the \code{QuantifiedFormula}, it contains a single continuation \code{f}, which is the subtree representing the formula being negated.
+  \item[BinaryFormula]  Represents a formula whose syntactic tree has an implication, a biconditional or an exclusive disjunction\footnote{
+                        Exclusive disjunction was not previously discussed because is equivalent to negated biconditional and, therefore, redundant for the purpose of previous sections} as root.
+                        They clearly contain two continuations \code{lhs} and \code{rhs}, representing the left-hand side and right-hand side subformulae, respectively.
+  \item[JunctionFormula]  Represents a formula whose syntactic tree has a conjunction or disjunction as root.
+                          This class exploits the associativity of these connectives to compact multiple consecutive junctions into a single object.
+                          This class contains in fact as continuation a \code{FormulaList}, a list of subformulae that are conjoined or disjoined together.
+\end{description}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{Formula.pdf}
+  \caption{Formula representation in Vampire.}\label{fig:formula-representation}
+\end{figure}
+
+The separation of binary operators in two distinct classes, those being \code{BinaryFormula} and \code{JunctionFormula}, with different structure and behaviour, allows Vampire to handle preprocessing steps better.
+Indeed, these two classes represent the binary connective normalized and removed in NNF and CNF transformation, respectively.
+
+This dual representation scheme allows Vampire to handle both preprocessed clausal input and more complex formula structures within the same unified framework
+The \code{Clause} representation is typically used for statements that have already undergone preprocessing transformations such as skolemization and conversion to conjunctive normal form.
+The \code{FormulaUnit} representation, on the other hand, provides flexibility for handling complex logical statements that may require additional processing steps before being suitable for resolution-based reasoning.
+
+\section{Preprocessing}\label{sec:preprocessing}
+
+The preprocessing phase in Vampire is crucial for transforming input problems into a more manageable form
+As discussed in Chapter~\ref{chap:first-order-logic} and~\ref{chap:inference-systems}, resolution based inference systems require input problems to be in clausal form, which is not always the case for problems expressed in first-order logic.
+Therefore, a clausification procedure resembling the one summarized in Figure~\ref{fig:nnf-to-cnf-pipeline} needs to be applied to convert the input problem into a manageable form for saturation algorithms.
+
+Alongside the usual clausification steps, Vampire applies several additional preprocessing techniques to optimize the problem representation and enhance the efficiency of the subsequent reasoning process.
+Preprocessing steps do not exceed \(O(n\log{n})\) time complexity and non-essential ones can be activated or deactivated at will by the command line or via flags.
+Below are the main steps of vampire preprocessing\footnote{The steps in \emph{italic} are optional and can be toggled.}:
+
+\begin{description}
+  \item[Rectification]  ensures that formulae are indeed sentences.
+                        If it is not the case, free variables are quantified.
+                        Moreover, it checks that no variable is quantified more than once.
+  \item[True and False Simplification] simplifies formulae by eliminating trivial \(\top\) and \(\bot\).
+  \item[Flattening] aggregates consecutive junctions or quantifications of the same type into a single object.
+                    For example, the formula \((A \land B) \land C\) is transformed into \(A \land B \land C \).
+  \item[\emph{Unused definition and pure predicate removal}]  removes or simplifies formulae of the form \(\forall x_1,\ldots,x_n P(x_1, \ldots,x_n) \iff \phi\).
+                                                              If \(P\) does not occur anywhere else in the problem, the formula can be removed.
+                                                              If it appears only positively (negatively), \(\iff\) can be replaced with \(\implies\) (\(\impliedby\)).
+  \item[ENNF] transforms the formula into \emph{Extended Negated Normal Form}, or sometimes called \emph{Equivalence Negated Normal Form}, a variant of NNF which allows biconditionals.
+  \item[\emph{Naming}] applies a naming technique to avoid search-space explosion by introducing new constants for complex subformulae as briefly mentioned in Section~\ref{sec:auxiliary_predicate_introduction}.
+  \item[NNF] transforms the formula into \emph{Negated Normal Form} removing all binary connectives but junctions and pushing negations to atomic formulae as described in Subsection~\ref{subsec:negated_normal_form}.
+  \item[Skolemization] removes existential quantifiers by introducing Skolem functions, as described in Subsection~\ref{subsec:skolemization}.
+  \item[Clausification] complete the preprocessing procedure by dropping universal quantifiers and transforming the formula into \emph{Clausal Normal Form}, as described in Subsection~\ref{subsec:clausal_normal_form}.
+                        At the end of this step, the \code{UnitList} of the \code{Problem} object contains only \code{Clause} objects.
+\end{description}
+
+\section{Saturation Algorithm}\label{sec:saturation-algorithm}
+
+Vampire is primarily a saturation-based theorem prover, meaning that it employs a \bold{saturation} algorithm to derive logical consequences from a given set of clauses until either a contradiction is found or no new clauses can be generated.
+
+Formally, as stated in Subsection~\ref{subsec:resolution}, a set of clauses \(S\) is \bold{saturated} under an inference system \(R\) if all clauses derivable from premises in \(S\) using inferences in \(R\) are included in \(S\).
+The saturation algorithm employed by Vampire is based on the \emph{given clause architecture} (GCA)
+In this architecture, the set of clauses is partitioned into two collections:
+
+\begin{enumerate*}[label= (\roman*)]
+  \item \bold{active} clauses \(A\) that starts empty, where clauses are inserted after being resolved against the other clauses in the active set
+  \item \bold{passive} clauses \(P\) that starts containing all clauses in the original set \(S\), where clauses are removed one at a time as they are resolved, and new clauses obtained by resolution are inserted
+\end{enumerate*}
+
+The architecture name comes from the fact that the operations done in the main loop consists of selecting and removing a clause from \(P\), called the \emph{given clause} (GC), and applying all possible inference rules to it in combination with clauses in \(A\).
+When new clauses are generated, they are added to \(S\) in the \(P\) partition, so that they can be selected as given clauses in future iterations, and the current given clause is added to \(A\), to be resolved against future given clauses.
+
+The derivation of \(\varnothing\) at any point allows us to conclude that the original set of clauses \(S\) is unsatisfiable.
+Alternatively, when \(P\) becomes empty, the original set of clauses \(S\) has been saturated, and since \(\varnothing\) has not been derived, we can conclude that \(S\) is satisfiable.
+
+A high-level description of the saturation algorithm with GCA is as follows:
+\begin{algorithm}[H]
+    \caption{Saturation Algorithm}\label{alg:saturation-algorithm}
+    \begin{algorithmic}[1]
+        \Statex{} \bold{signature} \(\textsc{SA} \quad [Clause] \to Boolean\)
+        \Function{\(\textsc{SA}\)}{$S$} % chktex 46
+            \State{} \((A,P)\gets (\emptyset,S)\)
+            \While{\(P \neq \emptyset\)}
+                \State{} \(curr \gets select(P)\)
+                \State{} \(P \gets P \setminus \{curr\}\)
+                \State{} \(New \gets infer(curr, A)\)
+                \If{\(\varnothing \in New\)}
+                    \State{} \bold{return} \(False\)
+                \EndIf{}
+                \State{} \(A \gets A \cup \{curr\}\)
+                \State{} \(P \gets P \cup New\)
+            \EndWhile{}
+            \State{} \bold{return} \(True\)
+        \EndFunction{}
+    \end{algorithmic}
+\end{algorithm}
+
+Where \(infer\) is a function of type \(Clause \times [Clause] \to [Clause]\) that computes the list of resolvents of the given clause and any clause in the list\footnote{
+  Technically, \(infer\) should also take as input the inference system \(R\) to be used, but for simplicity, we omit it here.
+}.
+
+The algorithm explores the search space of all possible resolutions, systematically applying the resolution rule to derive new clauses until either a contradiction is found or no new clauses can be generated.
+
+This procedure though, can go in infinite loops, never terminating if the input set \(S\) is satisfiable.
+That is because the saturation of a finite set of clauses can be infinite, so the algorithm can keep generating new clauses without ever reaching a conclusion.
+A hand-wavy argument for why this leads to semi-decidability is as follows: if the complete saturated set were given and the original clauses were satisfiable, then \(\varnothing\) would not be present in this infinite set.
+Searching for \(\varnothing\) in such a set could require examining infinitely many clauses, leading to non-termination.
+This results in semi-decidability: unsatisfiable sets can be detected when \(\varnothing\) is derived, but satisfiable sets may cause the search procedure to run indefinitely.
+
+A practical example of this is the set of clauses
+\begin{equation}\label{eq:non_terminating}
+  \{ \{P(c)\}, \{\neg P(x) \lor P(f(x))\} \}
+\end{equation}
+which is satisfiable by \emph{Peano Arithmetic} (interpreting \(c\) as \(0\) and \(f\) as the successor function), but leads to an infinite loop in the saturation algorithm.
+
+\begin{equation}
+   \begin{aligned}
+    P(c) &\quad \text{Clause 1 (Premise)} \\
+    \neg P(x) \lor P(f(x)) &\quad \text{Clause 2 (Premise)} \\
+    \neg P(f(c)) &\quad \text{Clause 3 (Resolution 1,2)} \\
+    \neg P(f(f(c))) &\quad \text{Clause 4 (Resolution 3,2)} \\
+    \ldots
+  \end{aligned}
+\end{equation}
+
+Therefore, in practical implementations of GCA based algorithm, some sort of resource limitation has to be applied to ensure termination.
+Clearly, the signature of the algorithm changes to \([Clause] \to Boolean \ms|\ms \bot\), where \(\bot\) indicates that the algorithm was interrupted due to resource limitations before reaching a conclusion.
+
+One of the first Automated Theorem Provers to implement GCA was the \emph{Otter} system~\cite{mccune1994otter},  which added two additional steps to the basic GCA algorithm.
+These steps are called \bold{forward simplification} and \bold{backward simplification} and take care of applying simplification inferences, such as \emph{factoring}~\ref{subsec:factoring}, to the given clause and to the active or passive clauses respectively.
+A base description of this structure is the following:
+\begin{algorithm}[H]
+    \caption{Otter Algorithm}\label{alg:otter-algorithm}
+    \begin{algorithmic}[1]
+        \Statex{} \bold{signature} \(\textsc{Otter} \quad [Clause] \to Boolean\)
+        \Function{\(\textsc{Otter}\)}{$S$} % chktex 46
+            \State{} \((A,P)\gets (\emptyset,S)\)
+            \While{\(P \neq \emptyset\)}
+                \State{} \(curr \gets select(P)\)
+                \State{} \(P \gets P \setminus \{curr\}\)
+                \If{\(retained(curr)\)}
+                    \State{} \(curr \gets forwardSimplify(curr,A,P)\)
+                    \If{\(curr = \varnothing\)}
+                        \State{} \bold{return} \(False\)
+                    \EndIf{}
+                    \If{\(retained(curr)\)}
+                        \State{} \((A,P) \gets backwardSimplify(curr,A,P)\)
+                        \State{} \(New \gets infer(curr, A)\)
+                        \If{\(\varnothing \in New\)}
+                            \State{} \bold{return} \(False\)
+                        \EndIf{}
+                        \State{} \(A \gets A \cup \{curr\}\)
+                        \State{} \(P \gets P \cup New\)
+                    \EndIf{}
+                \EndIf{}
+            \EndWhile{}
+            \State{} \bold{return} \(True\)
+        \EndFunction{}
+    \end{algorithmic}
+\end{algorithm}
+where \(retained\) is a function of type \(Clause \to Boolean\) that checks if the given clause should be retained for further processing or discarded based on certain criteria, such as redundancy or subsumption.
+
+Vampire implements three variants of this structure:
+
+\begin{itemize}
+  \item \emph{Otter}, which is the basic version described above with the addition of another set called \emph{unprocessed}
+  \item \emph{LRS}, or \emph{limited resource strategy}, which attempts to estimate which passive or unprocessed clauses have no chance to be selected by the time limit and discards these clauses.
+                    Such clauses will be called \emph{unreachable}.
+                    While being the most efficient and performant strategy, it can lead to loss of completeness.
+                    In particular, if a clause is discarded as unreachable, and the set reaches saturation, Vampire has no way to tell if a possible contradiction could have been generated from discarded clauses.
+                    In this specific case, Vampire will return \emph{unknown}.
+  \item \emph{Discount}, in which simplification steps only involve active clauses.
+                          This is because often times the set of passive clauses is much larger the number of active one and grow significantly faster than the active ones, making their processing more expensive.
+\end{itemize}
+
+In Vampire, the limited resource strategy gives the best results, closely followed by the Discount algorithm.
+The Otter algorithm is generally weaker, but it still behaves better on some formulas~\cite{kovacs2013vampire}.
+
+\subsection{Literal Selection}\label{subsec:literal-selection}
+
+Vampire implements a large variety of inference rules, but the core needed for satisfiability in first order logic\footnote{
+  We are considering first order logic without equality
+} is composed of ordered resolution~\ref{subsec:ordered-resolution} and ordered factoring~\ref{subsec:ordered-factoring}.
+
+The admissible orders present in Vampire are \bold{KBO} (Knuth-Bendix Ordering)~\cite{knuth1970simple}, which is the default option, and \bold{LPO} (Lexicographic Path Ordering)~\cite{dershowitz1982orderings}.
+
+\bold{KBO} is a simplification ordering based on the idea of assigning weights to function symbols and variables, and then comparing terms based on their total weight. If two terms have the same weight, a lexicographic comparison is used to break ties.
+Formally, it is defined as follows:
+\begin{definition}
+  Let \(\mathcal{X},\mathcal{C},\mathcal{F} \text{ and } \mathcal{P}\) be the sets of variables, constant symbols, function symbols and predicate symbols respectively and let \(\succ\) be a strict partial order on \(\mathcal{F} \cup \mathcal{C}\).
+  A function \(w: \mathcal{X} \cup \mathcal{C} \cup \mathcal{F} \to \mathbb{R}^+\) is called a \emph{weight function} if \(w(x) = w_0 \in \mathbb{R}^+\) for all \(x \in \mathcal{X}\) and \(w(c) \geq w_0\) for all \(c \in \mathcal{C}\).
+  The weight of a term \(t\), denoted by \(w(t)\), is defined as:
+  \[
+  w(t) = w(f(t_1,\ldots,t_n)) = w(f) + \sum_{i=1}^n w(t_i) \text{ or alternatively }
+  \]
+  \[
+  \sum w(t) = \sum_{x \in vars(t)} w(x) \cdot \#(x,t) + \sum_{f \in \mathcal{F}} w(f) \cdot \#(f,t)
+  \]
+  where \(\#(s,t)\) is the number of occurrences of \(s\) in \(t\)
+
+  Then \(s \succ_{KBO} t\) if:
+  \begin{enumerate}
+    \item \(\#(x,s) \geq \#(x,t)\) for all variables \(x\) and \(w(s) > w(t)\), or
+    \item \(\#(x,s) \geq \#(x,t)\) for all variables \(x\) and \(w(s) = w(t)\), and
+          \begin{enumerate}
+            \item \(s = f(s_1,\ldots,s_n)\), \(t = g(t_1,\ldots,t_m)\), and \(f \succ g\), or
+            \item \(s = f(s_1,\ldots,s_n)\), \(t = g(t_1,\ldots,t_m)\), and \((s_1, \ldots, s_n) {(\succ_{KBO})}_{lex} (t_1, \ldots, t_m)\)
+          \end{enumerate}
+  \end{enumerate}
+\end{definition}
+
+\bold{LPO} is a simpler ordering only taking in account for precedence on function symbols and their arguments.
+It is defined as follows:
+\begin{definition}
+  Let \(\mathcal{X},\mathcal{C},\mathcal{F} \text{ and } \mathcal{P}\) be the sets of variables, constant symbols, function symbols and predicate symbols respectively and let \(\succ\) be a strict partial order on \(\mathcal{F} \cup \mathcal{C}\).
+  Then \(s\succ_{LPO} t\) if:
+  \begin{enumerate}
+    \item \(t = x \in \mathcal{X}, x \in var(s) \text{ and } s \neq t\) or
+    \item \(s = f(s_1,\ldots,s_n)\), \(t = g(t_1,\ldots,t_m)\), and
+          \begin{enumerate}
+            \item \(s_i \succeq_{LPO} t\) for some \(i \in \{1,\ldots,n\}\) or
+            \item \(f \succ g\) and \(s \succ_{LPO} t_j\) for every \(j \in \{1,\ldots,m\}\) or
+            \item \(f = g, s \succ_{LPO} t_j\) for every \(j \in \{1,\ldots,m\}\) and \((s_1, \ldots, s_n) {(\succ_{LPO})}_{lex} (t_1, \ldots, t_m)\)
+          \end{enumerate}
+  \end{enumerate}
+\end{definition}
+
+Moreover, Vampire implements a variety of selction functions, from the simplest \emph{all}, which selects all literals in the given clause, to more complex ones, such as \emph{maximal size, negative then lexicographic}\footnote{
+  Technically, this selection function consider \emph{colored first} and \emph{negative equality} before the other three criteria, but they are out of the scope of this thesis.
+} which is the default options.
+
+The combination of simplification ordering and fine-grained selection functions allows Vampire to avoid redundant inferences and allowing it to terminate quickly, and even derive satisfiability in problems that standard resolution would not.
+
+For example, on the set of clauses in Equation~\ref{eq:non_terminating}, Vampire find satisfiability almost immediately.
+
+\section{AVATAR}\label{sec:avatar-architecture}
+
+\emph{AVATAR}~\cite{AVATAR} (Advanced Vampire Architecture for Theories And Resolution) is an innovative architecture developed by the Vampire team to deal with clauses containing propositional variables and other clauses that can be split into components with disjoint set of variables, a technique called \bold{splitting}.
+
+The motivation for AVATAR stems from a fundamental performance limitation observed in superposition theorem provers when dealing with \bold{multi-literal} and \bold{heavy clauses}.
+As discussed in Section~\ref{sec:saturation-algorithm}, the complexity of inference algorithms in superposition provers grows significantly with clause size, and the presence of many literals in clauses leads to exponential behavior in operations such as subsumption and subsumption resolution.
+Additionally, large clauses require extensive memory usage and index maintenance, which becomes a computational bottleneck as the search space grows.
+
+Traditional approaches to this problem involved implementing splitting techniques directly within the theorem prover, either with backtracking (as in SPASS) or without backtracking (as in earlier versions of Vampire).
+While these methods provided some performance improvements, they remained far from the efficiency levels achieved by specialized SAT solvers on propositional problems or SMT solvers on ground problems with equality.
+AVATAR addresses this limitation by fundamentally restructuring how splitting is handled through the integration of a dedicated SAT or SMT solver.
+
+\subsection{Architectural Components}\label{subsec:avatar-components}
+
+The AVATAR architecture consists of two primary components working in close cooperation:
+
+\begin{description}
+  \item[FO Component] A first-order resolution and superposition theorem prover that implements the standard saturation algorithm described in Section~\ref{sec:saturation-algorithm}.
+                     This component handles the generation of inferences, term manipulation, and all aspects of first-order reasoning.
+  \item[SAT Component] A SAT solver (or SMT solver) that manages the propositional aspects of clause splitting.
+                       This component stores propositional clauses derived from splittable first-order clauses and computes satisfying assignments that guide the first-order reasoning process.
+\end{description}
+
+The communication between these components is facilitated through a \bold{component mapping} \([\cdot]\) that translates clause components into propositional literals.
+This mapping satisfies several important properties: \([C]\) is a positive literal if and only if \(C\) is either a non-ground component or a positive ground literal; for negative ground components \(\neg C\), we have \([\neg C] = \neg[C]\); and \([C_1] = [C_2]\) if and only if \(C_1\) is equal to \(C_2\) up to variable renaming and symmetry of equality.
+
+\subsection{Splitting in AVATAR}\label{subsec:avatar-splitting}
+
+The core innovation of AVATAR lies in its approach to handling splittable clauses.
+A clause \(D = C_1 \lor \ldots \lor C_n\) is considered \bold{splittable} if it can be decomposed into components \(C_1, \ldots, C_n\) such that each pair of components has disjoint sets of variables.
+The logical foundation for this decomposition rests on the equivalence \(\forall(C_1 \lor C_2) \equiv (\forall C_1) \lor (\forall C_2)\) when \(C_1\) and \(C_2\) have disjoint variable sets.
+
+In traditional splitting approaches, when a splittable clause is encountered, the theorem prover would create separate search branches for each component, managing the exploration of these branches through internal backtracking or branch selection mechanisms.
+AVATAR revolutionizes this process by externalizing the split management:
+
+\begin{enumerate}
+  \item When a splittable clause \(C_1 \lor \ldots \lor C_n\) passes the retention test, it is \emph{not} added to the passive set of the FO component.
+  \item Instead, the propositional clause \([C_1] \lor \ldots \lor [C_n]\) is sent to the SAT solver.
+  \item The SAT solver incorporates this new clause and computes a satisfying assignment over all stored propositional clauses.
+  \item Components corresponding to propositional variables that are true in this assignment are sent back to the FO component as \bold{assertions}.
+\end{enumerate}
+
+This approach leverages the specialized algorithms and heuristics developed for propositional satisfiability, which are significantly more efficient for this type of reasoning than the general-purpose algorithms used in first-order theorem provers.
+
+The addition of this mechanisms bring a substantial performance improvement in problems containing splittable clauses, but its implementation requires some modifications to the saturation algorithm described in Section~\ref{sec:saturation-algorithm} and a careful handling of the interactions between the FO and SAT components.
+
+All this technicalities are out of the scope of this thesis, whose focus is confronting resolution strategies and their effectiveness in first-order theorem proving.
+Theoretically, splitting can be incorporated into the decision procedure for fluted logic, but not being necessary for termination has been avoided, because there were no guarantees that AVATAR splitting would have caused problems being a completely new approach.

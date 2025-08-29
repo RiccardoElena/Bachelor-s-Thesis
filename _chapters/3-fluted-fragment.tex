@@ -19,18 +19,18 @@ Another significant aspect of fluted logic is the relationship to non-classical 
 Fluted logic may be viewed as a generalization of modal logic, a characteristic shared with the guarded fragments. 
 However, fluted logic offers advantages over guarded fragments for modal logic embeddings because it allows negation of relation atoms, enabling it to capture enriched modal logics like Boolean modal logic~\cite{gargov1990boolean}, and expressive description logics such as \(\mathcal{ALB}\) (without converse)~\cite{hustadt2000issues}.
 
-Additionally, in~\cite{purdy1999quine}~\citeauthor{purdy1999quine} describes an application in computational linguistics of fluted logics for
+Additionally, in~\cite{purdy1999quine} \citeauthor{purdy1999quine} describes an application in computational linguistics of fluted logics for
 modelling ordinary English.
 
 Finally, fluted logic has the finite model property~\cite{purdy1996decidability,purdy1996fluted,purdy1999quine}, which means that every satisfiable formula has a finite model.
 This property is crucial because it enables decidable satisfiability checking through systematic enumeration of finite structures.
 
-\section{Fluted Formulae}
+\section{Fluted Formulae}\label{sec:fluted-formulae}
 
 Formally, the syntactic structure of fluted formulae can be defined as follows~\cite{schmidt2000resolution}:
 
 \begin{definition}\label{def:fluted-formulae}
-  Let \(\mathcal{P}\) be a finite set of predicate symbols and let \(X_m = \{x_1, \ldots, x_m\} \subseteq \mathcal{V}\)\uninatodo{this definition is taken directly from the paper but seems to not include the \(\emptyset\). Should I change it?} be an \emph{ordered} set of variables.
+  Let \(\mathcal{P}\) be a finite set of predicate symbols and let \(X_m = \{x_1, \ldots, x_m\} \subseteq \mathcal{X}\)\uninatodo{this definition is taken directly from the paper but seems to not include the \(\emptyset\). Should I change it?} be an \emph{ordered} set of variables.
   An \emph{atomic fluted formula} of \(\mathcal{P} \text{ over } X_i\) is an \(n\)-ary atom \(P(x_l,\ldots, x_i)\), with \(l = i - n + 1 \text{ and } n \leq i\).
   \emph{Fluted formulae} are defined inductively as follows:
   \begin{enumerate}
@@ -67,7 +67,7 @@ While the following examples are not fluted formulae:
 \end{equation}
 because the ordering of arguments is violated.
 
-These constraints can be expressed less formally with a top-down approach too, where the variables of atoms from a string \(fs\), where \(f\) is a possibly empty string of free variables, and \(s\) is a suffix of the string of the bound variables from the outermost quantifier to the innermost.
+These constraints can be expressed less formally with a top-down approach as well, where the variables of atoms from a string \(fs\), where \(f\) is a possibly empty string of free variables, and \(s\) is a suffix of the string of the bound variables from the outermost quantifier to the innermost.
 
 \begin{figure}[H]
     \centering
@@ -120,9 +120,9 @@ By contrast, in Figure~\ref{fig:not_fluted_syntree}, the atom \(R(x_4, x_3)\) ha
 
 This observation leads to the fact that, in \dquote{\emph{constructing}} a fluted sentence top-down, one can only \emph{introduce} new variables at the end of the string and the variables an atom \(P\) is applied to is completely determined by the quantifiers it is in scope of and its arity, while everything remains arbitrary.
 
-\section{Fluted Clauses}
+\section{Fluted Clauses}\label{sec:fluted-clauses}
 
-In~\cite{schmidt2000resolution}, \citeauthor{schmidt2000resolution} introduces a restricted class of clauses named \textbf{fluted clauses}.
+In~\cite{schmidt2000resolution}, \citeauthor{schmidt2000resolution} introduces a restricted class of clauses named \bold{fluted clauses}.
 These clauses are characterized by a specific structure that adheres to the constraints outlined in the previous sections and such that any fluted formula, after the necessary naming, can be transformed into a fluted clause.
 
 Before we delve into the formal definition of the fluted clauses class, we need to introduce some notation.
@@ -258,7 +258,7 @@ The proofs follow straightforwardly and are therefore omitted for brevity. Compl
 
 Lemma~\ref{lem:strongly-fluted-clauses} is of particular relevance, because it assures that any fluted clause is indeed strongly fluted, except for some (FL3)-clauses. Those exceptions will be handled with a new inference rule named \emph{separation} that will be introduced later.
 
-\section{From Fluted Formulae to Fluted Clauses}
+\section{From Fluted Formulae to Fluted Clauses}\label{sec:from-fluted-formulae-to-fluted-clauses}
 
 Once defined the class of fluted clauses, a procedure to transform any fluted formula into a set of fluted clauses is needed.
 
@@ -382,8 +382,8 @@ of which the latter does not contain a literal which contains all the variables 
 
 Having only fluted clauses and not strongly fluted ones in this phase is not a problem because, as we will see later, resolution of strongly fluted clauses can produce a non-strongly fluted clauses, making a procedure to obtain equivalent strongly fluted clauses from non-strongly fluted ones necessary anyway.
 
-This procedure is the new inference rule named \textbf{separation}.
-\section{Separation}
+This procedure is the new inference rule named \bold{separation}.
+\section{Separation}\label{sec:separation}
 As briefly mentioned in the previous section, the motivation for introducing the \emph{separation} inference rule is that the class of fluted clauses is not closed under resolution.
 In particular, resolvents of non-strongly fluted (FL3)-clauses are not always fluted and can cause (potentially) unbound variable chaining across literals.
 
@@ -430,10 +430,10 @@ The problem is caused by the variable \(x_1 \text{ and } x_3\). Because they do 
   \]
 These two clauses are indeed strongly fluted, the first satisfying (FL1) and the second (FL3) but being strongly fluted.
 
-This process of separating non-strongly fluted clauses into strongly fluted can be formalized in the \textbf{separation} inference rule, that can be used outside the context of fluted logic as well.
+This process of separating non-strongly fluted clauses into strongly fluted can be formalized in the \bold{separation} inference rule, that can be used outside the context of fluted logic as well.
 
 \begin{definition}
-  Let \(C\) be an arbitrary clause. \(C\) is \textbf{separable} if it can be partitioned into two non-empty subclauses \(D_1\) and \(D_2\) such that \(\var{D_1} \not\subseteq \var{D_2} \text{ and } \var{D_2} \not\subseteq \var{D_1}\)
+  Let \(C\) be an arbitrary clause. \(C\) is \bold{separable} if it can be partitioned into two non-empty subclauses \(D_1\) and \(D_2\) such that \(\var{D_1} \not\subseteq \var{D_2} \text{ and } \var{D_2} \not\subseteq \var{D_1}\)
 \end{definition}
 
 For example the clause shown before is separable, while the clause
@@ -450,7 +450,7 @@ is not separable.
 On the basis of this theorem we can define the following replacement rule:
 
 \begin{equation}\label{eq:separation-rule}
-  \textbf{Separation:} \quad \infer{N \cup \{\neg Q(x_1,\ldots, x_n) \lor C, Q(x_1,\ldots, x_n) \lor D\}}{N \cup \{C \lor D\}}
+  \bold{Separation:} \quad \infer{N \cup \{\neg Q(x_1,\ldots, x_n) \lor C, Q(x_1,\ldots, x_n) \lor D\}}{N \cup \{C \lor D\}}
 \end{equation}
 \indent provided 
 \begin{enumerate*}[label = (\roman*)]
@@ -497,7 +497,7 @@ From this, follows that:
 \end{lemma}
 
 
-\section{Fluted Resolution}
+\section{Fluted Resolution}\label{sec:fluted-resolution}
 
 In the end, we can formally define an ordered resolution based inference system \(R^{sep}\) whose application is a decision procedure for fluted logic.
 
@@ -600,7 +600,6 @@ The theoretical discussion of the fluted fragment can therefore be said to be co
   \begin{itemize}
     \item Any \(R^{sep}\)-derivation from \(N\) terminates.
     \item \(\phi\) is unsatisfiable if and only if the \(R^{sep}\)-saturation of \(N\) contains the empty clause.
-    \item 
   \end{itemize}
 \end{theorem}
 

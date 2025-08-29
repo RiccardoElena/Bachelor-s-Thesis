@@ -4,10 +4,10 @@ In chapter~\ref{chap:first-order-logic} we introduced FOL as a formal representa
 Representation of knowledge alone is not sufficient for formalizing reasoning processes.
 What is needed is a formalization of some reasoning mechanisms that can operate on this knowledge, rules that, given a set of premises, can derive new conclusions.
 
-These rules are called \textbf{inference rules}.
+These rules are called \bold{inference rules}.
 There are various types of inference rules, each with its own characteristics and applications.
 
-In general, we denote with \(R\) a set of inference rules called \textbf{inference system}. Given a set of premises \(\Gamma\), an inference rule \(r \in R\) can be applied to \(\Gamma\) to infer a new conclusion \(\phi\), denoted as \(\Gamma \vdash_r \phi\)\footnote{
+In general, we denote with \(R\) a set of inference rules called \bold{inference system}. Given a set of premises \(\Gamma\), an inference rule \(r \in R\) can be applied to \(\Gamma\) to infer a new conclusion \(\phi\), denoted as \(\Gamma \vdash_r \phi\)\footnote{
   The notation can be simplified with just \(\Gamma \vdash \phi\) if the specific rule \(r\) is unambiguous.}.
 If a sentence \(\phi\) can be inferred from the empty set using \(r\), we write \(\vdash_r \phi\).
 It is possible to generalize this notation to the entire inference system \(R\) by writing \(\Gamma \vdash_{R} \phi\).
@@ -15,15 +15,15 @@ It is possible to generalize this notation to the entire inference system \(R\) 
 Moreover, it is possible to characterize the effectiveness of inference systems with various properties:
 
 \begin{itemize}
-    \item \textbf{Soundness}: An inference system is sound if it only derives conclusions that are true in the model. Formally, \(R\) is \textbf{sound} if for all \(\Gamma\) and \(\phi\), if \(\Gamma \vdash_{R} \phi\), then \(\Gamma\models\phi\).
-    \item \textbf{Completeness}: An inference system is complete if it can derive all conclusions that are true in the model. Formally, \(R\) is \textbf{complete} if for all \(\Gamma\) and \(\phi\), if \(\Gamma\models\phi\), then \(\Gamma \vdash_{R} \phi\).
-    \item \textbf{Correctness}: An inference system is correct if it is both \textbf{sound} and \textbf{complete}.
-    \item \textbf{Consistency}: An inference system is consistent if it does not derive contradictory conclusions from any set of premises. Formally, \(R\) is \textbf{consistent} if for all \(\Gamma\) and \(\phi\), it is not the case that both \(\Gamma \vdash_{R} \phi\) and \(\Gamma \vdash_{R} \neg \phi\).
+    \item \bold{Soundness}: An inference system is sound if it only derives conclusions that are true in the model. Formally, \(R\) is \bold{sound} if for all \(\Gamma\) and \(\phi\), if \(\Gamma \vdash_{R} \phi\), then \(\Gamma\models\phi\).
+    \item \bold{Completeness}: An inference system is complete if it can derive all conclusions that are true in the model. Formally, \(R\) is \bold{complete} if for all \(\Gamma\) and \(\phi\), if \(\Gamma\models\phi\), then \(\Gamma \vdash_{R} \phi\).
+    \item \bold{Correctness}: An inference system is correct if it is both \bold{sound} and \bold{complete}.
+    \item \bold{Consistency}: An inference system is consistent if it does not derive contradictory conclusions from any set of premises. Formally, \(R\) is \bold{consistent} if for all \(\Gamma\) and \(\phi\), it is not the case that both \(\Gamma \vdash_{R} \phi\) and \(\Gamma \vdash_{R} \neg \phi\).
 \end{itemize}
-A weaker form of completeness is \textbf{refutational completeness} which requires that if \(\Gamma \models \bot\), then \(\Gamma \vdash_{R} \bot\).  Practically, this means that if a set of premises is unsatisfiable, the inference system can derive a contradiction.
+A weaker form of completeness is \bold{refutational completeness} which requires that if \(\Gamma \models \bot\), then \(\Gamma \vdash_{R} \bot\).  Practically, this means that if a set of premises is unsatisfiable, the inference system can derive a contradiction.
 By theorem~\ref{thm:validity_satisfiability_reduction}, a refutational complete inference system can show that a formula is valid by proving that its negation is unsatisfiable.
 
-A first example of an inference rule is \textbf{Modus Ponens}, which states that if we have a conditional statement \(A \implies B\), and we know that \(A\) is true, then we can conclude that \(B\) is also true. Formally, it can be expressed as:
+A first example of an inference rule is \bold{Modus Ponens}, which states that if we have a conditional statement \(A \implies B\), and we know that \(A\) is true, then we can conclude that \(B\) is also true. Formally, it can be expressed as:
 \begin{equation}  
   \infer{B}{A & A \implies B}
 \end{equation}
@@ -63,9 +63,9 @@ where \(\sigma\) is the MGU of \(A_1\) and \(A_2\).
 While being a powerful inference rule, Modus Ponens has its limitations in the context of FOL\@.
 In particular:
 \begin{itemize}
-  \item It is \textbf{sound} because any conclusion derived is logically entailed.
-  \item It is \textbf{not complete} because there are valid conclusions that cannot be derived using this rule alone.
-  \item It is \textbf{not refutationally complete} because there are unsatisfiable sets of clauses that cannot be shown to be unsatisfiable using this rule alone.
+  \item It is \bold{sound} because any conclusion derived is logically entailed.
+  \item It is \bold{not complete} because there are valid conclusions that cannot be derived using this rule alone.
+  \item It is \bold{not refutationally complete} because there are unsatisfiable sets of clauses that cannot be shown to be unsatisfiable using this rule alone.
 \end{itemize}
 
 For example, the set of clauses
@@ -86,14 +86,14 @@ The resolution rule addresses this limitation by allowing inferences between any
 
 \section{Resolution and Factoring}\label{sec:resolution-factoring}
 
-A common inference system used in FOL is based on the \textbf{resolution} rule, which allows for the derivation of new clauses from existing ones, with the addition of the \textbf{factoring} rule, that allows for the simplification of clauses by removing redundant literals.
+A common inference system used in FOL is based on the \bold{resolution} rule, which allows for the derivation of new clauses from existing ones, with the addition of the \bold{factoring} rule, that allows for the simplification of clauses by removing redundant literals.
 
 The key insight is that Modus Ponens requires one premise to be a unit clause (single literal) to match against a conditional.
 Resolution generalizes this by allowing any two clauses containing literals that become complementary after unification to be combined, making it much more powerful for systematic proof search in clause form.
 
-\subsection{Resolution}
+\subsection{Resolution}\label{subsec:resolution}
 
-\textbf{Resolution} is a rule of inference specifically designed for CNF\@. It allows for the derivation of new clauses by resolving two clauses that contain complementary literals.
+\bold{Resolution} is a rule of inference specifically designed for CNF\@. It allows for the derivation of new clauses by resolving two clauses that contain complementary literals.
 
 Formally, resolution in FOL can be defined as:
 
@@ -105,13 +105,13 @@ Formally, resolution in FOL can be defined as:
 \noindent Intuitively, resolution is justifiable noticing that, for \(A_1 \lor B\) and \(A_2 \lor C\) to be true, at least one of \(A_1\) and \(B\) must be true, and at least one of \(A_2\) and \(C\) must be true.
 Being \(A_1\) and \(A_2\) complementary, it is impossible for both to be true at the same time, so at least one of \(B\) and \(C\) must be true. Thus, we can conclude that \(B \lor C\) must be true.
 
-From this consideration, we can see that resolution is \textbf{sound} because it only derives conclusions that are logically entailed by the premises.
-However, resolution is \textbf{not complete} because there are valid conclusions that cannot be derived using this rule alone.
+From this consideration, we can see that resolution is \bold{sound} because it only derives conclusions that are logically entailed by the premises.
+However, resolution is \bold{not complete} because there are valid conclusions that cannot be derived using this rule alone.
 An example of this is the \emph{disjunction introduction} rule \(A \models A \lor B\), which allows for the introduction of a disjunction from a single clause.
 
 The absence of complementary literals in the premises prevents resolution from deriving any conclusions, and therefore to be complete.
 
-Resolution though is \textbf{refutationally complete}, meaning that if a set of clauses is unsatisfiable, resolution can derive the empty clause (\citeauthor{robinson1965}\cite{robinson1965}), denoted \(\varnothing\), representing a contradiction --- a clause with no literals that can never be satisfied.
+Resolution though is \bold{refutationally complete}, meaning that if a set of clauses is unsatisfiable, resolution can derive the empty clause~\cite{robinson1965}, denoted \(\varnothing\), representing a contradiction --- a clause with no literals that can never be satisfied.
 Using resolution, we can easily show that the previous example set of clauses~\ref{eq:example_unsat} is unsatisfiable:
 \begin{equation}
   \begin{aligned}
@@ -125,75 +125,13 @@ Using resolution, we can easily show that the previous example set of clauses~\r
   \end{aligned}
 \end{equation}
 \uninatodo{Not sure if this is the correct place for saturation algorithm. Maybe the vampire chapter is better suited?}
-This can be achieved by a \textbf{saturation} process, where we repeatedly apply inferences to derive new clauses until either the empty clause is derived or no new clauses can be generated.
+This can be achieved by \bold{saturating} the set of clauses. A set of clauses \(S\) is \bold{saturated} under an inference system \(R\) if all the conclusions that can be derived from premises in \(S\) using inferences in \(R\) are also included in \(S\) (up to redundancy).
 
-Formally, a set of clauses \(S\) is \textbf{saturated} under resolution if no new clauses can be derived by applying resolution to clauses in \(S\).
-A possible implementation of a saturation algorithm is implemented partitioning the set of clauses into two collections: 
+If the saturation of a set of clause \(S\) does contain \(\varnothing\), then \(S\) is unsatisfiable.
 
-\begin{itemize}
-  \item \textbf{active} clauses \(A\) that starts empty, where clauses are inserted after being resolved against the other clauses in the active set
-  \item \textbf{passive} clauses \(P\) that starts containing all clauses in the original set \(S\), where clauses are removed one at a time as they are resolved, and new clauses obtained by resolution are inserted
-\end{itemize}
+\subsection{Factoring}\label{subsec:factoring}
 
-When \(P\) becomes empty, we can conclude that the original set of clauses \(S\) is satisfiable, because all clauses have been resolved without deriving a contradiction.
-If, instead, at any point we derive the empty clause, we can conclude that \(S\) is unsatisfiable.
-
-A high-level description of the saturation algorithm is as follows:
-\begin{algorithm}[H]
-    \caption{Saturation Algorithm}\label{alg:padding}
-    \begin{algorithmic}[1]
-        \Statex{} \textbf{signature} \(\textsc{SA} \quad [Clause] \to Boolean\)
-        \Statex{} \textbf{ensure} The returned CSA are box-compatible
-        \Function{\(\textsc{SA}\)}{$S$} % chktex 46
-            \State{} \((A,P)\gets (\emptyset,S)\)
-            \While{\(P \neq \emptyset\)}
-                \State{} \(curr \gets select(P)\)
-                \State{} \(P \gets P \setminus \{curr\}\)
-                \State{} \(New \gets \emptyset\)
-                \ForAll{\(clause \in A\)} 
-                    \State{} \(r \gets resolve(curr, clause)\)
-                    \If{\(r \neq \varnothing\)}
-                        \State{} \textbf{return} \(False\)
-                    \ElsIf{\(r \neq \bot\)}
-                        \State{} \(New \gets New \cup \{r\}\)
-                    \EndIf{}
-                \EndFor{}
-                \State{} \(A \gets A \cup \{curr\}\)
-                \State{} \(P \gets P \cup New\)
-            \EndWhile{}
-            \State{} \textbf{return} \(True\)
-        \EndFunction{}
-    \end{algorithmic}
-\end{algorithm}
-
-Where \(resolve\) is a function of type \(Clause \times Clause \to Clause\ms |\ms \bot\) that computes the resolvent of two clauses, or returns \(\bot\) if no matching literals can be found.
-
-This algorithm explores the search space of all possible resolutions, systematically applying the resolution rule to derive new clauses until either a contradiction is found or no new clauses can be generated.
-This function is \emph{partial}, because termination is not guaranteed in all cases.
-An example of non-terminating input is the set of clauses
-\begin{equation}\label{eq:non_terminating}
-  \{ \{P(c)\}, \{\neg P(x) \lor P(f(x))\} \}
-\end{equation}
-which is satisfiable by \emph{Peano Arithmetic} (interpreting \(c\) as \(0\) and \(f\) as the successor function), but leads to an infinite loop in the saturation algorithm.
-
-\begin{equation}
-   \begin{aligned}
-    P(c) &\quad \text{Clause 1 (Premise)} \\
-    \neg P(x) \lor P(f(x)) &\quad \text{Clause 2 (Premise)} \\
-    \neg P(f(c)) &\quad \text{Clause 3 (Resolution 1,2)} \\
-    \neg P(f(f(c))) &\quad \text{Clause 4 (Resolution 3,2)} \\
-    \neg P(f(f(f(c)))) &\quad \text{Clause 5 (Resolution 4,2)}\\
-    \ldots
-  \end{aligned}
-\end{equation}
-
-This limitation is not a deficiency of resolution itself, but rather reflects an intrinsic property of first-order logic. The undecidability of first-order logic was proven by \citeauthor{church1936}~\cite{church1936} and \citeauthor{turing1936}~\cite{turing1936} in 1936, showing that no algorithm can decide the validity (or satisfiability) of arbitrary first-order formulas.
-
-Resolution is optimal in the sense that it achieves the best possible: it is a \textbf{semi-decision procedure} that will always find a proof when one exists, but may run indefinitely when no proof exists. This is the theoretical limit for any sound and complete inference system for first-order logic.
-
-\subsection{Factoring}
-
-In addition to resolution, \textbf{factoring} is a rule that allows for the simplification of clauses by removing redundant literals.
+In addition to resolution, \bold{factoring} is a rule that allows for the simplification of clauses by removing redundant literals.
 In contrast to the inference rules seen so far, factoring does not derive new conclusions but rather simplifies existing clauses, improving their efficiency in the proof search.
 
 Formally, factoring can be defined as:
@@ -210,21 +148,21 @@ While resolution alone is refutationally complete, factoring serves as an optimi
 
 For instance, without factoring, we might derive increasingly complex clauses when the simpler factored form would suffice for the same logical content.
 
-\section{Ordered Inferences}
+\section{Ordered Inferences}\label{sec:ordered-inferences}
 
 While resolution and factoring provide a refutationally complete inference system, unrestricted application of these rules can lead to an explosion of irrelevant clauses, severely impacting efficiency. The key insight is that many inferences are redundant or unnecessary for finding a refutation.
 
 Ordered inference rules address this problem by imposing systematic restrictions on when resolution and factoring can be applied, dramatically reducing the search space while preserving refutational completeness allowing inferences only on \emph{eligible} literals.
 
-\subsection{Admissible Ordering}
+\subsection{Admissible Ordering}\label{subsec:admissible-ordering}
 
-The foundation of ordered inferences is an \textbf{admissible ordering} on literals, which guides the selection of inference candidates.
+The foundation of ordered inferences is an \bold{admissible ordering} on literals, which guides the selection of inference candidates.
 
-An ordering \(\succ\) on literals is \textbf{admissible} if it satisfies:
+An ordering \(\succ\) on literals is \bold{admissible} if it satisfies:
 \begin{itemize}
-    \item \textbf{Well-foundedness and totality on ground literals}: for any two ground literals \(L_1\) and \(L_2\), either \(L_1 \succ L_2\), \(L_2 \succ L_1\), or \(L_1 = L_2\) (totality), and each subset of ground literals has a minimal element (well-foundedness).
-    \item \textbf{Atom constraints}: for any atoms \(A\) and \(B\), it satisfies \(\neg A \succ A\) and \(B \succ A\) implies \(B \succ \neg A\).
-    \item \textbf{Stability under substitution (Liftable)}: if \(L_1 \succ L_2\), then \(L_1\sigma \succ L_2\sigma\) for any substitution \(\sigma\)
+    \item \bold{Well-foundedness and totality on ground literals}: for any two ground literals \(L_1\) and \(L_2\), either \(L_1 \succ L_2\), \(L_2 \succ L_1\), or \(L_1 = L_2\) (totality), and each subset of ground literals has a minimal element (well-foundedness).
+    \item \bold{Atom constraints}: for any atoms \(A\) and \(B\), it satisfies \(\neg A \succ A\) and \(B \succ A\) implies \(B \succ \neg A\).
+    \item \bold{Stability under substitution (Liftable)}: if \(L_1 \succ L_2\), then \(L_1\sigma \succ L_2\sigma\) for any substitution \(\sigma\)
 \end{itemize}
 
 Common examples of admissible orderings include lexicographic orderings on terms and literals, where terms are compared first by their structure (function symbols, arity) and then by their arguments recursively.
@@ -234,9 +172,11 @@ For instance, using a lexicographic ordering where \(f \succ g\) and \(a \succ b
 
 The ordering extends to literals by considering both the predicate symbols and their arguments, considering the \emph{depth} of terms.
 
-\subsection{Ordered Resolution}
+Generally, a selection function is used to choose the most relevant literals for inference based on the admissible ordering; most of the time it is the function inducted from the ordering, selecting the maximal literals.
 
-\textbf{Ordered resolution} restricts the resolution rule to apply only when certain maximality conditions are satisfied.
+\subsection{Ordered Resolution}\label{subsec:ordered-resolution}
+
+\bold{Ordered resolution} restricts the resolution rule to apply only when certain maximality conditions are satisfied.
 
 Formally, ordered resolution can be defined as:
 
@@ -261,9 +201,8 @@ However, if \(Q(x) \succ P(f(x))\), then ordered resolution would be blocked, as
 While maintaining refutational completeness, ordered resolution, in practice, can reduce the number of generated clauses by several orders of magnitude, making automated theorem proving feasible for larger problems.
 
 Moreover, using ordered resolution in a saturation process, can lead to termination on inputs that standard resolution cannot handle.
-Looking back to example~\ref{eq:non_terminating}, using any admissible ordering that satisfy \(P(f(x)) \succ P(x)\) would lead to a termination of the saturation algorithm, because the only possible resolution steps would involve \(P(x)\), which is not maximal in its clause, leading to the immediate emptying of \textbf{passive}.
 
-\subsection{Ordered Factoring}
+\subsection{Ordered Factoring}\label{subsec:ordered-factoring}
 
 Similar restrictions apply to factoring to maintain consistency with ordered resolution.
 

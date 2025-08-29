@@ -91,9 +91,11 @@
 \newtheorem{remark}[theorem]{Remark}
 
 % Thesis specific custom commands
-
+\graphicspath{{_figures/}}
 \newcommand{\landor}{\mathrel{\land\mkern-3mu\lor}}
 \newcommand{\ms}{\,}
+\newcommand{\bold}[1]{\textbf{#1}}
+\newcommand{\code}[1]{\lstinline{#1}}
 \NewDocumentCommand{\var}{m}{\text{var} (#1)}
 \NewDocumentCommand{\flseq}{o m o}{(\overline{\IfValueTF{#1}{#1}{u}}_{#2}\IfValueTF{#3}{,#3}{})}
 \NewDocumentCommand{\fldef}{m o m}{\text{Def}_{#1}\IfValueTF{#2}{^{#2}}{}(#3)} %chktex 36

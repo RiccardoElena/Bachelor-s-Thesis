@@ -3,8 +3,8 @@
 \inlineminitoc{}
 
 \noindent First-order logic (FOL), or predicate logic, is a formal system used in mathematics, philosophy, linguistics, and computer science to express statements about objects and their relationships.
-It uses \textbf{terms} for the representation of objects in the domain of discourse and \textbf{predicates} to express properties of these objects or relationships between them.
-Moreover, FOL allows for the use of \textbf{quantifiers} to make statements that apply to all objects (universal quantification) or some objects (existential quantification) in the domain, and \textbf{logical connectives} to construct more complex statements.
+It uses \bold{terms} for the representation of objects in the domain of discourse and \bold{predicates} to express properties of these objects or relationships between them.
+Moreover, FOL allows for the use of \bold{quantifiers} to make statements that apply to all objects (universal quantification) or some objects (existential quantification) in the domain, and \bold{logical connectives} to construct more complex statements.
 
 One well-known informal statement, \dquote{All humans are mortal} for example, can be expressed in FOL as:
 \begin{equation*}
@@ -13,11 +13,11 @@ One well-known informal statement, \dquote{All humans are mortal} for example, c
 
 Syntactically speaking, this sentence is composed of:
 \begin{itemize}
-    \item a \textbf{quantifier} \(\forall\)
-    \item a \textbf{variable} \(x\) which ranges over the whole domain of discourse (possibly every object in the universe)
-    \item a \textbf{unary predicate} \(\text{H}\) applied to \(x\)
-    \item a \textbf{unary predicate} \(\text{M}\) applied to \(x\)
-    \item a \textbf{logical connective} \(\implies\)
+    \item a \bold{quantifier} \(\forall\)
+    \item a \bold{variable} \(x\) which ranges over the whole domain of discourse (possibly every object in the universe)
+    \item a \bold{unary predicate} \(\text{H}\) applied to \(x\)
+    \item a \bold{unary predicate} \(\text{M}\) applied to \(x\)
+    \item a \bold{logical connective} \(\implies\)
 \end{itemize}
 
 Upon this syntactic structure, we can build a semantic interpretation, which assigns meaning to the symbols used in the sentence.
@@ -27,48 +27,48 @@ The connective \(\implies\) is the \emph{material implication} of \emph{proposit
 
 As we can see, using FOL we can divide the statement into its syntactic and semantic components, which allows us to reason about its structure separately from its meaning.
 This separation permits us to generalize the reasoning process to other statements with similar structures and to deduce new statements solely from the syntactic structure.
-This makes FOL particularly suitable for computational treatment: automated systems can manipulate the syntactic form of statements while guaranteeing that these manipulations reflect valid semantic consequences in all interpretations — a property known as \emph{soundness}, \citeauthor{enderton2001}~\cite{enderton2001}.
+This makes FOL particularly suitable for computational treatment: automated systems can manipulate the syntactic form of statements while guaranteeing that these manipulations reflect valid semantic consequences in all interpretations — a property known as \emph{soundness}~\cite{enderton2001}.
 
 As we will see later, this clear separation is crucial for the development of automated reasoning systems, such as the Vampire theorem prover, because it allows us to convert the reasoning task into a syntactic manipulation task, treating statements as symbolic strings with a specific syntax, without the need to explicitly encode the meaning of each statement.
 
 In order to preserve the truth value of statements during this manipulation process, we cannot rely on the syntactic structure alone; we must define a set of rules that act only on the syntactic structure while ensuring truth preservation.
-This set of rules is called \textbf{inference rules}, and they allow us to derive new statements from existing ones without altering their truth value.
+This set of rules is called \bold{inference rules}, and they allow us to derive new statements from existing ones without altering their truth value.
 A full exploration of these rules, which form the core of automated reasoning, is reserved for a later chapter. However, a simple example is the well-known rule of \emph{Modus Ponens}, which states that if we know that both \(A\) and \(A\implies B\) are true, then we can conclude \(B\). This illustrates how a new truth can be derived purely from the syntactic form of existing statements.
 
-\section{From Terms to Sentences}
+\section{From Terms to Sentences}\label{sec:from-terms-to-sentences}
 
 First and foremost, we need to rigorously define the structure of first-order logic.
-The most basic building blocks of FOL are \textbf{terms}, which represent objects in the domain of discourse.
+The most basic building blocks of FOL are \bold{terms}, which represent objects in the domain of discourse.
 Those are variables (\(x,y,z\)), functions (\(f,g,h\)) and  symbols (\(a,b,c\)), sometimes viewed as function symbols with arity 0.
 Variables are placeholders that can represent any object in the domain, while constants refer to specific objects. Functions map objects to other objects, allowing for more complex expressions.
 
 Terms alone do not constitute statements in FOL, as they lack an associated \emph{truth value}.
-The main focus of FOL is on \textbf{predicates} (\(P,Q,R\)) ---so the name \emph{predicate logic}---, which are used to express properties of objects or relationships between them.
+The main focus of FOL is on \bold{predicates} (\(P,Q,R\)) ---so the name \emph{predicate logic}---, which are used to express properties of objects or relationships between them.
 Examples of predicates include \(\text{H}(x)\) for \dquote{is a human} or \(\text{M}(x)\) for \dquote{is mortal}.
 
 
-Predicates are applied to terms to form \textbf{atomic formulae} (\(A,B\)), the basic units of meaning in FOL\@. They serve as the building blocks of more complex and structured statements, called \textbf{formulae} \(\phi, \psi\), obtained by combining atomic formulae using logical connectives and quantifiers.
+Predicates are applied to terms to form \bold{atomic formulae} (\(A,B\)), the basic units of meaning in FOL\@. They serve as the building blocks of more complex and structured statements, called \bold{formulae} \(\phi, \psi\), obtained by combining atomic formulae using logical connectives and quantifiers.
 
 Solely, not even atomic formulae always bear a truth value, as they can contain \emph{free variables}, namely variables that are not bound by a quantifier. These variables do not refer to any specific object in the domain, and thus the truth value of the atomic formula depends on the interpretation of these variables.
 This ambiguity can be illustrated with natural language; for instance, the statement \dquote{X is a human} does not clearly state \emph{which} object \(X\) has to be a human to make the statement true.
 The quantifiers resolve this ambiguity by specifying the scope of the variable \(X\). Indeed, the statement \dquote{For all X, X is a human} clearly has a truth value, as it asserts something about every object, whether it is true or not.
-Only (atomic) formulae with all variables bound can be said to have a definite truth value, and those are called (\textbf{atomic}) \textbf{sentences}.
+Only (atomic) formulae with all variables bound can be said to have a definite truth value, and those are called (\bold{atomic}) \bold{sentences}.
 
 Last but not least, to combine (atomic) formulae/sentences into more complex expressions, we can use logical connectives. Those are symbols that applied to one or more formulae yield a new formula, whose truth value depends on the truth values of the original formulae and on the semantics of the connective.
 In particular, the principal connectives used in FOL are:
 
 \begin{itemize}
-  \item \textbf{Negation} (\(\neg\)): This connective takes a single formula and \textbf{inverts} its truth value.
-  \item \textbf{Conjunction} (\(\land\)): This connective combines two formulae and is \textbf{true} if both are true.
-  \item \textbf{Disjunction} (\(\lor\)): This connective combines two formulae and is \textbf{true} if at least one is true.
-  \item \textbf{Implication} (\(\implies\)): This connective expresses a conditional relationship between two formulae. The new formula is \textbf{false} only if the first formula is true and the second formula is false.
-  \item \textbf{Biconditional} (\(\iff\)): This connective expresses an equivalence between two formulae. The new formula is \textbf{true} if both formulae have the same truth value.
+  \item \bold{Negation} (\(\neg\)): This connective takes a single formula and \bold{inverts} its truth value.
+  \item \bold{Conjunction} (\(\land\)): This connective combines two formulae and is \bold{true} if both are true.
+  \item \bold{Disjunction} (\(\lor\)): This connective combines two formulae and is \bold{true} if at least one is true.
+  \item \bold{Implication} (\(\implies\)): This connective expresses a conditional relationship between two formulae. The new formula is \bold{false} only if the first formula is true and the second formula is false.
+  \item \bold{Biconditional} (\(\iff\)): This connective expresses an equivalence between two formulae. The new formula is \bold{true} if both formulae have the same truth value.
 \end{itemize}
 
-\subsection{Syntax}
+\subsection{Syntax}\label{subsec:syntax}
 
 The syntax of FOL formulae can be formalized with a \emph{context free grammar} (CFG).
-In particular, being \(\mathcal{V}\) the set of all variables, \(\mathcal{C}\) the set of all constants, \(\mathcal{F}\) the set of all function symbols, \(\mathcal{P}\) the set of all predicate symbols, we can define the grammar as follows:
+In particular, being \(\mathcal{X}\) the set of all variables, \(\mathcal{C}\) the set of all constants, \(\mathcal{F}\) the set of all function symbols, \(\mathcal{P}\) the set of all predicate symbols, we can define the grammar as follows:
 
 \begin{equation}
   FOL = \left( V , \Sigma, \phi \in V, R\right)
@@ -76,10 +76,10 @@ In particular, being \(\mathcal{V}\) the set of all variables, \(\mathcal{C}\) t
 where:
 \begin{itemize}
   \item \(V = \{\tau, \alpha, \phi\}\)
-  \item \(\Sigma = \mathcal{V} \cup \mathcal{C} \cup \mathcal{F} \cup \mathcal{P} \cup \{\forall, \exists, \land, \lor, \neg, \implies, \iff, \left(,\right), \top, \bot\}\)
+  \item \(\Sigma = \mathcal{X} \cup \mathcal{C} \cup \mathcal{F} \cup \mathcal{P} \cup \{\forall, \exists, \land, \lor, \neg, \implies, \iff, \left(,\right), \top, \bot\}\)
    \item \(R\) = \begin{flalign}
     \begin{aligned}
-      \tau \rightarrow  \ms  &x \in \mathcal{V}  \ms | \ms  
+      \tau \rightarrow  \ms  &x \in \mathcal{X}  \ms | \ms  
                         c \in \mathcal{C}  \ms | \ms  
                         f(\tau,\ldots,\tau) \in \mathcal{F} \\
       \alpha \rightarrow  \ms  &P(\tau,\ldots,\tau), P \in \mathcal{P} \\
@@ -115,7 +115,7 @@ An example of a syntactic tree for the formula \(\forall x \left(\text{H}(x) \im
 
 In this representation, it is possible to omit the parentheses around the subformulae, as the tree structure already encodes the necessary grouping.
 
-Moreover, is possible to isolate a \emph{subgrammar} by considering only the rules that generate atomic formulae (excluding so the ones deriving from \(\phi\)). Doing this easily allows to define the concept of \textbf{subterm} as a \emph{proper subtree} of the syntactic tree that represents an atomic formula (or by extension a literal).
+Moreover, is possible to isolate a \emph{subgrammar} by considering only the rules that generate atomic formulae (excluding so the ones deriving from \(\phi\)). Doing this easily allows to define the concept of \bold{subterm} as a \emph{proper subtree} of the syntactic tree that represents an atomic formula (or by extension a literal).
 
 An example of such a tree is shown in Figure~\ref{fig:subterm_tree} for the atomic formula \(P(f(x, g(y)))\).
 \begin{figure}[H]
@@ -132,7 +132,7 @@ An example of such a tree is shown in Figure~\ref{fig:subterm_tree} for the atom
     \caption{Syntactic tree for the atomic formula \(P(f(x, g(y)))\) showing nested function structure}\label{fig:subterm_tree}
 \end{figure}
 
-If we consider multiple atomic formulae (or literals), is possible to represent them as a \textbf{forest} of syntactic trees, where each tree represents an atomic formula.
+If we consider multiple atomic formulae (or literals), is possible to represent them as a \bold{forest} of syntactic trees, where each tree represents an atomic formula.
 
 \begin{figure}[H]
     \centering
@@ -213,9 +213,9 @@ DAGs can be particularly useful in automated reasoning and theorem proving, wher
 
 To formalize semantics in FOL, we need to define the meaning of the symbols and the truth conditions for the formulae. This is typically done using a \emph{model}, which consists of a domain of discourse and an interpretation function that assigns meanings to the constants, functions, and predicates.
 
-A \textbf{model} for a FOL language is a pair \(M = (D, I)\), where:
+A \bold{model} for a FOL language is a pair \(M = (D, I)\), where:
 \begin{itemize}
-  \item \(D\) is a non-empty set, called the \textbf{domain of discourse}.
+  \item \(D\) is a non-empty set, called the \bold{domain of discourse}.
   \item \(I\) is an interpretation function that assigns:
   \begin{itemize}
     \item Each constant \(c \in \mathcal{C}\) to an element \(I(c) \in D\).
@@ -227,10 +227,10 @@ A \textbf{model} for a FOL language is a pair \(M = (D, I)\), where:
 The truth value of a formula \(\phi\) in a model \(M\) is determined by the interpretation function and the structure of the formula as follows:
 
 \subsubsection{Variable Assignment}\label{subsubsec:variable_assignment}
-Given a model \(M = (D, I)\), a \textbf{variable assignment} (or \textbf{valuation}) is a function \(\sigma: \mathcal{V} \to D\) that assigns each variable to an element of the domain. We denote by \(\sigma[x \mapsto d]\) the assignment that is identical to \(\sigma\) except that it maps variable \(x\) to element \(d \in D\).
+Given a model \(M = (D, I)\), a \bold{variable assignment} (or \bold{valuation}) is a function \(\sigma: \mathcal{X} \to D\) that assigns each variable to an element of the domain. We denote by \(\sigma[x \mapsto d]\) the assignment that is identical to \(\sigma\) except that it maps variable \(x\) to element \(d \in D\).
 
-\subsubsection{Term Evaluation}
-The \textbf{evaluation} of a term \(t\) in model \(M\) under assignment \(\sigma\), denoted \(\llbracket t \rrbracket_M^\sigma\), is defined recursively:
+\subsubsection{Term Evaluation}\label{subsubsec:term_evaluation}
+The \bold{evaluation} of a term \(t\) in model \(M\) under assignment \(\sigma\), denoted \(\llbracket t \rrbracket_M^\sigma\), is defined recursively:
 \begin{itemize}
   \item If \(t\) is a variable \(x\), then \(\llbracket x \rrbracket_M^\sigma = \sigma(x)\).
   \item If \(t\) is a constant \(c\), then \(\llbracket c \rrbracket_M^\sigma = I(c)\).
@@ -238,18 +238,18 @@ The \textbf{evaluation} of a term \(t\) in model \(M\) under assignment \(\sigma
         \[\llbracket f(t_1, \ldots, t_n) \rrbracket_M^\sigma = I(f)(\llbracket t_1 \rrbracket_M^\sigma, \ldots, \llbracket t_n \rrbracket_M^\sigma)\]
 \end{itemize}
 
-\subsubsection{Truth Conditions}
-The \textbf{satisfaction} of a formula \(\phi\) in model \(M\) under assignment \(\sigma\), denoted \(M, \sigma \models \phi\), is defined recursively:
+\subsubsection{Truth Conditions}\label{subsubsec:truth_conditions}
+The \bold{satisfaction} of a formula \(\phi\) in model \(M\) under assignment \(\sigma\), denoted \(M, \sigma \models \phi\), is defined recursively:
 
 \begin{itemize}
-  \item \textbf{Atomic formulae:}
+  \item \bold{Atomic formulae:}
   \begin{itemize}
     \item \(M, \sigma \models P(t_1, \ldots, t_n) \leftrightarrow (\llbracket t_1 \rrbracket_M^\sigma, \ldots, \llbracket t_n \rrbracket_M^\sigma) \in I(P)\)
     \item \(M, \sigma \models \top\) (always true)
     \item \(M, \sigma \not\models \bot\) (never true)
   \end{itemize}
   
-  \item \textbf{Logical connectives:}
+  \item \bold{Logical connectives:}
   \begin{itemize}
     \item \(M, \sigma \models \neg \phi \leftrightarrow M, \sigma \not\models \phi\)
     \item \(M, \sigma \models \phi \land \psi \leftrightarrow M, \sigma \models \phi\) and \(M, \sigma \models \psi\)
@@ -258,22 +258,22 @@ The \textbf{satisfaction} of a formula \(\phi\) in model \(M\) under assignment 
     \item \(M, \sigma \models \phi \iff \psi \leftrightarrow \left(M, \sigma \models \phi \text{ and } M, \sigma \models \psi\right) \text{ or } \left(M, \sigma \not\models \phi \text{ and } M, \sigma \not\models \psi\right)\)
   \end{itemize}
   
-  \item \textbf{Quantifiers:}
+  \item \bold{Quantifiers:}
   \begin{itemize}
     \item \(M, \sigma \models \forall x  \ms  \phi\) if and only if for all \(d \in D\), \(M, \sigma[x \mapsto d] \models \phi\)
     \item \(M, \sigma \models \exists x  \ms  \phi\) if and only if there exists some \(d \in D\) such that \(M, \sigma[x \mapsto d] \models \phi\)
   \end{itemize}
 \end{itemize}
 
-\subsubsection{Semantic Notions}
+\subsubsection{Semantic Notions}\label{subsubsec:semantic_notions}
 A formula \(\phi\) is:
 \begin{itemize}
-  \item \textbf{Satisfiable} if there exists a model \(M\) and assignment \(\sigma\) such that \(M, \sigma \models \phi\).
-  \item \textbf{Valid} (sometimes called a \textbf{tautology}) if for all models \(M\) and assignments \(\sigma\), \(M, \sigma \models \phi\). We write \(\models \phi\).
-  \item \textbf{Unsatisfiable} (or \textbf{contradictory}) if for all models \(M\) and assignments \(\sigma\), \(M, \sigma \not\models \phi\).
+  \item \bold{Satisfiable} if there exists a model \(M\) and assignment \(\sigma\) such that \(M, \sigma \models \phi\).
+  \item \bold{Valid} (sometimes called a \bold{tautology}) if for all models \(M\) and assignments \(\sigma\), \(M, \sigma \models \phi\). We write \(\models \phi\).
+  \item \bold{Unsatisfiable} (or \bold{contradictory}) if for all models \(M\) and assignments \(\sigma\), \(M, \sigma \not\models \phi\).
 \end{itemize}
 
-For a set of formulae \(\Gamma\) and a formula \(\phi\), we say \(\Gamma\) \textbf{semantically entails} \(\phi\), written \(\Gamma \models \phi\), if for all models \(M\) and assignments \(\sigma\):
+For a set of formulae \(\Gamma\) and a formula \(\phi\), we say \(\Gamma\) \bold{semantically entails} \(\phi\), written \(\Gamma \models \phi\), if for all models \(M\) and assignments \(\sigma\):
   \[\text{if } M, \sigma \models \psi \text{ for all } \psi \in \Gamma, \text{ then } M, \sigma \models \phi\]
 
 It is worth noticing that satisfiability and validity are closely related:
@@ -291,17 +291,17 @@ To prove this theorem, we need to show both directions of the equivalence.
 \end{proof}
 
 
-\section{Substitutions and Unification}
+\section{Substitutions and Unification}\label{sec:substitutions-and-unification}
 In Section~\ref{subsubsec:variable_assignment} we introduced the notation \(\sigma[x \mapsto d]\) to indicate a variable assignment in the semantic evaluation of a formula. We now extend this concept to the purely \emph{syntactic} setting, where variables are replaced by \emph{terms} rather than by elements of the interpretation domain. This leads to the notions of \emph{substitution}, \emph{unification}, and \emph{most general unifier}.
 
-\subsection{Substitutions}
+\subsection{Substitutions}\label{subsec:substitutions}
 Given a term or literal \(\tau\), the notation \(\tau[x_k \mapsto t]\) denotes the expression obtained by replacing every occurrence of the variable \(x_k\) in \(\tau\) with the term \(t\).  
 For example, if \(\tau = g(x_1, x_2)\), then:
 \begin{equation}
 \tau[x_1 \mapsto h] = g(h, x_2)
 \end{equation}
 
-A \textbf{substitution} is a function mapping a subset of variables \(\mathcal{V}^{'} \subseteq \mathcal{V}\) to a set of terms \(\mathcal{T} \subseteq \mathcal{V} \cup \mathcal{F} \cup \mathcal{C}\):
+A \bold{substitution} is a function mapping a subset of variables \(\mathcal{X}^{'} \subseteq \mathcal{X}\) to a set of terms \(\mathcal{T} \subseteq \mathcal{X} \cup \mathcal{F} \cup \mathcal{C}\):
 \begin{equation}
 \sigma = \{ (x_1, t_1), \ldots, (x_n, t_n) \}
 \end{equation}
@@ -314,8 +314,8 @@ For instance, if \(\tau = f(x_1, x_2)\), then:
 \end{equation}
 and not \(f(x_1, x_1)\), which would arise from sequential application.
 
-\subsection{Generality of  Substitutions}
-For two substitutions \(\sigma_1\) and \(\sigma_2\), we say \(\sigma_1\) is \textbf{more general} than \(\sigma_2\) if for every term \(\tau\) there exists a substitution \(\theta\) such that:
+\subsection{Generality of  Substitutions}\label{subsec:generality-of-substitutions}
+For two substitutions \(\sigma_1\) and \(\sigma_2\), we say \(\sigma_1\) is \bold{more general} than \(\sigma_2\) if for every term \(\tau\) there exists a substitution \(\theta\) such that:
 \begin{equation}  
   \tau\sigma_2 = (\tau\sigma_1)\theta
 \end{equation}
@@ -324,13 +324,13 @@ If there is a substitution \(\sigma\) with:
 \begin{equation}
 \tau_1\sigma = \tau_2\sigma
 \end{equation}
-then \(\tau_1\) and \(\tau_2\) are said to be \textbf{unifiable}, and \(\sigma\) is called a \textbf{unifier}.
+then \(\tau_1\) and \(\tau_2\) are said to be \bold{unifiable}, and \(\sigma\) is called a \bold{unifier}.
 
-A unifier \(\sigma\) for two terms \(\tau_1\) and \(\tau_2\) is called a \textbf{most general unifier} (MGU) if it is more general than any other unifier of \(\tau_1\) and \(\tau_2\).
+A unifier \(\sigma\) for two terms \(\tau_1\) and \(\tau_2\) is called a \bold{most general unifier} (MGU) if it is more general than any other unifier of \(\tau_1\) and \(\tau_2\).
 
-\subsection{Unification Beyond Single Terms}
+\subsection{Unification Beyond Single Terms}\label{subsec:unification-beyond-single-terms}
 The unification concept extends to sets of terms, literals, and sets of literals.  
-A set of terms \(\mathcal{T}\) is \textbf{unifiable} if there exists a substitution \(\sigma\) such that for any \(\tau_i, \tau_j \in \mathcal{T}\) we have \(\tau_i\sigma = \tau_j\sigma\). In this case, \(\sigma\) is a unifier of \(T\).
+A set of terms \(\mathcal{T}\) is \bold{unifiable} if there exists a substitution \(\sigma\) such that for any \(\tau_i, \tau_j \in \mathcal{T}\) we have \(\tau_i\sigma = \tau_j\sigma\). In this case, \(\sigma\) is a unifier of \(T\).
 
 Two literals with the same arity:
 \begin{equation}
@@ -339,15 +339,15 @@ L_1 = P(\tau_1, \ldots, \tau_n), \quad L_2 = \neg P(\tau'_1, \ldots, \tau'_n)
 are unifiable if there is a substitution making them identical, disregarding negation. Equivalently, if \(f\) is a fresh \(n\)-ary function symbol, then \(L_1\) and \(L_2\) are unifiable if and only if \(f(\tau_1, \ldots, \tau_n)\) and \(f(\tau'_1, \ldots, \tau'_n)\) are unifiable.  
 Literals of different arities are never unifiable.
 
-\subsection{Obstructions to Unification}
+\subsection{Obstructions to Unification}\label{subsec:obstructions-to-unification}
 When attempting to unify two terms, two main forms of obstruction can occur:
 \begin{enumerate}
-    \item \textbf{Function obstruction:} in a parallel traversal of the syntactic trees of both terms, two different function symbols occur at corresponding positions. For example:
+    \item \bold{Function obstruction:} in a parallel traversal of the syntactic trees of both terms, two different function symbols occur at corresponding positions. For example:
     \[
     f(x_1, g_1(x_2)) \quad\text{and}\quad f(x_1, g_2(x_2))
     \]
     are not unifiable because \(g_1 \neq g_2\).
-    \item \textbf{Variable obstruction:} in a parallel traversal, a variable \(x\) appears in one term while the other term contains a subterm \(t \neq x\) in which \(x\) occurs. For example:
+    \item \bold{Variable obstruction:} in a parallel traversal, a variable \(x\) appears in one term while the other term contains a subterm \(t \neq x\) in which \(x\) occurs. For example:
     \[
     h(x_1, k(x_2)) \quad\text{and}\quad h(k(x_1), x_1)
     \]
@@ -362,14 +362,14 @@ In general so, if two terms are not unifiable, then at least one of the followin
 \end{enumerate}
 
 
-\subsection{Complexity of Unification}
+\subsection{Complexity of Unification}\label{subsec:complexity-of-unification}
 The computational complexity of unification has been extensively studied since the 1960s.
 Early approaches exhibited worst-case exponential behaviour due to the difficulty of detecting variable obstructions efficiently~\cite{robinson1965}.
 However, significant theoretical advances in the 1970s led to the development of linear-time unification algorithms that achieve \(O(n)\) complexity, where \(n\) is the combined size of the input terms~\cite{martelli1976, paterson1978}.
 
 These linear-time bounds represent optimal complexity for the unification problem, as any algorithm must examine all symbols in the input terms at least once.
 Modern implementations incorporate various optimization techniques such as term indexing and specialized handling for common cases to improve average-case performance~\cite{baader2001}.
-The unification problem belongs to complexity class \textbf{P}, making it tractable for practical applications in automated reasoning and logic programming systems.
+The unification problem belongs to complexity class \bold{P}, making it tractable for practical applications in automated reasoning and logic programming systems.
 
 
 \section{Skolemization and Normalization}\label{sec:skolemization_and_normalization}
@@ -379,8 +379,8 @@ These transformations include renaming variables, converting to normal forms, an
 Raw first-order logic formulae, as naturally expressed, are typically not in a form that automated theorem provers and inference engines can efficiently process.
 The transformation process standardizes the syntactic structure of formulae, eliminates certain logical constructs that complicate automated reasoning, and converts them into canonical forms that enable the systematic application of inference rules and resolution procedures.
 
-\subsection{Negated Normal Form}
-The first transformation applied is to convert the formula into \textbf{negated normal form} (NNF).
+\subsection{Negated Normal Form}\label{subsec:negated_normal_form}
+The first transformation applied is to convert the formula into \bold{negated normal form} (NNF).
 
 A formula is in NNF if it is described by the following CFG\@:
 \begin{equation}
@@ -404,9 +404,9 @@ In fact, every formula can be brought into this form by replacing implications (
 
 The NNF version of a formula is \emph{equivalent} to the original formula, meaning they have the same truth value in every model.
 
-\subsection{Skolemization}
-In the context of automated reasoning, \textbf{Skolemization} is the process of eliminating existential quantifiers from a formula by introducing new symbols called \textbf{Skolem functions} or \textbf{Skolem constants}~\cite{skolem1920}.  
-The result of Skolemization is not logically equivalent to the original formula, but it is \textbf{equisatisfiable}: both formulae are satisfiable in exactly the same set of interpretations.
+\subsection{Skolemization}\label{subsec:skolemization}
+In the context of automated reasoning, \bold{Skolemization} is the process of eliminating existential quantifiers from a formula by introducing new symbols called \bold{Skolem functions} or \bold{Skolem constants}~\cite{skolem1920}.  
+The result of Skolemization is not logically equivalent to the original formula, but it is \bold{equisatisfiable}: both formulae are satisfiable in exactly the same set of interpretations.
 The process of Skolemization goes as follows:
 
 Let \(\phi\) be a formula in NNF\@. For every existential quantifier \(\exists x_k\) in \(\phi\):
@@ -435,8 +435,8 @@ A formula that is valid before Skolemization may lose this property afterward, s
 However, the resulting formula contains only universal quantifiers, which significantly simplifies the reasoning process by enabling purely universal reasoning techniques. 
 This uniform quantifier structure is especially advantageous for automated theorem provers, as it eliminates the need to handle the complex interactions between universal and existential quantifiers during proof search.
 
-\subsection{Clausal Normal Form (CNF).}
-A formula is in CNF if it is a conjunction of one or more \textbf{clauses}, each clause being a disjunction of literals.  
+\subsection{Clausal Normal Form}\label{subsec:clausal_normal_form}
+A formula is in CNF if it is a conjunction of one or more \bold{clauses}, each clause being a disjunction of literals.  
 As NNF, CNF can be described by a CFG too:
 \begin{equation}
   \begin{aligned}
@@ -455,7 +455,7 @@ Often, CNF formulae are represented as sets of clauses with the following notati
 As an example of the full pipeline of the transformation from general formula to CNF, for the formula \( \forall x  \ms \big( \ms (\exists y  \ms   P(x,y)) \leftrightarrow Q(x)  \ms  \big)\)
 is the following:
 \begin{enumerate}
-    \item \textbf{Convert to NNF:}
+    \item \bold{Convert to NNF:}
     \begin{itemize}
         \item Eliminate \(\iff\):
           \[\forall x  \ms \big( (\neg \exists y_1 \ms  P(x,y_1) \lor Q(x)) \land (\neg Q(x) \lor \exists y_2 \ms  P(x,y_2))\big)\]
@@ -466,7 +466,7 @@ is the following:
     \]
     
     
-    \item \textbf{Skolemization:}
+    \item \bold{Skolemization:}
     \begin{itemize}
         \item Replace \(\exists y\) (in scope of \(\forall x\)) with Skolem function \(f(x)\):
     \end{itemize}
@@ -474,7 +474,7 @@ is the following:
       \forall x \ms \Big(\big(\forall y \ms \neg P(x,y)\ \lor\ Q(x)\big)\ \land\ \big(\neg Q(x)\ \lor\ P(x,f(x))\big)\Big)
     \]
     \\
-    \item \textbf{Convert to CNF:}
+    \item \bold{Convert to CNF:}
     \begin{itemize}
     \item Move all universal quantifiers to the front:
     \[
@@ -499,17 +499,17 @@ is the following:
     ]
 
     % Nodes arranged vertically for better readability
-    \node[stage] (raw) {\textbf{Raw Formula} \\[4pt]
+    \node[stage] (raw) {\bold{Raw Formula} \\[4pt]
       \(\displaystyle \forall x \ms \big( \ms (\exists y \ms  P(x,y)) \iff Q(x) \ms \big)\)};
 
-    \node[stage, below=of raw] (nnf) {\textbf{Negation Normal Form (NNF)}\\[4pt]
+    \node[stage, below=of raw] (nnf) {\bold{Negation Normal Form (NNF)}\\[4pt]
       \(\displaystyle \forall x \ms \Big(\big(\forall y \ms \neg P(x,y)\ \lor\ Q(x)\big) \land\ \big(\neg Q(x)\ \lor\ \exists y \ms  P(x,y)\big)\Big)\)};
 
 
-    \node[stage, below=of nnf] (sko) {\textbf{Skolemization}\\[4pt]
+    \node[stage, below=of nnf] (sko) {\bold{Skolemization}\\[4pt]
       \(\displaystyle \forall x \ms \Big(\big(\forall y \ms \neg P(x,y)\ \lor\ Q(x)\big)\ \land\ \big(\neg Q(x)\ \lor\ P(x,f(x))\big)\Big)\)};
 
-    \node[stage, below=of sko] (cnf) {\textbf{Clausal Normal Form (CNF)}\\[4pt]
+    \node[stage, below=of sko] (cnf) {\bold{Clausal Normal Form (CNF)}\\[4pt]
       \(\{\{ \ms \neg P(x,y), \ms  Q(x) \ms \} \ms , \ms \{ \ms \neg Q(x), \ms  P(x,f(x)) \ms \}\}\)};
 
     % Arrows
@@ -525,7 +525,7 @@ is the following:
 Transforming formulae into CNF is a prerequisite for many automated reasoning techniques, particularly \emph{resolution}~\cite{chang1997}.  
 By ensuring that the input is in a uniform syntactic format, inference rules can be applied in a purely mechanical way without further structural transformations.
 
-This pipeline of transformations, combined with \emph{naming}, is also called \textbf{clausification} and  constitutes the \textbf{preprocessing} phase of automated reasoning systems, a crucial step to prepare formulae for \emph{inferences}.
+This pipeline of transformations, combined with \emph{naming}, is also called \bold{clausification} and  constitutes the \bold{preprocessing} phase of automated reasoning systems, a crucial step to prepare formulae for \emph{inferences}.
 
 \section{Auxiliary Predicate Introduction}\label{sec:auxiliary_predicate_introduction}
 
@@ -543,7 +543,7 @@ Another important application arises in the context of syntactically restricted 
 In these fragments, unrestricted formula transformations may produce formulas that fall outside the fragment, thereby forfeiting desirable properties such as decidability or favourable complexity bounds.
 Here, auxiliary predicate introduction serves as a \emph{structure-preserving} transformation: rather than expanding a subformula in a way that would violate syntactic restrictions, a fresh predicate is introduced, with a defining axiom that maintains semantic equivalence while preserving the fragment membership of the formula.
 
-\subsection{Polarity of Subformulae}
+\subsection{Polarity of Subformulae}\label{subsec:polarity-of-subformulae}
 
 The concept of \emph{polarity} provides a finer-grained analysis of where and how a subformula occurs within a larger formula.
 Intuitively, polarity describes whether an occurrence of a subformula is in a \emph{positive}, \emph{negative}, or \emph{neutral} position.
@@ -577,7 +577,7 @@ Here, \(+\) denotes positive polarity, \(-\) denotes negative polarity, and \(0\
 
 
 
-\subsection{Polarity-Aware Auxiliary Predicate Introduction}
+\subsection{Polarity-Aware Auxiliary Predicate Introduction}\label{subsec:polarity-aware-auxiliary-predicate-introduction}
 
 Polarity analysis allows for an optimization of auxiliary predicate introduction. If a subformula \(\psi(\bar{x})\) occurs only positively in the formula, it is sufficient to introduce the fresh predicate \(P(\bar{x})\) together with the implication
 \[
