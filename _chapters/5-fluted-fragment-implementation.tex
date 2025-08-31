@@ -1,11 +1,291 @@
 \chapter{Fluted Fragment Implementation}\label{chap:fluted-fragment-implementation}
-\section{Classifier}\label{sec:classifier}
-\subsection{Formulae Classification}\label{subsec:formulae-classification}
-\subsection{Clauses Classification}\label{subsec:clauses-classification}
+
+Having laid down the theoretical foundations of the decision procedure for fluted fragment in Chapter~\ref{chap:fluted-fragment}, and briefly discussed the implementation framework of Vampire in Chapter~\ref{chap:vampire-theorem-prover}, we can now proceed to the implementation.
+
+Looking back at standard Vampire's resolution process and the fluted logic one, we can identify three main differences:
+\begin{enumerate}
+  \item A mandatory and specific \emph{naming} step during preprocessing is needed to ensure fluted formulae clausification produces valid fluted clauses as outlined in Section~\ref{sec:from-fluted-formulae-to-fluted-clauses}.
+  \item The \emph{separation rule} (\ref{sec:separation}) needs to be implemented to deal with non-strongly fluted clauses, to assure resolution is applied only with strongly fluted clauses as premises.
+  \item The \emph{literal selection} strategy needs to be adapted to be compatible with the admissible ordering described in Section~\ref{sec:fluted-resolution}.
+\end{enumerate}
+
+As briefly mentioned right after Lemma~\ref{lem:factor-strongly-fluted}, there is no need for change in the \emph{factoring} rule, as even its unordered version acting on strongly fluted clauses produces strongly fluted clauses of the same type.
+
+Beyond these changes, the Vampire flow remains unchanged, with only some minor tweaks to default options applied via flags in the code.
+
+
 \section{Preprocessor}\label{sec:preprocessor}
-\section{Separation and Fluted Resolution}\label{sec:separation-fluted-resolution}
-\subsection{Separation}\label{subsec:separation}
-\subsection{Fluted Resolution}\label{subsec:fluted-resolution}
+
+The first modification to Vampire's standard pipeline involves implementing the mandatory naming step during preprocessing. 
+To handle the preprocessing phase, we implemented a new \code{FlutedPreprocessor} class, which implements the pipeline needed to transform input formulae into fluted formulae.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{5-fluted-fragment-implementation/FlutedPreprocessor.pdf}
+  \caption{Class diagram of the \code{FlutedPreprocessor} class.}\label{fig:fluted-preprocessor-class-diagram}
+\end{figure}
+
+The main method is \code{preprocess}, which applies the naming transformation to each \code{FormulaUnit} in the input \code{Problem}.
+As shown in Algorithm~\ref{alg:preprocess}, the process follows Vampire's standard preprocessing pipeline with the \code{Def} function inserted after formula simplification.
+
+\begin{algorithm}[H]
+    \caption{\code{FlutedPreprocessor}'s \code{preprocess} method}\label{alg:preprocess}
+    \begin{algorithmic}[1]
+        \Statex{} \bold{signature} \(\textsc{preprocess} \quad Problem\& \to Void\)
+        \Function{\(\textsc{preprocess}\)}{$prb$} % chktex 46
+            \State{} \(ul \gets prb.units()\)
+            \For{\(u \in ul\)}
+              \State{} \(fu \gets FormulaUnit(u)\)
+              \State{} \(fu \gets simplifyFalseTrue(fu)\)
+              \State{} \(fu \gets FormulaUnit(Def(fu\to formula(),prb,u,POSITIVE,true))\)
+              \State{} \(fu \gets nnf(fu)\)
+              \State{} \(fu \gets flatten(fu)\)
+              \State{} \(fu \gets skolemize(fu)\)
+              \State{} \(ul.replace(u,fu)\)
+            \EndFor{}
+            \State{} \(clausify(prb)\)
+        \EndFunction{}
+    \end{algorithmic}
+\end{algorithm}
+
+The functions \(simplifyFalseTrue\), \(nnf\), \(flatten\), \(skolemize\), and \(clausify\) are Vampire's standard preprocessing operations.
+Our key contribution is the \(Def\) function, which implements the naming transformation by recursively traversing the formula tree in post-order to replace each \code{QuantifiedFormula} with a fresh atomic formula while adding the corresponding definition to the problem set.
+To avoid duplicate definitions for repeated subformulae, the preprocessor maintains a memoization map tracking already-introduced fresh literals.
+
+A significant implementation challenge involves Vampire's \emph{flattened quantifiers}, where a single quantifier binds multiple variables.
+While Lemma~\ref{lem:fluted-def-constraints} requires each quantified subformula to be replaced by a fresh literal, this constraint assumes single-variable quantifiers.
+A way to see this is considering the formula
+\[
+\forall x_1 (P(x_1) \lor \forall x_2,x_3 (R(x_2,x_3))).
+\]
+which is clearly fluted.
+
+Applying the structural transformation to this formula we would need to add the following definition:
+\[
+  \forall x_1 (Q_1(x_1) \implies \forall x_2,x_3 (R(x_2,x_3)))
+\]
+whose clausification would produce the clause
+\[
+\neg Q_1(x_1) \lor R(x_2,x_3)
+\]
+which is clearly not fluted.
+
+This definition violates (FL3) by containing too many variables.
+However, considering the equivalent formula
+\begin{equation}\label{eq:quantifier-unflattened-formula}
+  \forall x_1 (P(x_1) \lor \forall x_2(\forall x_3 (R(x_2,x_3)))).
+\end{equation}
+the application of the transformation would result in the addition of the following two definitions:
+\begin{equation*}
+  \begin{aligned}
+    &\forall x_1,x_2 (Q_1(x_1,x_2) \implies \forall x_3 (R(x_2,x_3))) \\
+    &\forall x_1 (Q_2(x_1) \implies Q_1(x_1,x_2))
+  \end{aligned}
+\end{equation*}
+which clausify to the two clauses
+\begin{equation*}
+  \begin{aligned}
+    &\neg Q_1(x_1,x_2) \lor R(x_2,x_3) \\
+    &\neg Q_2(x_1) \lor Q_1(x_1,x_2)
+  \end{aligned}
+\end{equation*}
+which are both (FL3)-clauses, with the second being strongly fluted.
+
+Therefore, we implemented eager quantifier unflattening during traversal to avoid backtracking when encountering nested quantifiers.
+
+Finally, the \code{Def} function includes a boolean parameter to skip transformation of top-level quantifiers, avoiding redundant definitions that would only add unnecessary resolution steps without semantic benefit.
+For example, the formula in Equation~\ref{eq:quantifier-unflattened-formula} would technically lead to the additional definition
+\[
+  \forall [] (Q_3 \implies \forall x_1 (P(x_1) \lor Q_2(x_1)))
+\]
+where \(\forall []\) indicates a quantifier with an empty variable list.
+This definition is redundant since \(Q_3\) can be directly replaced with the original formula, avoiding \(n\) unnecessary resolution steps where \(n\) is the number of input sentences.
+
+The complete \code{Def} implementation is detailed in Algorithm~\ref{alg:def}.
+
+An overview of the \code{Def} function is shown in Algorithm~\ref{alg:def}.
+
+\begin{algorithm}[H]
+  \caption{\(Def\) structural transformation implementation}\label{alg:def}
+    \begin{algorithmic}[1]
+        \Statex{} \bold{signature} \(\textsc{Def}\quad Formula*\times Problem\&\times Unit*\times Polarity*\times Boolean\to Void\)
+        \Function{\(\textsc{Def}\)}{$formula,prb,u,pol,first$} % chktex 46
+            \State{} \(ret \gets formula\)
+            \If{\(formula \in memo\)}
+              \State{} \Return{\(memo[formula]\)}
+            \EndIf{}
+            \Switch{\(formula.connective()\)}
+              \Case{\(\forall,\exists\)}
+                \State{} \(subf \gets formula\to qarg()\)
+                \State{} \(vars \gets formula\to vars()\)
+                \State{} \(formula \gets unflatten(formula)\)
+                \State{} \(subf \gets Def(formula\to qarg(),prb,u,pol)\)
+                \State{} \(formula \gets QuantifiedFormula(\mathcal{Q},formula\to vars(),subf)\)
+                \If{\(\neg first\)}
+                  \State{} \(ret \gets axiomatize(formula, pol, u, prb)\)
+                \Else{}
+                  \State{} \(ret \gets formula\)
+                \EndIf{}
+              \EndCase{}
+              \Case{\(\iff\)}
+                \State{} \(left \gets Def(formula\to left(), prb,u,NEUTRAL)\)
+                \State{} \(right \gets Def(formula\to right(), prb,u,NEUTRAL)\)
+                \State{} \(ret \gets BinaryFormula(\iff,left,right)\)
+              \EndCase{}
+              \Case{\(\implies\)}
+                \State{} \(left \gets Def(formula\to left(), prb,u,invertPolarity(pol))\)
+                \State{} \(right \gets Def(formula\to right(), prb,u,pol)\)
+                \State{} \(ret \gets BinaryFormula(\implies,left,right)\)
+              \EndCase{}
+              \Case{\(\neg\)}
+                \State{} \(f \gets Def(formula\to uarg(),prb,u,invertPolarity(pol))\)
+                \State{} \(ret \gets NegatedFormula(f)\)
+              \EndCase{}
+              \Case{\(\lor, \land\)}
+                \State{} \(newArgs \gets \emptyset\)
+                \State{} \(args \gets formula\to args()\)
+                \For{\(\arg \in args\)}
+                  \State{} \(newArgs \gets newArgs \cup \{Def(\arg,prb,u,pol)\}\)
+                \EndFor{}
+                \State{} \(ret \gets JunctionFormula(formula.connective(),newArgs)\)
+              \EndCase{}
+            \EndSwitch{}
+            \State{} \(memo[formula] \gets ret\)
+            \State{} \Return{\(ret\)}
+        \EndFunction{}
+    \end{algorithmic}
+\end{algorithm}
+
+The function \code{invertPolarity} simply inverts the polarity given as input leaving zero polarity unchanged, while \code{memo} is the memoization map previously described.
+The unflattening of quantifiers previously described is handled by \code{unflatten} as shown in Algorithm~\ref{alg:unflatten}.
+
+\begin{algorithm}[H]
+  \caption{\(unflatten\) quantifier transformation}\label{alg:unflatten}
+    \begin{algorithmic}[1]
+        \Statex{} \bold{signature} \(\textsc{unflatten}\quad QuantifiedFormula*\to QuantifiedFormula*\)
+        \Function{\(unflatten\)}{$formula$} % chktex 46
+            \State{} \(vars \gets formula\to vars()\)
+            \State{} \(vars \gets reverse(vars)\)
+            \State{} \(v \gets vars.pop()\)
+            \State{} \(\mathcal{Q} \gets formula.connective()\)
+            \State{} \(formula \gets QuantifiedFormula(\mathcal{Q},[v],formula\to quarg())\)
+            \While{\(vars \neq \emptyset\)}
+              \State{} \(v \gets vars.pop()\)
+              \State{} \(formula \gets QuantifiedFormula(\mathcal{Q},[v],formula)\)
+            \EndWhile{}
+            \State{} \Return{\(formula\)}
+        \EndFunction{}
+    \end{algorithmic}
+\end{algorithm}
+
+The function \code{axiomatize} instead, is responsible for generating the fresh literal and adding its definition to the \code{Problem}, as shown in Algorithm~\ref{alg:axiomatize}.
+
+\begin{algorithm}[H]
+  \caption{Axiomatization of quantified formulae}\label{alg:axiomatize}
+    \begin{algorithmic}[1]
+        \Statex{} \bold{signature} \(\textsc{axiomatize}\quad Formula*\times Polarity\times Unit*\times Problem\&\to Formula*\)
+        \Function{\(axiomatize\)}{$formula,pol,u,prb$} % chktex 46
+            \State{} \(freeVars \gets formula\to freeVars()\)
+            \State{} \(freshPred \gets signature\to addFreshPredicate(freeVars.size(), \text{\dquoteit{def}})\)
+            \State{} \(freshLit \gets Literal(freshPred, freeVars.size(), True, freeVars)\)
+            \State{} \(freshAtom \gets AtomicFormula(freshLit,freshAtom,freeVars,pol)\)
+            \State{} \(definition \gets generateDefinition(formula,freshAtom,freeVars,pol)\)
+            \State{} \(newUnit \gets FormulaUnit(definition, FormulaTransformation(Def,u))\)
+            \State{} \(prb.units \gets prb.units \cup \{newUnit\}\)
+            \State{} \Return{\(freshAtom\)}
+        \EndFunction{}
+    \end{algorithmic}  
+\end{algorithm}
+
+Last but not least, the \code{generateDefinition} function creates the actual definition based on the formula's polarity, handling positive, negative, and neutral cases as shown in Algorithm~\ref{alg:generate-definition}.
+
+\begin{algorithm}
+  \caption{Definition Generation}\label{alg:generate-definition}
+  \begin{algorithmic}[1]
+      \Statex{} \bold{signature} \(\textsc{genDef}\quad Formula*\times AtomicFormula*\times VList\times Polarity\to Formula*\)
+      \Function{\(generateDefinition\)}{$formula,freshAtom,freeVars,pol$} %chktex 46
+          \Switch{\(pol\)}
+            \Case{\(POSITIVE\)}
+              \State{} \Return{\(generateDefinition(formula,freshAtom,freeVars,true)\)}
+            \EndCase{}
+            \Case{\(NEGATIVE\)}
+              \State{} \Return{\(generateDefinition(formula,freshAtom,freeVars,false)\)}
+            \EndCase{}
+            \Case{\(NEUTRAL\)}
+              \State{} \(pos \gets generateDefinition(formula,freshAtom,freeVars,true)\)
+              \State{} \(neg \gets generateDefinition(formula,freshAtom,freeVars,false)\)
+              \State{} \Return{\(JunctionFormula(\land,\{pos,neg\})\)}
+            \EndCase{}
+          \EndSwitch{}
+          \State{} \Return{\(Definition(freshAtom,body)\)}
+      \EndFunction{}
+  \end{algorithmic}
+  \begin{algorithmic}[1]
+      \Statex{} \bold{signature} \(\textsc{genDef}\quad Formula*\times AtomicFormula*\times VList\times bool\to Formula*\)
+      \Function{\(generateDefinition\)}{$formula,freshAtom,freeVars,pol$} %chktex 46
+          \State{} \(qarg\)
+          \If{\(pol\)}
+            \State{} \(qarg \gets BinaryFormula(\implies,freshAtom,formula)\)
+          \Else{}
+            \State{} \(qarg \gets BinaryFormula(\implies,formula,freshAtom)\)
+          \EndIf{}
+          \State{} \Return{\(QuantifiedFormula(\forall,freeVars,qarg)\)}
+      \EndFunction{}
+  \end{algorithmic}
+\end{algorithm}
+
+\section{Separation}\label{sec:separation-impl}
+Secondly, we implemented the separation inference rule described in Section~\ref{sec:separation}.
+Being the most innovative aspect of the fluted resolution process, it required careful consideration of its integration into Vampire's existing resolution framework.
+
+At first glance, separation might seem akin to factoring, leading to a straightforward implementation as a simplification inference.
+Unfortunately, as pointed out in~\cite{hustadt2000resolution}, separation is not a simplification rule in the traditional sense because does not necessarily make the clause set \dquote{simpler} reducing its complexity.
+Moreover, in the \emph{Otter} architecture, simplification inference are tightly integrated with the resolution process, while separation, as it is described and used in the fluted resolution process, acts more as a dynamic renaming for clauses, being almost a prerequisite for the resolution process.
+Finally, implementing separation as simplification inference delegating the forward simplification step to apply it would have brought significant challenges, the first being that forward simplification is expected to return just one clause to replace the given clause, while separation produces two clauses.
+To keep full control of separation application and to avoid unnecessary complications and modifications to Vampire's resolution framework, we opted for a more explicit implementation, integrating separability checks and separation application as a separated step of the saturation algorithm.
+
+There were then two options for where precisely to integrate this step.
+The first possibility was to perform separation eagerly, applying it as soon as a non-strongly fluted clause is generated, maintaining the invariant that no non-strongly fluted clauses are ever present in the clause set.
+This invariant is however much more stringent than the one required by the fluted decision procedure, which only demands that non-strongly fluted clauses are not used as premises in resolution.
+Moreover, this strategy would have led to a rapid growth of clause set size, potentially impacting the overall efficiency of the resolution process.
+Indeed, taking a look at the motivation of the heuristics behind \emph{LRS} and \emph{Discount} strategies, it is very likely that efforts to eagerly separate all clauses will be in vain since most of those clauses would have never been considered by the saturation algorithm anyway.
+
+The second possible approach, which is the one we ended up choosing, is to apply separation lazily, only when a non-strongly fluted clause is selected as the given clause for resolution and only after applying simplification steps.
+This ensures that separation is performed only when strictly necessary, minimizing its impact on the overall resolution process.
+This strategy maintains the invariant that no non-strongly fluted clauses are added to the active set, while allowing non-strongly fluted clauses to exist in the passive set, where they do not interfere with the resolution process\footnote{
+  Another benefit of this approach is that, technically, it allows to non-strongly fluted clauses to be used in simplification steps, potentially enabling further simplifications.
+  In the work done for this thesis, we did not explore this possibility using only factoring as simplification inference, but it could be an interesting avenue for future research.
+}.
+
+The component designated to handle separation is the \code{Separator} class, whose main method \code{separate} is called during the activation phase, when the given clause is prepared to be added to the active set.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{Placeholder.png}
+  \caption{Class diagram for the \code{Separator} class.}\label{fig:separator-class-diagram}
+\end{figure}
+
+The main idea behind the concrete implementation of \code{separate} leverage the fact that the only separable fluted clauses are (FL3)-clauses, whose literals have as argument sequence one of two possible compact interval of variables \([x_i,\ldots,x_m]\) and \([x_j,\ldots,x_{m+1}]\), with \(i,j \leq m < m+1\).
+To check if such a clause is separable and to compute the two resulting clauses, it suffices to check that \(i < j\) and then compute the intersection of the two intervals. For partitioning the literals, we can look at the last variable of their argument sequence, which will determine the split point between the two resulting clauses.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{Placeholder.png}
+  \caption{Possible variable interval configurations in (FL3)-clauses.}\label{fig:separator-sequence-diagram}
+\end{figure}
+
+\begin{algorithm}
+  \caption{Separation of (FL3)-clauses}\label{alg:separation}
+  \begin{algorithmic}[1]
+    \Statex{} \bold{signature} \(\textsc{separate}\quad Formula*\times AtomicFormula*\times VList\times Polarity\to Formula*\)
+      \Function{\(separate\)}{$formula,freshAtom,freeVars,pol$} %chktex 46
+      \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+The function \(separate\) will return a list containing the two separated clauses if separation was possible, or an empty list otherwise.
+
+\section{Fluted Resolution}\label{sec:fluted-resolution-impl}
 
 
 
