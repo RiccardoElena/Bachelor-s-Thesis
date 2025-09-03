@@ -6,11 +6,43 @@
 \newpage\pagestyle{appendices}
 \begin{appendices}
 
-\chapter{This is an appendix}\label{appendix}
-\section{Appendix section}
+\chapter{TPTP Benchmarking Data}\label{app:tptp-benchmarking}
+\section{Fluted Problems}\label{app:fluted-problems}
+\csvreader[
+  longtable=|l|l|l|l|,
+  table head= \caption{TPTP FOF Problems}\\
+              \hline \multicolumn{4}{|c|}{\textbf{Problem IDs}} \\ \hline \endhead %chktex 1
+              \hline \endfoot,
+  late after line=\\ \hline
+]{_files/tptp_fof_problems.csv}{1=\cola,2=\colb,3=\colc,4=\cold}
+{\cola{} & \colb{} & \colc{} & \cold{}}
 
-\section{Appendix section}
+\csvreader[
+  longtable=|l|l|l|l|,
+  table head=\caption{TPTP CNF Problems}\\
+              \hline \multicolumn{4}{|c|}{\textbf{Problem IDs}} \\ \hline \endhead %chktex 1
+              \hline \endfoot,
+  late after line=\\ \hline
+]{_files/tptp_cnf_problems.csv}{1=\cola,2=\colb,3=\colc,4=\cold}
+{\cola{} & \colb{} & \colc{} & \cold{}}
+\section{Fluted Problems Results}\label{app:benchmark-results}
+\csvreader[
+  longtable=|c|c|c|c|c|,
+  table head= \caption{TPTP FOF Results}\\
+              \hline \textbf{Problem} & \textbf{Fluted LRS} & \textbf{Vampire LRS} & \textbf{Fluted OTT} & \textbf{Vampire OTT} \\
+              \hline \endhead,
+  late after line=\\ \hline
+]{_files/tptp_fof_results.csv}{Problem=\problem,Fluted LRS=\flutedlrs,Vampire LRS=\vampirelrs,Fluted OTT=\flutedott,Vampire OTT=\vampireott}
+{\problem{} & \flutedlrs{} & \vampirelrs{} & \flutedott{} & \vampireott{}}
 
+\csvreader[
+  longtable=|c|c|c|c|c|,
+  table head= \caption{TPTP CNF Results}\\
+              \hline \textbf{Problem} & \textbf{Fluted LRS} & \textbf{Vampire LRS} & \textbf{Fluted OTT} & \textbf{Vampire OTT} \\
+              \hline \endhead,
+  late after line=\\ \hline
+]{_files/tptp_cnf_results.csv}{Problem=\problem,Fluted LRS=\flutedlrs,Vampire LRS=\vampirelrs,Fluted OTT=\flutedott,Vampire OTT=\vampireott}
+{\problem{} & \flutedlrs{} & \vampirelrs{} & \flutedott{} & \vampireott{}}
 
 %now another appendix
 

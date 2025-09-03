@@ -33,7 +33,6 @@ It should be noted that both this description and the development work are based
 \end{figure}
 
 Vampire's architecture is organized around a modular design that divides computational responsibilities across distinct modules, each handling specific aspects of the theorem proving process.
-\uninatodo{Update UMLs with correct names in classes}
 
 The \code{Kernel} module serves as the central component containing the system's fundamental data structures and control mechanisms.
 This module houses representations for \bold{terms}, \bold{clauses}, and \bold{formulae}, which form the basic building blocks of first-order logic manipulation within Vampire.
@@ -201,16 +200,22 @@ In this architecture, the set of clauses is partitioned into two collections:
 \end{enumerate*}
 
 The architecture name comes from the fact that the operations done in the main loop consists of selecting and removing a clause from \(P\), called the \emph{given clause} (GC), and applying all possible inference rules to it in combination with clauses in \(A\).
-When new clauses are generated, they are added to \(S\) in the \(P\) partition, so that they can be selected as given clauses in future iterations, and the current given clause is added to \(A\), to be resolved against future given clauses.
+When new clauses are generated, they are added to \(S\) in the \(P\) partition, so that they can be selected as given clauses in future iterations, and the current GC is added to \(A\), to be resolved against future given clauses.
 
 The derivation of \(\varnothing\) at any point allows us to conclude that the original set of clauses \(S\) is unsatisfiable.
 Alternatively, when \(P\) becomes empty, the original set of clauses \(S\) has been saturated and, since \(\varnothing\) has not been derived, we can conclude that \(S\) is satisfiable.
 
 A high-level description of the saturation algorithm with GCA is as follows:
 \begin{algorithm}[H]
+    \algnotext{EndIf}
+  \algnotext{EndFunction}
+  \algnotext{EndWhile}
+  \algnotext{EndFor}
+  \algnotext{EndCase}
+  \algnotext{EndSwitch}
     \caption{Saturation Algorithm}\label{alg:saturation-algorithm}
     \begin{algorithmic}[1]
-        \Statex{} \bold{signature} \(\textsc{SA} \quad [Clause] \to Boolean\)
+        \Statex{} \bold{signature} \(\textsc{SA:} \quad [Clause] \to Boolean\)
         \Function{\(\textsc{SA}\)}{$S$} % chktex 46
             \State{} \((A,P)\gets (\emptyset,S)\)
             \While{\(P \neq \emptyset\)}
@@ -228,7 +233,7 @@ A high-level description of the saturation algorithm with GCA is as follows:
     \end{algorithmic}
 \end{algorithm}
 
-Where \(infer\) is a function of type \(Clause \times [Clause] \to [Clause]\) that computes the list of resolvents of the given clause and any clause in the list\footnote{
+Where \(infer\) is a function of type \(Clause \times [Clause] \to [Clause]\) that computes the list of resolvents of the GC and any clause in the list\footnote{
   Technically, \(infer\) should also take as input the inference system \(R\) to be used, but for simplicity, we omit it here.
 }.
 
@@ -260,12 +265,18 @@ Therefore, in practical implementations of GCA based algorithm, some sort of res
 Clearly, the signature of the algorithm changes to \([Clause] \to Boolean \ms|\ms \bot\), where \(\bot\) indicates that the algorithm was interrupted due to resource limitations before reaching a conclusion.
 
 One of the first Automated Theorem Provers to implement GCA was the \emph{Otter} system~\cite{mccune1994otter},  which added two additional steps to the basic GCA algorithm.
-These steps are called \bold{forward simplification} and \bold{backward simplification} and take care of applying simplification inferences, such as \emph{factoring}~\ref{subsec:factoring}, to the given clause and to the active or passive clauses respectively.
+These steps are called \bold{forward simplification} and \bold{backward simplification} and take care of applying simplification inferences, such as \emph{factoring}~\ref{subsec:factoring}, to the GC and to the active or passive clauses respectively.
 A base description of this structure is the following:
 \begin{algorithm}[H]
+    \algnotext{EndIf}
+  \algnotext{EndFunction}
+  \algnotext{EndWhile}
+  \algnotext{EndFor}
+  \algnotext{EndCase}
+  \algnotext{EndSwitch}
     \caption{Otter Algorithm}\label{alg:otter-algorithm}
     \begin{algorithmic}[1]
-        \Statex{} \bold{signature} \(\textsc{Otter} \quad [Clause] \to Boolean\)
+        \Statex{} \bold{signature} \(\textsc{Otter:} \quad [Clause] \to Boolean\)
         \Function{\(\textsc{Otter}\)}{$S$} % chktex 46
             \State{} \((A,P)\gets (\emptyset,S)\)
             \While{\(P \neq \emptyset\)}
@@ -291,7 +302,7 @@ A base description of this structure is the following:
         \EndFunction{}
     \end{algorithmic}
 \end{algorithm}
-where \(retained\) is a function of type \(Clause \to Boolean\) that checks if the given clause should be retained for further processing or discarded based on certain criteria, such as redundancy or subsumption.
+where \(retained\) is a function of type \(Clause \to Boolean\) that checks if the GC should be retained for further processing or discarded based on certain criteria, such as redundancy or subsumption.
 
 Vampire implements three variants of this structure:
 
@@ -359,12 +370,10 @@ It is defined as follows:
   \end{enumerate}
 \end{definition}
 
-Moreover, Vampire implements a variety of selection functions, from the simplest \emph{all}, which selects all literals in the given clause, to more complex ones, such as the default option, which considers \emph{maximal size, polarity} and then \emph{lexicographic ordering}\footnote{
-  Technically, this selection function considers \emph{coloured first} and \emph{negative equality} before the other three criteria, but they are out of the scope of this thesis.
+Moreover, Vampire implements a variety of selection functions, from the simplest \emph{all}, which selects all literals in the GC, to more complex ones, such as the default option, which considers \emph{maximal size, polarity} and then \emph{lexicographic ordering}\footnote{
+  Technically, this selection function considers \emph{colour} and \emph{negative equality} before the other three criteria, but they are out of the scope of this thesis.
 }.
-
 The combination of simplification ordering and fine-grained selection functions allows Vampire to avoid redundant inferences and allowing it to terminate quickly, and even derive satisfiability in problems that standard resolution would not.
-
 For example, on the set of clauses in Equation~\ref{eq:non_terminating}, Vampire find satisfiability almost immediately.
 
 \section{AVATAR}\label{sec:avatar-architecture}
@@ -385,11 +394,10 @@ The AVATAR architecture consists of two primary components working in close coop
 
 \begin{description}
   \item[FO Component] A first-order resolution and superposition theorem prover that implements the standard saturation algorithm described in Section~\ref{sec:saturation-algorithm}.
-                     This component handles the generation of inferences, term manipulation, and all aspects of first-order reasoning.
+                     This component handles all aspects of first-order reasoning.
   \item[SAT Component] A SAT solver (or SMT solver) that manages the propositional aspects of clause splitting.
-                       This component stores propositional clauses derived from splittable first-order clauses and computes satisfying assignments that guide the first-order reasoning process.
+                       It stores propositional clauses derived from splittable first-order clauses and computes satisfying assignments that guide first-order reasoning.
 \end{description}
-
 The communication between these components is facilitated through a \bold{component mapping} \([\cdot]\) that translates clause components into propositional literals.
 This mapping satisfies several important properties: \([C]\) is a positive literal if and only if \(C\) is either a non-ground component or a positive ground literal; for negative ground components \(\neg C\), we have \([\neg C] = \neg[C]\); and \([C_1] = [C_2]\) if and only if \(C_1\) is equal to \(C_2\) up to variable renaming and symmetry of equality.
 
@@ -408,10 +416,7 @@ AVATAR revolutionizes this process by externalizing the split management:
   \item The SAT solver incorporates this new clause and computes a satisfying assignment over all stored propositional clauses.
   \item Components corresponding to propositional variables that are true in this assignment are sent back to the FO component as \bold{assertions}.
 \end{enumerate}
-
 This approach leverages the specialized algorithms and heuristics developed for propositional satisfiability, which are significantly more efficient for this type of reasoning than the general-purpose algorithms used in first-order theorem provers.
-
 The addition of this mechanism brings a substantial performance improvement in problems containing splittable clauses, but its implementation requires some modifications to the saturation algorithm described in Section~\ref{sec:saturation-algorithm} and a careful handling of the interactions between the FO and SAT components.
-
-All these technicalities are out of the scope of this thesis, whose focus is confronting resolution strategies and their effectiveness in first-order theorem proving.
-Theoretically, splitting can be incorporated into the decision procedure for fluted logic, but not being necessary for termination has been avoided, because there were no guarantees that AVATAR splitting would have caused problems being a completely new approach.
+%All these technicalities are out of the scope of this thesis, whose focus is confronting resolution strategies and their effectiveness in first-order theorem proving.
+Theoretically, splitting can be incorporated into the decision procedure for fluted logic but, not being necessary for termination, it has been avoided, to stay in the framework of first-order reasoning.

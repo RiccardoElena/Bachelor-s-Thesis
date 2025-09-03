@@ -92,6 +92,10 @@
 
 % ------------------------------------------------------------------------------------
 % Thesis specific custom commands
+
+\usepackage{csvsimple}
+\usepackage{longtable}
+\usepackage{multicol}
 \graphicspath{{_figures/}}
 \newcommand{\landor}{\mathrel{\land\mkern-3mu\lor}}
 \newcommand{\ms}{\,}
@@ -123,9 +127,11 @@
 
 \algnewcommand\algorithmicswitch{\textbf{switch}}
 \algnewcommand\algorithmiccase{\textbf{case}}
+\algnewcommand\algorithmicdefault{\textbf{default}}
 
 \algdef{SE}[SWITCH]{Switch}{EndSwitch}[1]{\algorithmicswitch\ #1\ \algorithmicdo}{\algorithmicend\ \algorithmicswitch}%
 \algdef{SE}[CASE]{Case}{EndCase}[1]{\algorithmiccase\ #1}{\algorithmicend\ \algorithmiccase}%
+\algdef{SE}[DEFAULT]{Default}{EndDefault}{\algorithmicdefault}{\algorithmicend\ \algorithmicdefault}%
 
 
 

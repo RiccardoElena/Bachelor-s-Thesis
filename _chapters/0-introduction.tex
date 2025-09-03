@@ -18,7 +18,7 @@ This was established independently in the 1930s by \citeauthor{church1936}~\cite
 Their results demonstrated that no algorithm can, in general, determine whether an arbitrary FOL formula is valid. This fundamental limitation creates a significant computational barrier for automated reasoning.
 In response, two complementary research directions have emerged: the systematic identification of decidable fragments that retain sufficient expressiveness for practical applications, and the development of automated theorem provers (ATPs) that---while unable to guarantee termination on all inputs---employ sophisticated heuristics and optimizations to solve many real-world problems efficiently.
 
-Among the most prominent ATPs for first-order logic is \emph{Vampire}~\cite{kovacs2013vampire}, a high-performance prover built on advanced saturation-based reasoning.
+Among the most prominent ATPs for FOL is \emph{Vampire}~\cite{kovacs2013vampire}, a high-performance prover built on advanced saturation-based reasoning.
 Vampire combines ordered resolution with literal selection, term indexing, and clause simplification techniques to explore the space of logical consequences efficiently.
 It also incorporates modern enhancements such as efficient preprocessing, strategy scheduling, and support for first-order logic with built-in theories.
 These features have made Vampire highly successful in competitive settings like the CADE ATP System Competition (CASC)\footnote{The CADE ATP System Competition (CASC) is the annual evaluation of fully automatic, classical logic, ATP systems --- the world championship for such systems.}, and effective in practical applications ranging from formal verification to software analysis.
@@ -27,16 +27,13 @@ Moreover, Vampire's extensible architecture and open-source nature make it the g
 While general-purpose provers like \emph{Vampire} are designed to handle unrestricted first-order logic, certain decidable fragments offer opportunities for more targeted and efficient reasoning.
 One such fragment is the \emph{Fluted Fragment}, distinguished by its strict syntactic discipline: variables in atomic formulas must follow the order in which they are quantified~\cite{quine1968predicate}.
 This constraint, first introduced by Quine, limits expressiveness in some dimensions but crucially preserves decidability. Subsequent studies have shown that the Fluted Fragment occupies an interesting middle ground—more complex than many guarded or bounded-variable fragments, yet still admitting well-characterized decision procedures~\cite{pratt2019fluted}.
-Applications have emerged in areas such as knowledge representation, database logic and computational linguistics, where the fragment’s regular structure aligns naturally with hierarchical or sequential data.
-\uninatodo{I remember we discussed this application, but I cannot find the reference now.}
+Applications have emerged in areas such as knowledge representation, database logic~\cite{pratt-hartmann2023transitivity} and computational linguistics~\cite{quine1968predicate}, where the fragment’s regular structure aligns naturally with hierarchical or sequential data.
 These properties make it a compelling candidate for specialized reasoning techniques that can outperform general ATPs in relevant domains.
 
 A specialized reasoning technique for the Fluted Fragment is presented by \citeauthor{schmidt2000resolution} in their resolution-based decision procedure~\cite{schmidt2000resolution}.
 Their approach characterizes fluted logic through a novel class of \emph{fluted clauses}, and introduces a calculus ---\textsc{R\textsuperscript{sep}}--- which extends ordered resolution with a dynamic renaming rule called \emph{separation}.
 This rule enables the transformation of non-strongly fluted clauses into strongly fluted ones, thereby preserving a bounded number of variables and ensuring closure under resolution.
 Crucially, the authors prove that their calculus is sound, complete, and terminating for fluted logic, establishing a resolution-based decision procedure for the fragment.
-
-%This result not only deepens the understanding of the structural properties that make fluted logic decidable, but also provides a foundation for building dedicated automated reasoning tools that leverage the syntactic discipline of the fragment.
 
 In this thesis, we implement this resolution-based decision procedure for the Fluted Fragment, with the goal of evaluating its practical effectiveness.
 By faithfully realizing the \textsc{R\textsuperscript{sep}} calculus, including the separation rule and associated structural constraints, the implementation provides a concrete instantiation of the theoretical framework.

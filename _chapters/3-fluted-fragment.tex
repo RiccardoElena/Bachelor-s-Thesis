@@ -3,22 +3,16 @@
 As previously mentioned, undecidability of FOL has led to the systematic exploration of fragments that retain desirable properties while being decidable with resolution-based systems.
 
 The definition of these fragments is tied to syntactic restrictions on the formulae, allowing the formulation of a terminating decision procedure exploiting the structure of the fragments.
-
 Early investigations into decidable fragments often focused on restricting quantification, limiting formulae to a specific quantifier pattern.
 Some notable examples are the \emph{Bernays-Schönfinkel class} (\(\exists^*\forall^*\)), the \emph{initially extended Ackermann class} (\(\exists^*\forall\exists^*\)), and the \emph{initially extended Gödel class} (\(\exists^*\forall\forall\exists^*\)).
-
 Another notable example is the \emph{(loosely) guarded fragment}, which restricts quantification to conditional quantifiers of the form \(\forall \bar{y} (G(\bar{x},\bar{y}) \rightarrow \phi)\) or \(\exists \bar{y} (G(\bar{x},\bar{y}) \land \phi)\), where \(G\) is a \emph{guard} formula satisfying certain restrictions.
-
 Other form of restrictions involve the arity of predicates, such as the \emph{monadic fragment}, which only allows unary predicates, or the \emph{two-variable fragment} (\(\text{FO}^2\)), which restricts formulae to at most two variables.
 
 By contrast, the restriction of first-order logic which ensures decidability for fluted logic is an ordering on variables and arguments.
-
 This variable-ordering approach is significant because it does not limit formulae structure or predicate arity, but only predicate application on variables.
-
 Another significant aspect of fluted logic is the relationship to non-classical logics, such as extended modal logics and expressive description logics, which play an increasingly important role in various areas of computer science.
 Fluted logic may be viewed as a generalization of modal logic, a characteristic shared with the guarded fragments. 
 However, fluted logic offers advantages over guarded fragments for modal logic embeddings because it allows negation of relation atoms, enabling it to capture enriched modal logics like Boolean modal logic~\cite{gargov1990boolean}, and expressive description logics such as \(\mathcal{ALB}\) (without converse)~\cite{hustadt2000issues}.
-
 Additionally, in~\cite{purdy1999quine} \citeauthor{purdy1999quine} describes an application in computational linguistics of fluted logics for
 modelling ordinary English.
 
@@ -30,7 +24,7 @@ This property is crucial because it enables decidable satisfiability checking th
 Formally, the syntactic structure of fluted formulae can be defined as follows~\cite{schmidt2000resolution}:
 
 \begin{definition}\label{def:fluted-formulae}
-  Let \(\mathcal{P}\) be a finite set of predicate symbols and let \(X_m = \{x_1, \ldots, x_m\} \subseteq \mathcal{X}\)\uninatodo{this definition is taken directly from the paper but seems to not include the \(\emptyset\). Should I change it?} be an \emph{ordered} set of variables.
+  Let \(\mathcal{P}\) be a finite set of predicate symbols and let \(X_m = \{x_1, \ldots, x_m\} \subseteq \mathcal{X}\) be an \emph{ordered} set of variables, assumed to be empty when \(m=0\).
   An \emph{atomic fluted formula} of \(\mathcal{P} \text{ over } X_i\) is an \(n\)-ary atom \(P(x_l,\ldots, x_i)\), with \(l = i - n + 1 \text{ and } n \leq i\).
   \emph{Fluted formulae} are defined inductively as follows:
   \begin{enumerate}
@@ -41,9 +35,7 @@ Formally, the syntactic structure of fluted formulae can be defined as follows~\
 \end{definition}
 
 By definition, for any formula \(\phi\), if there is a variable renaming \(h\) such that \(h(\phi)\) is a fluted formula according to the above definition then \(\phi\) is a fluted formula.
-
 Moreover, as a consequence of the definition, any fluted formula over \(X_i\) has \(X_i\) as its set of free variables, and therefore fluted sentences can be seen as over \(X_0 = \emptyset\).
-
 In this definition, to quantify a fluted formula the quantified variable is forced to be the last free variable occurring in all predicate. In this sense, quantifying a formula to a sentence can be informally thought of as popping off variables from the list of free variables, which converges to \(X_0\).
 
 % The semantics of fluted logic is defined as in FOL (\ref{subsec:semantics}).
@@ -65,9 +57,9 @@ While the following examples are not fluted formulae:
     \forall x_1,x_2(P(x_1,x_2) \land \exists x_3(Q(x_1,x_2,x_3) \implies \exists x_4 R(x_4,x_3)))
   \end{aligned}
 \end{equation}
-because the ordering of arguments is violated.
+\indent because the ordering of arguments is violated.
 
-These constraints can be expressed less formally with a top-down approach as well, where the variables of atoms from a string \(fs\), where \(f\) is a possibly empty string of free variables, and \(s\) is a suffix of the string of the bound variables from the outermost quantifier to the innermost.
+\noindent These constraints can be expressed less formally with a top-down approach as well, where the variables of atoms from a string \(fs\), where \(f\) is a possibly empty string of free variables, and \(s\) is a suffix of the string of the bound variables from the outermost quantifier to the innermost.
 
 \begin{figure}[H]
     \centering
@@ -115,20 +107,16 @@ These constraints can be expressed less formally with a top-down approach as wel
 \end{figure}
 
 From the syntactic tree in Figure~\ref{fig:fluted_syntree}, it is easy to see that each atom has as arguments a suffix of the string of bound variables obtained from the traversal of the branch of the tree with the atom as leaf.
-
 By contrast, in Figure~\ref{fig:not_fluted_syntree}, the atom \(R(x_4, x_3)\) had as argument string \(x_4 x_3\), which is not a suffix of the string of bound variables \(x_1 x_2 x_3 x_4\).
-
 This observation leads to the fact that, in \dquote{\emph{constructing}} a fluted sentence top-down, one can only \emph{introduce} new variables at the end of the string and the variables an atom \(P\) is applied to is completely determined by the quantifiers it is in scope of and its arity, while everything remains arbitrary.
 
 \section{Fluted Clauses}\label{sec:fluted-clauses}
 
 In~\cite{schmidt2000resolution}, \citeauthor{schmidt2000resolution} introduces a restricted class of clauses named \bold{fluted clauses}.
 These clauses are characterized by a specific structure that adheres to the constraints outlined in the previous sections and such that any fluted formula, after the necessary naming, can be transformed into a fluted clause.
-
 Before we delve into the formal definition of the fluted clauses class, we need to introduce some notation.
 
 The notation \(\flseq{i}\) will denote a finite, possibly empty, sequence \((u_i,u_{i+1}, \ldots, u_m)\) of terms. Unless specified otherwise each non-empty sequence \(\flseq{i}\) will be assumed to end with \(u_m\).
-
 The sequences \(\flseq{1},\flseq{2},\ldots,\flseq{m}\) are therefore linearly ordered by the converse of the proper suffix relation and the sequence \(\flseq{m}\).
 Therefore, the following notations will be used:
 \begin{itemize}
@@ -139,7 +127,6 @@ Therefore, the following notations will be used:
 \end{itemize}
 
 For \(f\flseq{i},P\flseq{i} \text{ and } C\flseq{i} \), \(\flseq{i}\) is called the \emph{argument sequence} of the corresponding term, predicate or clause.
-
 If \(\flseq{i}\) is empty, then \(f\flseq{i}, P\flseq{i} \text{ and } C\flseq{i}\) respectively denote a constant, a propositional literal and a (possibly empty) propositional clause.
 
 \begin{definition}\label{def:fluted-sequence}
@@ -190,7 +177,7 @@ This can be easily shown by observing that, for every \(n\) only the vertex corr
   \draw[-latex, thick, bend left=30] (h) to (f);
   \draw[-latex, thick] (h) -- (g);
 \end{tikzpicture}
-\caption{DAG of last example of fluted sequences}
+\caption{DAG of last example of fluted sequences}\label{fig:fluted-sequence-dag}
 \end{figure}
 Is possible now to define the class of fluted clauses.
 
@@ -203,7 +190,7 @@ Is possible now to define the class of fluted clauses.
     \item[(FL2)] \(C\) is functional and not empty, \(\var{C} = X_m\), and for any literal \(L\) in \(C\), the argument sequence of \(L\) is one of
       \[(x_{i},x_{i+1}, \ldots, x_{i_m}) \text{ or }\]
       \[(u_j, u_{j+1}, \ldots, u_{n}),\]
-    where \(1 \leq i \leq m\) and \((u_j, u_{j+1}, \ldots, u_{n})\) is a suffix of some fluted sequence \(\overline{u} \text{ over } \{x_k, \ldots, x_m\}\) with \(k \in \{1,\ldots,m\}\).
+    where \(1 \leq i \leq m\) and \((u_j, u_{j+1}, \ldots, u_{n})\) is a suffix of some fluted sequence \(\overline{u}\) over \( \{x_k, \ldots, x_m\}\) with \(k \in \{1,\ldots,m\}\).
     \(\overline{u}\) will be referred to as the \emph{fluted sequence associated} with \(L\).
     \item[(FL3)] \(C\) is not empty, \(\var{C} = X_{m+1}\), and for any literal \(L\) in \(C\), the argument sequence of \(L\) is either
       \[(x_{1},x_{2}, \ldots, x_{m}) \text{ or }\]
@@ -212,7 +199,6 @@ Is possible now to define the class of fluted clauses.
   \end{description}
   A fluted clause will be called \emph{strongly fluted clause} if it is either ground or has a literal which contains all the variables of the clause.
 \end{definition}
-
 Some examples of fluted clauses are:
 \begin{description}
   \item[(FL0)] \(\neg P \lor Q \lor R\)
@@ -230,7 +216,6 @@ Some additional notes:
 
 Strongly fluted clauses will be the core of the resolution procedure assuring its termination.
 That is because, resolving two strongly fluted clauses and selecting as eligible literal the literal containing all the variable of the clause, will produce a resolvent with a number of variables less than or equal to the number of variables of the parent clauses.
-
 Some additional property of fluted clauses come from the following results.
 The proofs follow straightforwardly and are therefore omitted for brevity. Complete demonstration for these lemmas, and for all other claims in this chapter, can be found in~\cite{hustadt2000resolution}.
 
@@ -261,16 +246,13 @@ Lemma~\ref{lem:strongly-fluted-clauses} is of particular relevance, because it a
 \section{From Fluted Formulae to Fluted Clauses}\label{sec:from-fluted-formulae-to-fluted-clauses}
 
 Once defined the class of fluted clauses, a procedure to transform any fluted formula into a set of fluted clauses is needed.
-
 This transformation is obtained by pre-pending to standard clausification defined in Section~\ref{sec:skolemization_and_normalization} a step of \emph{renaming}, as mentioned in Section~\ref{sec:auxiliary_predicate_introduction}, that guarantees the preservation of the fluted structure.
-
 In particular, the renaming technique used is also known as \emph{structural transformation}.
-
 To describe this \emph{renaming} step more formally it is sufficient to define a function that maps any fluted formula \(\phi\) over \(X_m\) to a fluted formula \(t(\phi)\) over \(X_m\) that, after the standard clausification, produces a set of fluted clauses.
 
 Let \(Pos(\phi)\) be the set of positions of a first-order formula \(\phi\). If \(\lambda\) is in \(Pos(\phi)\), then \(\phi|_\lambda\) denotes the subformula of \(\phi\) at position \(\lambda\) and, extending the previously introduced notation for substitution, \(\phi[\psi\mapsto\lambda]\) is the result of replacing \(\phi|_\lambda\)  at position \(\lambda\) with \(\psi\).
 
-Looking at formulae from the prospective of their syntactic tree, \(Pos(\phi)\) can be seen as the set of all nodes in the tree visited in a pre-order traversal, \(\phi|_\lambda\) is the subtree rooted at node \(\lambda\), and \(\phi[\psi\mapsto\lambda]\) is tree obtained by replacing the subtree rooted at node \(\lambda\) with the tree of \(\psi\).
+Looking at formulae from the prospective of their syntactic tree, \(Pos(\phi)\) can be seen as the ordered set of all nodes in the tree visited in a pre-order traversal, \(\phi|_\lambda\) is the subtree rooted at node \(\lambda\), and \(\phi[\psi\mapsto\lambda]\) is tree obtained by replacing the subtree rooted at node \(\lambda\) with the tree of \(\psi\).
 Structural transformations associates with each element \(\lambda \in \Lambda \subseteq Pos(\phi)\) a fresh predicate symbol \(Q_\lambda\) and a literal \(Q_\lambda(x_1,\ldots,x_n)\), where \(x_1,\ldots,x_n\) are the free variables of \(\phi|_\lambda\), such that any two symbols \(Q_\lambda \text{ and } Q_{\lambda'}\) are equal only if \(\phi|_\lambda\) and \(\phi|_{\lambda'}\) are equivalent formulae.
 
 Let 
@@ -294,8 +276,7 @@ Is possible to inductively extends \emph{definition} to the whole set of positio
     \fldef{\Lambda\cup\{\lambda\}}{\phi} &= \fldef{\Lambda}{\phi[Q_\lambda(x_1,\ldots,x_n)\mapsto\lambda]} \land \fldef{\lambda}{\phi}
   \end{aligned}
 \end{equation}
-where \(\lambda\) is maximal in \(\Lambda\cup\{\lambda\}\) with respect to the prefix ordering on positions.
-
+\indent where \(\lambda\) is maximal in \(\Lambda\cup\{\lambda\}\) with respect to the prefix ordering on positions.
 For any first-order formula \(\phi\), \(\fldef{\Lambda}{\phi}\) will denote the \emph{definitional form} obtained by introducing new names for subformulae at positions in \(\Lambda\).
 This transformation can be seen as substituting each node of the syntactic tree in \(\Lambda\) with a fresh literal \(Q_\lambda(x_1,\ldots,x_n)\) in post-order, adding the definition of \(Q_\lambda\) as a child of a new root node for the \(\land\) connective.
 
@@ -339,7 +320,6 @@ This transformation can be seen as substituting each node of the syntactic tree 
 \end{figure}
 
 Usually \(\Lambda\) is the subset of all positions of subformulae which are non-atomic or non-literal.
-
 For the problem of decidability is important that this transformation preserves satisfiability. Indeed, the following theorem holds:
 
 \begin{theorem}\label{thm:definitional-sat-preservation}
@@ -349,14 +329,14 @@ For the problem of decidability is important that this transformation preserves 
     \item \(\fldef{\Lambda}{\phi}\) can be computed in polynomial time.
   \end{enumerate}
 \end{theorem} 
-
 It is therefore possible to show that any fluted formula \(\phi\), introducing new literals for each non-literal subformula position, can be transformed into a set of strongly fluted clauses.
 
 \begin{lemma}
   Let \(\phi\) be any fluted formula. If \(\Lambda\) contains all non-literal subformulae positions of \(\phi\) then the clausification of \(\fldef{\Lambda}{\phi}\) is a set of strongly fluted clauses (provided the newly introduced literals have the form \((\neg)Q_\lambda(\overline{x}_i)\)).
 \end{lemma}
-
-To instead obtain a set of fluted clauses (not necessarily strongly fluted) it is required to introduce new symbols only for the quantified subformulae\footnote{Technically in~\cite{hustadt2000resolution} is mentioned, that only requires the introduction of new symbols for positive occurrences of universally quantified subformulae, negative occurrences of existentially quantified subformulae and all quantified subformulae with zero polarity, but then another form of Skolemization needs to be used. }.
+To instead obtain a set of fluted clauses (not necessarily strongly fluted) it is required to introduce new symbols only for the quantified subformulae\footnote{
+  Strictly speaking, in~\cite{hustadt2000resolution} is mentioned, that only requires the introduction of new symbols for positive occurrences of universally quantified subformulae, negative occurrences of existentially quantified subformulae and all quantified subformulae with zero polarity, but then another form of Skolemization needs to be used.
+}.
 
 \begin{lemma}\label{lem:fluted-def-constraints}
   Let \(\phi\) be any fluted formula over \(X_m\). If \(\Lambda\) contains at least the positions of any subformulae \(\exists x_{i+1}\psi, \forall x_{i+1}\psi\), then the clausification of \(\fldef{\Lambda}{\phi}\) is a set of fluted clauses (again, provided the newly introduced literals have the form \((\neg)Q_\lambda(\overline{x}_i)\)).
@@ -381,12 +361,10 @@ whose clausification to the (FL3)-clauses
 of which the latter does not contain a literal which contains all the variables of the clause, and is thus only fluted, not strongly fluted.
 
 Having only fluted clauses and not strongly fluted ones in this phase is not a problem because, as we will see later, resolution of strongly fluted clauses can produce a non-strongly fluted clauses, making a procedure to obtain equivalent strongly fluted clauses from non-strongly fluted ones necessary anyway.
-
 This procedure is the new inference rule named \bold{separation}.
 \section{Separation}\label{sec:separation}
 As briefly mentioned in the previous section, the motivation for introducing the \emph{separation} inference rule is that the class of fluted clauses is not closed under resolution.
 In particular, resolvents of non-strongly fluted (FL3)-clauses are not always fluted and can cause (potentially) unbound variable chaining across literals.
-
 This can be shown considering the resolution between
   \[
     P_1(x_1,x_2) \lor Q_1(x_2,x_3) \lor R(x_2,x_3) \text{ and }
@@ -399,7 +377,6 @@ which produces the resolvent
     P_1(x_1,x_2) \lor Q_1(x_2,x_3) \lor P_2(x_2,x_3) \lor Q_2(x_3,x_4)
   \]
 that is not fluted and contains more variables than the original clauses.
-
 The class of strongly fluted clauses is also not closed under resolution but, inferences with two strongly fluted clauses always produce fluted clauses, and non-strongly fluted clauses are what we call separable and can be restored to strongly fluted clauses.
 
 Consider the strongly fluted clauses
@@ -415,12 +392,10 @@ whose resolvent is
   \]
 
 \(C\) satisfies (FL3) but it is not strongly fluted, as none of its literals contains all the variables of the clause.
-
 A consequence of this, is that the literals are incomparable under an admissible ordering (in particular, a liftable ordering), because the literals have a common instance, for example
   \[
     C\{x_1 \mapsto a, x_2 \mapsto a, x_3 \mapsto a\} = P(a,a) \lor P(a,a)
   \]
-
 The problem is caused by the variable \(x_1 \text{ and } x_3\). Because they do not occur together in any literal, \(C\) can be separated and replaced by the following two clauses, where \(Q\) is a new predicate symbol.
   \[
     Q(x_2) \lor P(x_1,x_2)
@@ -429,24 +404,17 @@ The problem is caused by the variable \(x_1 \text{ and } x_3\). Because they do 
     \neg Q(x_2) \lor P(x_2,x_3)
   \]
 These two clauses are indeed strongly fluted, the first satisfying (FL1) and the second (FL3) but being strongly fluted.
-
 This process of separating non-strongly fluted clauses into strongly fluted can be formalized in the \bold{separation} inference rule, that can be used outside the context of fluted logic as well.
 
 \begin{definition}
   Let \(C\) be an arbitrary clause. \(C\) is \bold{separable} if it can be partitioned into two non-empty subclauses \(D_1\) and \(D_2\) such that \(\var{D_1} \not\subseteq \var{D_2} \text{ and } \var{D_2} \not\subseteq \var{D_1}\)
 \end{definition}
-
-For example the clause shown before is separable, while the clause
-\[
-P(x_1,x_2) \lor Q(x_2,x_3) \lor R(x_1,x_3)
-\]
-is not separable.
+\noindent For example the clause shown before is separable, while the clause \(P(x_1,x_2) \lor Q(x_2,x_3) \lor R(x_1,x_3)\) is not.
 \begin{theorem}\label{thm:separation}
   Let \(C \lor D\) be a separable clause such that \(\var{C} \cap \var{D} = \{x_1,\ldots,x_n\}\) for \(n \in \mathbb{N}\).
   Let \(Q\) be a fresh predicate symbol with arity \(n\).
   Then a set of clauses \(N \cup \{C\lor D\}\) is satisfiable if and only if the set of clauses \(N \cup \{\neg Q(x_1,\ldots, x_n) \lor C, Q(x_1,\ldots, x_n) \lor D\}\) is satisfiable.
 \end{theorem}
-
 On the basis of this theorem we can define the following replacement rule:
 
 \begin{equation}\label{eq:separation-rule}
@@ -459,18 +427,16 @@ On the basis of this theorem we can define the following replacement rule:
   \item \(Q\) is \indent a fresh predicate symbol with arity \(n\).
 \end{enumerate*}
 
-From the definition of separable clauses, also follows that
+\noindent From the definition of separable clauses, also follows that
 \begin{lemma}\label{lem:separation-replacement}
   The replacements of a separable clause \(C\) each contain less variable than \(C\)
 \end{lemma}
-
 Moreover, it is possible to prove the following.
 
 \begin{theorem}
   Let \(R^{sep}\) denote the extension of \(R\) defined as in Section~\ref{sec:resolution-factoring} with the separation inference rule and let \(N\) be a set of clauses.
   Then \(N\) is unsatisfiable if and only if the saturation of \(N\) under \(R^{sep}\) contains the empty clause.
 \end{theorem}
-
 More generally, this theorem holds also if \(R^{sep}\) is based on ordered resolution
 
 By Lemma~\ref{lem:strongly-fluted-clauses}, separable fluted clauses have the form
@@ -486,9 +452,9 @@ The separation of clauses i this form, will produce clauses with the form
 \[
   Q(\overline{x}_i) \lor \mathcal{L}(\overline{x}_i,x_{m+1}) \lor \ldots \lor \mathcal{L}(x_m, x_{m+1}) \lor \mathcal{L}(x_{m+1})
 \]
-which are obviously strongly fluted, thanks to literals in \(\mathcal{L}(\overline{x}_1)\) and in \(\mathcal{L}(\overline{x}_i)\).
+which are obviously strongly fluted, thanks to literals in \(\mathcal{L}(\overline{x}_1)\) and in \(\mathcal{L}(\overline{x}_i,x_{m+1})\).
 
-From this, follows that:
+From this consideration, follows that:
 \begin{lemma}\label{lem:separation-fluted}
   The separation of a separable fluted clause~\ref{eq:separable-fluted-clauses} is a set of strongly fluted clauses
 \end{lemma}
@@ -500,14 +466,12 @@ From this, follows that:
 \section{Fluted Resolution}\label{sec:fluted-resolution}
 
 In the end, we can formally define an ordered resolution based inference system \(R^{sep}\) whose application is a decision procedure for fluted logic.
-
 The ordering \(\succ\) of \(R^{sep}\) is required to be any admissible ordering compatible with the following complexity measure.
 
 \begin{definition}
   Let \(\succ_s\) denote the proper super-term ordering. Define the complexity measure of any literal \(L\) by \(c_L = (ar(L),max(L),sign(L))\), where \(ar(L)\) is the arity of \(L\), \(max(L)\) is a \(\succ_s\)-maximal term occurring in \(L\) and \(sign(L)\) is \(1\) if \(L\) is negative and \(0\) if \(L\) is positive. % chktex 35
   The ordering on the complexity measures is given by the lexicographic combination of \(>,\succ_s \text{ and } >\), where \(>\) is the usual ordering on natural numbers.
 \end{definition}
-
 Having the ordering \(\succ\) in place, we can now define the inference system \(R^{sep}\) more formally.
 
 \begin{definition}
@@ -517,7 +481,6 @@ Having the ordering \(\succ\) in place, we can now define the inference system \
     \item the ordering is based on \(\succ\), defined above.
   \end{enumerate*}
 \end{definition}
-
 It can be shown that the class of fluted clauses is closed under the inference system \(R^{sep}\) by the following lemmas.
 
 \begin{lemma}\label{lem:factor-strongly-fluted}
@@ -534,7 +497,6 @@ In fact, any (unordered) factor of a strongly fluted clause \(C\) is again a str
     \item For any functional literal \(L\sigma\) in \(C\sigma \lor D\sigma\), the fluted sequence associated with \(L\sigma\) is the \(\sigma\)-instance of a fluted sequence \(\overline{v}\) associated with some literal \(L'\) in \(C \lor D\).
   \end{enumerate}
 \end{lemma}
-
 This lemma is the most important technical result of~\cite{hustadt2000resolution} because with it, we can easily show that the resolution of strongly fluted clauses involving (FL2)-clauses always produce strongly fluted clauses.
 \begin{lemma}\label{lem:union-strongly-fluted}
   Let \(C = C' \lor A_1\) and \(D = \neg A_2 \lor D'\) be strongly fluted clauses. Suppose \(A_1\) and \(A_2\) are eligible literals in \(C\) and \(D\) respectively, and that \(\sigma\) is the MGU of \(A_1\) and \(A_2\).
@@ -548,7 +510,6 @@ The combination of Lemmas~\ref{lem:union-strongly-fluted} and~\ref{lem:removal-f
 \begin{lemma}\label{lem:resolution-fluted}
   The resolvent of any two strongly fluted clauses is a strongly fluted clause, or, it is only a fluted clause, if one of the premises is a (FL3)-clause
 \end{lemma}
-
 Moreover, it can be shown that:
 
 \begin{lemma}\label{lem:size-fluted}
@@ -559,7 +520,6 @@ Finally, by Lemmas~\ref{lem:separation-fluted},~\ref{lem:factor-strongly-fluted}
 \begin{lemma}
   Any separated factor or resolvent of strongly fluted clauses is strongly fluted.
 \end{lemma}
-
 In the end, remains only to show that the application of \(R^{sep}\) constitutes a decision procedure for fluted logic, and so does terminate on each finite input set of clauses.
 
 For doing this it is usually sufficient~\cite{joyner1976resolution} to show that:
@@ -574,7 +534,6 @@ From Lemmas~\ref{lem:separation-replacement} and~\ref{lem:size-fluted}, follows 
 \begin{lemma}\label{lem:bounded-variables}
   All clauses occurring in an (\(R^{sep}\))-derivation from \(N\) contain at most \(m+1\) variables, where \(m\) is the maximal arity of any predicate symbol in \(N\)
 \end{lemma}
-
 The definition of fluted clauses places no restriction on the level of nesting of functional terms. But:
 \begin{lemma}\label{lem:bounded-depth}
   A bound on the maximal term depth of clauses derived by \(R^{sep}\) from \(N\) is \(m\), where \(m\) is the maximal arity of any predicate symbol in \(N\)
@@ -583,7 +542,6 @@ This lemma can be shown by observing that, as a consequence of Lemma~\ref{lem:st
 It follows that the maximal term depth for any derived clause is the maximal length of any fluted sequence of a literal in \(N\) that, is obviously \(m\), the maximal arity of any predicate symbol in \(N\).
 
 Finally, remains to show~\ref{item:bounded-separation}.
-
 \begin{lemma}\label{lem:bounded-separation}
   The number of applications of the separation rule in any (\(R^{sep}\))-derivation from \(N\) is bounded.
 \end{lemma}

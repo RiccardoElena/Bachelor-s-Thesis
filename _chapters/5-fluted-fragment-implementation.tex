@@ -1,23 +1,21 @@
 \chapter{Fluted Fragment Implementation}\label{chap:fluted-fragment-implementation}
 
-Having laid down the theoretical foundations of the decision procedure for fluted fragment in Chapter~\ref{chap:fluted-fragment}, and briefly discussed the implementation framework of Vampire in Chapter~\ref{chap:vampire-theorem-prover}, we can now proceed to the implementation.
-
-Looking back at standard Vampire's resolution process and the fluted logic one, we can identify three main differences:
+Having laid down the theoretical foundations of the decision procedure for fluted fragment in Chapter~\ref{chap:fluted-fragment}, and briefly discussed the framework of Vampire in Chapter~\ref{chap:vampire-theorem-prover}, we can now proceed to the implementation.
+Looking back at standard Vampire's resolution process and the fluted logic approach, we can identify three main differences:
 \begin{enumerate}
   \item A mandatory and specific \emph{naming} step during preprocessing is needed to ensure fluted formulae clausification produces valid fluted clauses as outlined in Section~\ref{sec:from-fluted-formulae-to-fluted-clauses}.
-  \item The \emph{separation rule} (\ref{sec:separation}) needs to be implemented to deal with non-strongly fluted clauses, to assure resolution is applied only with strongly fluted clauses as premises.
+  \item The \emph{separation rule} (\ref{sec:separation}) needs to be implemented to deal with non-strongly fluted clauses, to ensure resolution is applied only with strongly fluted clauses as premises.
   \item The \emph{literal selection} strategy needs to be adapted to be compatible with the admissible ordering described in Section~\ref{sec:fluted-resolution}.
 \end{enumerate}
 
 As briefly mentioned right after Lemma~\ref{lem:factor-strongly-fluted}, there is no need for change in the \emph{factoring} rule, as even its unordered version acting on strongly fluted clauses produces strongly fluted clauses of the same type.
-
-Beyond these changes, the Vampire flow remains unchanged, with only some minor tweaks to default options applied via flags in the code.
+Beyond these modifications, the Vampire flow remains unchanged, with only some minor tweaks to default options applied via flags in the code.
 
 
 \section{Preprocessor}\label{sec:preprocessor}
 
 The first modification to Vampire's standard pipeline involves implementing the mandatory naming step during preprocessing. 
-To handle the preprocessing phase, we implemented a new \code{FlutedPreprocessor} class, which implements the pipeline needed to transform input formulae into fluted formulae.
+To handle the preprocessing phase, we implemented a new \code{FlutedPreprocessor} class, which implements the pipeline needed to transform input formulae into fluted clauses.
 
 \begin{figure}[H]
   \centering
@@ -31,13 +29,13 @@ As shown in Algorithm~\ref{alg:preprocess}, the process follows Vampire's standa
 \begin{algorithm}[H]
     \caption{\code{FlutedPreprocessor}'s \code{preprocess} method}\label{alg:preprocess}
     \begin{algorithmic}[1]
-        \Statex{} \bold{signature} \(\textsc{preprocess} \quad Problem\& \to Void\)
+        \Statex{} \bold{signature} \(\textsc{preprocess:} \quad Problem\& \to Void\)
         \Function{\(\textsc{preprocess}\)}{$prb$} % chktex 46
             \State{} \(ul \gets prb.units()\)
             \For{\(u \in ul\)}
               \State{} \(fu \gets FormulaUnit(u)\)
               \State{} \(fu \gets simplifyFalseTrue(fu)\)
-              \State{} \(fu \gets FormulaUnit(Def(fu\to formula(),prb,u,POSITIVE,true))\)
+              \State{} \(fu \gets FormulaUnit(Def(fu.formula(),prb,u,POSITIVE,true))\)
               \State{} \(fu \gets nnf(fu)\)
               \State{} \(fu \gets flatten(fu)\)
               \State{} \(fu \gets skolemize(fu)\)
@@ -49,7 +47,7 @@ As shown in Algorithm~\ref{alg:preprocess}, the process follows Vampire's standa
 \end{algorithm}
 
 The functions \(simplifyFalseTrue\), \(nnf\), \(flatten\), \(skolemize\), and \(clausify\) are Vampire's standard preprocessing operations.
-Our key contribution is the \(Def\) function, which implements the naming transformation by recursively traversing the formula tree in post-order to replace each \code{QuantifiedFormula} with a fresh atomic formula while adding the corresponding definition to the problem set.
+Our key contribution is the \(Def\) function, which implements the naming transformation by recursively traversing the formula tree in post-order to replace each \code{QuantifiedFormula} with a fresh atomic formula, while adding the corresponding definition to the \code{UnitList}.
 To avoid duplicate definitions for repeated subformulae, the preprocessor maintains a memoization map tracking already-introduced fresh literals.
 
 A significant implementation challenge involves Vampire's \emph{flattened quantifiers}, where a single quantifier binds multiple variables.
@@ -70,7 +68,7 @@ whose clausification would produce the clause
 \]
 which is clearly not fluted.
 
-This definition violates (FL3) by containing too many variables.
+\noindent This definition violates (FL3) by containing too many variables.
 However, considering the equivalent formula
 \begin{equation}\label{eq:quantifier-unflattened-formula}
   \forall x_1 (P(x_1) \lor \forall x_2(\forall x_3 (R(x_2,x_3)))).
@@ -79,7 +77,7 @@ the application of the transformation would result in the addition of the follow
 \begin{equation*}
   \begin{aligned}
     &\forall x_1,x_2 (Q_1(x_1,x_2) \implies \forall x_3 (R(x_2,x_3))) \\
-    &\forall x_1 (Q_2(x_1) \implies Q_1(x_1,x_2))
+    &\forall x_1 (Q_2(x_1) \implies \forall x_2 (Q_1(x_1,x_2)))
   \end{aligned}
 \end{equation*}
 which clausify to the two clauses
@@ -91,7 +89,7 @@ which clausify to the two clauses
 \end{equation*}
 which are both (FL3)-clauses, with the second being strongly fluted.
 
-Therefore, we implemented eager quantifier unflattening during traversal to avoid backtracking when encountering nested quantifiers.
+\noindent Therefore, we implemented eager quantifier unflattening during traversal to avoid backtracking when encountering nested quantifiers.
 
 Finally, the \code{Def} function includes a boolean parameter to skip transformation of top-level quantifiers, avoiding redundant definitions that would only add unnecessary resolution steps without semantic benefit.
 For example, the formula in Equation~\ref{eq:quantifier-unflattened-formula} would technically lead to the additional definition
@@ -100,15 +98,12 @@ For example, the formula in Equation~\ref{eq:quantifier-unflattened-formula} wou
 \]
 where \(\forall []\) indicates a quantifier with an empty variable list.
 This definition is redundant since \(Q_3\) can be directly replaced with the original formula, avoiding \(n\) unnecessary resolution steps where \(n\) is the number of input sentences.
-
-The complete \code{Def} implementation is detailed in Algorithm~\ref{alg:def}.
-
 An overview of the \code{Def} function is shown in Algorithm~\ref{alg:def}.
 
 \begin{algorithm}[H]
   \caption{\(Def\) structural transformation implementation}\label{alg:def}
     \begin{algorithmic}[1]
-        \Statex{} \bold{signature} \(\textsc{Def}\quad Formula*\times Problem\&\times Unit*\times Polarity*\times Boolean\to Void\)
+        \Statex{} \bold{signature} \(\textsc{Def:}\quad Formula*\times Problem\&\times Unit*\times Polarity*\times Boolean\to Void\)
         \Function{\(\textsc{Def}\)}{$formula,prb,u,pol,first$} % chktex 46
             \State{} \(ret \gets formula\)
             \If{\(formula \in memo\)}
@@ -116,11 +111,10 @@ An overview of the \code{Def} function is shown in Algorithm~\ref{alg:def}.
             \EndIf{}
             \Switch{\(formula.connective()\)}
               \Case{\(\forall,\exists\)}
-                \State{} \(subf \gets formula\to qarg()\)
-                \State{} \(vars \gets formula\to vars()\)
+                \State{} \(vars \gets formula.vars()\)
                 \State{} \(formula \gets unflatten(formula)\)
-                \State{} \(subf \gets Def(formula\to qarg(),prb,u,pol)\)
-                \State{} \(formula \gets QuantifiedFormula(\mathcal{Q},formula\to vars(),subf)\)
+                \State{} \(subf \gets Def(formula.qarg(),prb,u,pol)\)
+                \State{} \(formula \gets QuantifiedFormula(\mathcal{Q},formula.vars(),subf)\)
                 \If{\(\neg first\)}
                   \State{} \(ret \gets axiomatize(formula, pol, u, prb)\)
                 \Else{}
@@ -128,22 +122,22 @@ An overview of the \code{Def} function is shown in Algorithm~\ref{alg:def}.
                 \EndIf{}
               \EndCase{}
               \Case{\(\iff\)}
-                \State{} \(left \gets Def(formula\to left(), prb,u,NEUTRAL)\)
-                \State{} \(right \gets Def(formula\to right(), prb,u,NEUTRAL)\)
+                \State{} \(left \gets Def(formula.left(), prb,u,NEUTRAL)\)
+                \State{} \(right \gets Def(formula.right(), prb,u,NEUTRAL)\)
                 \State{} \(ret \gets BinaryFormula(\iff,left,right)\)
               \EndCase{}
               \Case{\(\implies\)}
-                \State{} \(left \gets Def(formula\to left(), prb,u,invertPolarity(pol))\)
-                \State{} \(right \gets Def(formula\to right(), prb,u,pol)\)
+                \State{} \(left \gets Def(formula.left(), prb,u,invertPolarity(pol))\)
+                \State{} \(right \gets Def(formula.right(), prb,u,pol)\)
                 \State{} \(ret \gets BinaryFormula(\implies,left,right)\)
               \EndCase{}
               \Case{\(\neg\)}
-                \State{} \(f \gets Def(formula\to uarg(),prb,u,invertPolarity(pol))\)
+                \State{} \(f \gets Def(formula.uarg(),prb,u,invertPolarity(pol))\)
                 \State{} \(ret \gets NegatedFormula(f)\)
               \EndCase{}
               \Case{\(\lor, \land\)}
                 \State{} \(newArgs \gets \emptyset\)
-                \State{} \(args \gets formula\to args()\)
+                \State{} \(args \gets formula.args()\)
                 \For{\(\arg \in args\)}
                   \State{} \(newArgs \gets newArgs \cup \{Def(\arg,prb,u,pol)\}\)
                 \EndFor{}
@@ -162,13 +156,13 @@ The unflattening of quantifiers previously described is handled by \code{unflatt
 \begin{algorithm}[H]
   \caption{\(unflatten\) quantifier transformation}\label{alg:unflatten}
     \begin{algorithmic}[1]
-        \Statex{} \bold{signature} \(\textsc{unflatten}\quad QuantifiedFormula*\to QuantifiedFormula*\)
-        \Function{\(unflatten\)}{$formula$} % chktex 46
-            \State{} \(vars \gets formula\to vars()\)
+        \Statex{} \bold{signature} \(\textsc{unflatten:}\quad QuantifiedFormula*\to QuantifiedFormula*\)
+        \Function{\(\textsc{unflatten}\)}{$formula$} % chktex 46
+            \State{} \(vars \gets formula.vars()\)
             \State{} \(vars \gets reverse(vars)\)
             \State{} \(v \gets vars.pop()\)
             \State{} \(\mathcal{Q} \gets formula.connective()\)
-            \State{} \(formula \gets QuantifiedFormula(\mathcal{Q},[v],formula\to quarg())\)
+            \State{} \(formula \gets QuantifiedFormula(\mathcal{Q},[v],formula.quarg())\)
             \While{\(vars \neq \emptyset\)}
               \State{} \(v \gets vars.pop()\)
               \State{} \(formula \gets QuantifiedFormula(\mathcal{Q},[v],formula)\)
@@ -183,10 +177,10 @@ The function \code{axiomatize} instead, is responsible for generating the fresh 
 \begin{algorithm}[H]
   \caption{Axiomatization of quantified formulae}\label{alg:axiomatize}
     \begin{algorithmic}[1]
-        \Statex{} \bold{signature} \(\textsc{axiomatize}\quad Formula*\times Polarity\times Unit*\times Problem\&\to Formula*\)
-        \Function{\(axiomatize\)}{$formula,pol,u,prb$} % chktex 46
-            \State{} \(freeVars \gets formula\to freeVars()\)
-            \State{} \(freshPred \gets signature\to addFreshPredicate(freeVars.size(), \text{\dquoteit{def}})\)
+        \Statex{} \bold{signature} \(\textsc{axiomatize:}\quad Formula*\times Polarity\times Unit*\times Problem\&\to Formula*\)
+        \Function{\(\textsc{axiomatize}\)}{$formula,pol,u,prb$} % chktex 46
+            \State{} \(freeVars \gets formula.freeVars()\)
+            \State{} \(freshPred \gets signature.addFreshPredicate(freeVars.size(), \text{\dquoteit{def}})\)
             \State{} \(freshLit \gets Literal(freshPred, freeVars.size(), True, freeVars)\)
             \State{} \(freshAtom \gets AtomicFormula(freshLit,freshAtom,freeVars,pol)\)
             \State{} \(definition \gets generateDefinition(formula,freshAtom,freeVars,pol)\)
@@ -202,8 +196,8 @@ Last but not least, the \code{generateDefinition} function creates the actual de
 \begin{algorithm}
   \caption{Definition Generation}\label{alg:generate-definition}
   \begin{algorithmic}[1]
-      \Statex{} \bold{signature} \(\textsc{genDef}\quad Formula*\times AtomicFormula*\times VList\times Polarity\to Formula*\)
-      \Function{\(generateDefinition\)}{$formula,freshAtom,freeVars,pol$} %chktex 46
+      \Statex{} \bold{signature} \(\textsc{genDef:}\quad Formula*\times AtomicFormula*\times VList\times Polarity\to Formula*\)
+      \Function{\(\textsc{generateDefinition}\)}{$formula,freshAtom,freeVars,pol$} %chktex 46
           \Switch{\(pol\)}
             \Case{\(POSITIVE\)}
               \State{} \Return{\(generateDefinition(formula,freshAtom,freeVars,true)\)}
@@ -221,8 +215,8 @@ Last but not least, the \code{generateDefinition} function creates the actual de
       \EndFunction{}
   \end{algorithmic}
   \begin{algorithmic}[1]
-      \Statex{} \bold{signature} \(\textsc{genDef}\quad Formula*\times AtomicFormula*\times VList\times bool\to Formula*\)
-      \Function{\(generateDefinition\)}{$formula,freshAtom,freeVars,pol$} %chktex 46
+      \Statex{} \bold{signature} \(\textsc{genDef:}\quad Formula*\times AtomicFormula*\times VList\times bool\to Formula*\)
+      \Function{\(\textsc{generateDefinition}\)}{$formula,freshAtom,freeVars,pol$} %chktex 46
           \State{} \(qarg\)
           \If{\(pol\)}
             \State{} \(qarg \gets BinaryFormula(\implies,freshAtom,formula)\)
@@ -241,7 +235,7 @@ Being the most innovative aspect of the fluted resolution process, it required c
 At first glance, separation might seem akin to factoring, leading to a straightforward implementation as a simplification inference.
 Unfortunately, as pointed out in~\cite{hustadt2000resolution}, separation is not a simplification rule in the traditional sense because does not necessarily make the clause set \dquote{simpler} reducing its complexity.
 Moreover, in the \emph{Otter} architecture, simplification inference are tightly integrated with the resolution process, while separation, as it is described and used in the fluted resolution process, acts more as a dynamic renaming for clauses, being almost a prerequisite for the resolution process.
-Finally, implementing separation as simplification inference delegating the forward simplification step to apply it would have brought significant challenges, the first being that forward simplification is expected to return just one clause to replace the given clause, while separation produces two clauses.
+Finally, implementing separation as simplification inference, delegating the forward simplification step to apply it, would have brought significant challenges, the first being that forward simplification is expected to return just one clause to replace the GC, while separation produces two clauses.
 To keep full control of separation application and to avoid unnecessary complications and modifications to Vampire's resolution framework, we opted for a more explicit implementation, integrating separability checks and separation application as a separated step of the saturation algorithm.
 
 There were then two options for where precisely to integrate this step.
@@ -250,43 +244,365 @@ This invariant is however much more stringent than the one required by the flute
 Moreover, this strategy would have led to a rapid growth of clause set size, potentially impacting the overall efficiency of the resolution process.
 Indeed, taking a look at the motivation of the heuristics behind \emph{LRS} and \emph{Discount} strategies, it is very likely that efforts to eagerly separate all clauses will be in vain since most of those clauses would have never been considered by the saturation algorithm anyway.
 
-The second possible approach, which is the one we ended up choosing, is to apply separation lazily, only when a non-strongly fluted clause is selected as the given clause for resolution and only after applying simplification steps.
+The second possible approach, which is the one we ended up choosing, is to apply separation lazily, only when a non-strongly fluted clause is selected as the GC for resolution and only after applying simplification steps.
 This ensures that separation is performed only when strictly necessary, minimizing its impact on the overall resolution process.
 This strategy maintains the invariant that no non-strongly fluted clauses are added to the active set, while allowing non-strongly fluted clauses to exist in the passive set, where they do not interfere with the resolution process\footnote{
   Another benefit of this approach is that, technically, it allows to non-strongly fluted clauses to be used in simplification steps, potentially enabling further simplifications.
   In the work done for this thesis, we did not explore this possibility using only factoring as simplification inference, but it could be an interesting avenue for future research.
 }.
-
-The component designated to handle separation is the \code{Separator} class, whose main method \code{separate} is called during the activation phase, when the given clause is prepared to be added to the active set.
+The component designated to handle separation is the \code{Separator} class, whose main method \code{separate} is called during the activation of the GC\@.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{Placeholder.png}
+  \includegraphics[width=0.8\textwidth]{5-fluted-fragment-implementation/Separator.pdf}
   \caption{Class diagram for the \code{Separator} class.}\label{fig:separator-class-diagram}
 \end{figure}
 
-The main idea behind the concrete implementation of \code{separate} leverage the fact that the only separable fluted clauses are (FL3)-clauses, whose literals have as argument sequence one of two possible compact interval of variables \([x_i,\ldots,x_m]\) and \([x_j,\ldots,x_{m+1}]\), with \(i,j \leq m < m+1\).
+The main idea behind the concrete implementation of \code{separate} leverage the fact that the only separable fluted clauses satisfies (FL3), whose literals have as argument sequence one of two possible compact intervals of variables \([x_i,\ldots,x_m]\) and \([x_j,\ldots,x_{m+1}]\), with \(i,j \leq m < m+1\).
 To check if such a clause is separable and to compute the two resulting clauses, it suffices to check that \(i < j\) and then compute the intersection of the two intervals. For partitioning the literals, we can look at the last variable of their argument sequence, which will determine the split point between the two resulting clauses.
 
-\begin{figure}
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{Placeholder.png}
-  \caption{Possible variable interval configurations in (FL3)-clauses.}\label{fig:separator-sequence-diagram}
+  \begin{minipage}[t]{0.48\textwidth}
+  \centering
+  \textbf{Case 1: Contained interval (\(j \leq i\))}
+
+  \begin{tikzpicture}[scale=1.2]
+  % Number line
+  \draw[thick] (-0.5,0) -- (5.5,0);
+  \foreach \x in {0,1,2,3,4,5} {
+      \draw (\x,-0.1) -- (\x,0.1);
+  }
+
+  % Points on the line
+  \coordinate (xj) at (0,0);
+  \coordinate (xi) at (2,0);
+  \coordinate (xm) at (4,0);
+  \coordinate (xm1) at (5,0);
+
+  \fill (xj) circle (2pt) node[below] {\(x_j\)};
+  \fill (xi) circle (2pt) node[below] {\(x_i\)};
+  \fill (xm) circle (2pt) node[below] {\(x_m\)};
+  \fill (xm1) circle (2pt) node[below] {\(x_{m+1}\)};
+
+  % Outer interval [x_j, x_{m+1}]
+  \coordinate (xj') at ($(xj)+(0,0.3)$);
+  \coordinate (xm1') at ($(xm1)+(0,0.3)$);
+  \draw[blue, very thick] (xj')  -- (xm1');
+  \draw[blue, thick] (xj') ++(0,-0.05) -- ++(0,0.1);
+  \draw[blue, thick] (xm1') ++(0,-0.05) -- ++(0,0.1);
+  \node[blue, above] at ($(xj')!0.5!(xm1')$) {\([x_j, x_{m+1}]\)};
+
+  % Inner interval [x_i, x_m]
+  \coordinate (xi') at ($(xi)+(0,-0.5)$);
+  \coordinate (xm') at ($(xm)+(0,-0.5)$);
+  \draw[red, very thick] (xi')  -- (xm');
+  \draw[red, thick] (xi') ++(0,-0.05) -- ++(0,0.1);
+  \draw[red, thick] (xm') ++(0,-0.05) -- ++(0,0.1);
+  \node[red, below] at ($(xi')!0.5!(xm')$) {\([x_i, x_m]\)};
+
+  % Containment arrow
+  \node[gray, right] at (3.8,-1.2) {\small contenuto};
+
+  \end{tikzpicture}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.48\textwidth}
+  \centering
+  \textbf{Case 2: Intersecting intervals (\(i < j\))}
+
+  \begin{tikzpicture}[scale=1.2]
+  % Number line
+  \draw[thick] (-0.5,0) -- (5.5,0);
+  \foreach \x in {0,1,2,3,4,5} {
+      \draw (\x,-0.1) -- (\x,0.1);
+  }
+
+  % Points on the line
+  % Points on the line
+  \coordinate (xi) at (0,0);
+  \coordinate (xj) at (2,0);
+  \coordinate (xm) at (4,0);
+  \coordinate (xm1) at (5,0);
+
+  \fill (xi) circle (2pt) node[below] {\(x_i\)};
+  \fill (xj) circle (2pt) node[below] {\(x_j\)};
+  \fill (xm) circle (2pt) node[below] {\(x_m\)};
+  \fill (xm1) circle (2pt) node[below] {\(x_{m+1}\)};
+
+  % Outer interval [x_j, x_{m+1}]
+  \coordinate (xj') at ($(xj)+(0,0.3)$);
+  \coordinate (xm1') at ($(xm1)+(0,0.3)$);
+  \draw[blue, very thick] (xj')  -- (xm1');
+  \draw[blue, thick] (xj') ++(0,-0.05) -- ++(0,0.1);
+  \draw[blue, thick] (xm1') ++(0,-0.05) -- ++(0,0.1);
+  \node[blue, above] at ($(xj')!0.5!(xm1')$) {\([x_j, x_{m+1}]\)};
+
+  % Inner interval [x_i, x_m]
+  \coordinate (xi') at ($(xi)+(0,-0.5)$);
+  \coordinate (xm') at ($(xm)+(0,-0.5)$);
+  \draw[red, very thick] (xi')  -- (xm');
+  \draw[red, thick] (xi') ++(0,-0.05) -- ++(0,0.1);
+  \draw[red, thick] (xm') ++(0,-0.05) -- ++(0,0.1);
+  \node[red, below] at ($(xi')!0.5!(xm')$) {\([x_i, x_m]\)};
+
+
+  % Intersection highlighting
+  \draw[green!70!black, line width=3pt, opacity=0.8] (xj) -- (xm);
+
+  % Brace for intersection
+  \coordinate (xj'') at ($(xj)+(0,-1.1)$);
+  \coordinate (xm'') at ($(xm)+(0,-1.1)$);
+  \draw[green!70!black, decoration={brace, amplitude=3pt,mirror}, decorate] 
+      (xj'') -- (xm'');
+  \node[green!70!black, below] at ($(xj'')!0.5!(xm'')$) {\([x_j, x_m]\)};
+  \node[green!70!black, above right] at ($(xm'')+(0,-0.2)$) {\small intersezione};
+
+  \end{tikzpicture}
+  \end{minipage}
+  \caption{Possible variable interval configurations in (FL3)-clauses.}\label{fig:separation-intervals}
 \end{figure}
 
-\begin{algorithm}
+The \code{EVar} class present in Figure~\ref{fig:separator-class-diagram} will be detailed in the next chapter alongside the \code{Classifier} class where it is defined.
+For the purpose of this section \code{EVar} can be seen as a \emph{Maybe monad} for variables, with some useful constructor and overrides for comparison operators.
+
+\begin{algorithm}[H]
   \caption{Separation of (FL3)-clauses}\label{alg:separation}
   \begin{algorithmic}[1]
-    \Statex{} \bold{signature} \(\textsc{separate}\quad Formula*\times AtomicFormula*\times VList\times Polarity\to Formula*\)
-      \Function{\(separate\)}{$formula,freshAtom,freeVars,pol$} %chktex 46
-      \EndFunction
+    \Statex{} \bold{signature} \(\textsc{separate:}\quad Clause * \to ClauseList::Iterator\)
+      \Function{\(\textsc{separate}\)}{$cl$} %chktex 46
+        \State{} \(lit \gets cl .literals()\)
+        \State{} \(currLit \gets lit.pop()\)
+        \If{\(isFL2(currLit)\)}
+          \State{} \Return{\(ClauseList::Iterator(\emptyset)\)}
+        \EndIf{}
+        \State{} \(varsC \gets varRange(currLit.firstArg, currLit.lastArg)\)
+        \Statex{} \Comment{C will be the clause with literals ending in \(x_m\)}
+        \State{} \(varsD\)
+        \Comment{D will be the one with literals ending in \(x_{m+1}\)}
+        \State{} \((sepResC,sepResD) \gets (\{currLit\},\emptyset)\)
+        \While{\(lit \neq \emptyset\)}
+          \State{} \(currLit \gets lit.pop()\)
+          \If{\(isFL2(currLit)\)}
+            \State{} \Return{\(ClauseList::Iterator(\emptyset)\)}
+          \EndIf{}
+          \State{} \((currVFirst,currVLast) \gets (currLit.firstArg, currLit.lastArg)\)
+
+          \If{\(currVLast = varsC.last\)}
+            \State{} \(sepResC.push(currLit)\)
+            \If{\(varsC.first > currVFirst\)}
+              \State{} \(varsC.first \gets currVFirst\)
+            \EndIf{}
+          \Else{}
+            \State{} \(sepResD.push(currLit)\)
+            \If{\(sepResD =\emptyset\)}
+              \State{} \(varsD \gets (currVLast,currVFirst)\)
+            \ElsIf{\(varsD.first > currVFirst\)}
+              \State{} \(varsD.first \gets currVFirst\)
+            \EndIf{}
+          \EndIf{}
+        \EndWhile{}
+        \If{\(\neg(varsD.last.isSet())\)}
+          \Comment{If so, no literal ended in \(x_{m+1}\) and \(cl\) satisfies (FL1)}
+          \State{} \Return{\(ClauseList::Iterator(\emptyset)\)}
+        \EndIf{}
+        \If{\(varsC.last.var() > varsD.last.var()\)}
+          \Comment{Enforces D to contain \(x_{m+1}\)}
+          \State{} \((varsC,varsD) \gets (varsD,varsC)\)
+          \State{} \((sepResC,sepResD) \gets (sepResD,sepResC)\)
+        \EndIf{}
+        \If{\(varsC.first.var() \neq 0\)}
+          \Comment{Literal ending in \(x_m\) must start with \(x_0\), see~\ref{def:fluted-clauses}}
+          \State{} \Return{\(ClauseList::Iterator(\emptyset)\)}
+        \EndIf{}
+        \State{} \(vRange \gets (varsC.first,varsD.last)\)
+        \State{} \Return{\(Iterator(createClauses(vRange,sepResC,sepResD,cl))\)}
+      \EndFunction{}
   \end{algorithmic}
 \end{algorithm}
 
 The function \(separate\) will return a list containing the two separated clauses if separation was possible, or an empty list otherwise.
+The function \(isFL2\) checks if a literal contains any function symbol or if its arguments sequence is empty. In both cases, separation is never possible.
+The function \(createClauses\), responsible for creating the two resulting clauses, is shown in Algorithm~\ref{alg:create-clauses}\footnote{
+  Some minor changes were made to the signature of the function for presentation purposes. The faithful signature is the one reported in Figure~\ref{fig:separator-class-diagram}
+}.
+
+\begin{algorithm}[H]
+  \caption{Creation of (FL3)-clauses}\label{alg:create-clauses}
+  \begin{algorithmic}[1]
+    \Statex{} \bold{signature} \(\textsc{createClauses:}\quad varRange \times [Literal] \times [Literal] \to ClauseList\)
+    \Function{\(\textsc{createClauses}\)}{$vRange,sepResC,sepResD$} % chktex 46
+      \State{} \(args \gets \{vRange.first,\ldots,vRange.last\}\)
+      \State{} \((arity,name) \gets(args.size(),signature.addNamePredicate(args))\)
+      \State{} \(negL \gets Literal(name,arity,false,args)\)
+      \State{} \(sepResC.push(negL)\)
+      \State{} \(posL \gets Literal(name,arity,true,args)\)
+      \State{} \(sepResD.push(posL)\)
+      \State{} \Return{\(Iterator(\{Clause(sepResC),Clause(sepResD)\})\)}
+    \EndFunction{}
+  \end{algorithmic}
+\end{algorithm}
 
 \section{Fluted Resolution}\label{sec:fluted-resolution-impl}
 
+Last component to implement is the \emph{literal selection}.
+The standard way vampire implements it, is using a specialization of the \code{Ordering} class, and doing the comparisons during the activation phase.
 
+This strategy is the most modular approach and allows for code reusability, making it perfect for Vampire's context where the ordering logic can be reused across its countless features.
+However, this solution does have the minor downside of being fairly complex
 
+In simpler context like the one of this thesis, integrating the ordering in Vampire's mechanism would have required a lot of effort, without any clear benefit.
+Therefore, we opted for a more straightforward approach, implementing the ordering, and the consequent literal selection, directly in the resolution step, as a filter on the list of literals being processed.
 
+For doing so, we implemented the \code{FlutedResolution} class, which mirrors standard resolution, with the addition of the filtering functions.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{5-fluted-fragment-implementation/FlutedResolution.pdf}
+  \caption{Class Diagram of the \code{FlutedResolution} class}
+\end{figure}
+
+Its main method is \code{generateClauses}, which takes a clause \code{premise}, selects maximal literals from it, gathers unifiable maximal literals from the active set, and generates the resolvents.
+The filter function \code{isMaximal} checks if a given literal is maximal in a clause according to the admissible ordering.
+
+To make filtering more efficient, we memoized its results in a map \code{_flutedOrdering} added to the \code{Clause} class, practically performing the comparisons only once, during the activation phase.
+Moreover, the map is updated even more than once per function call, leveraging the duality of orderings.
+In fact, for establishing that a certain literal \(l\) is maximal, it has to be compared with all other literals in the clause.
+If in this process a second literal \(l'\) is found to be lesser than \(l\), then \(l'\) cannot be maximal, and the map can be updated accordingly.
+Furthermore, it is possible to maintain a list of all equivalent literals, so that when \(l\) maximality is established, all the entries of its equivalents can be updated in the map at once.
+
+In practice, this aggressive memoization strategy allows for significant performance improvements, as it reduces the number of comparisons needed in subsequent calls.
+For example, if a clause has totally ordered literals, the memoization can ensure that once a literal is established as maximal, no other comparisons are needed for the other literals.
+
+\begin{algorithm}[ht]
+  \caption{Maximal Literal Check}\label{alg:maximal-literal-check}
+  \begin{algorithmic}[1]
+    \Statex{} \bold{signature} \(\textsc{isMaximal:}\quad Literal* \times Clause* \times Boolean \to Boolean\)
+    \Function{\(\textsc{isMaximal}\)}{$l,cl,strict$} %chktex 46
+      \State{} \(ord \gets cl.\_flutedOrdering[l]\)
+      \If{\(isSome(ord)\)}
+        \If{\(strict\)}
+          \State{} \Return{\(unwrap(ord) < 2\)}
+        \Else{}
+          \State{} \Return{\(unwrap(ord) = 0\)}
+        \EndIf{}
+      \EndIf{}
+
+      \State{} \(lits \gets cl.literals()\)
+      \State{} \(lEquivalents \gets \emptyset\)
+      \While{\(lits \neq \emptyset\)}
+        \State{} \(curr \gets lits.pop()\)
+        \State{} \(ord \gets cl.\_flutedOrdering[curr]\)
+        \If{\(curr = l \lor (isSome(ord) \land unwrap(ord) < 2)\)}
+          \State{} \(continue\)
+          \Comment{If \(curr\) is maximal and \(l\) is not, they are incomparable}
+          \Switch{\(compareLiterals(curr,l)\)}
+            \Case{\(LESSER\)}
+              \State{} \(cl.\_flutedOrdering[curr] \gets NON\_MAXIMAL\)
+            \EndCase{}
+            \Case{\(GRATER\)}
+              \For{\(le \in lEquivalents\)}
+                \State{} \(cl.\_flutedOrdering[le] \gets NON\_MAXIMAL\)
+              \EndFor{}
+              \State{} \(cl.\_flutedOrdering[l] \gets NON\_MAXIMAL\)
+              \State{} \Return{\(False\)}
+            \EndCase{}
+            \Case{\(EQUAL\)}
+              \State{} \(lEquivalents \gets lEquivalents \cup \{curr\}\)
+            \EndCase{}
+          \EndSwitch{}
+        \EndIf{}
+      \EndWhile{}
+
+      \If{\(lEquivalents = \emptyset\)}
+        \State{} \(cl.\_flutedOrdering[l] \gets STRICTLY\_MAXIMAL\)
+        \State{} \Return{\(True\)}
+      \EndIf{}
+
+      \For{\(le \in lEquivalents\)}
+        \State{} \(cl.\_flutedOrdering[le] \gets MAXIMAL\)
+      \EndFor{}
+      \State{} \(cl.\_flutedOrdering[l] \gets MAXIMAL\)
+
+      \State{} \Return{\(\neg strict\)}
+    \EndFunction{}
+  \end{algorithmic}
+\end{algorithm}
+
+The function \code{compareLiterals} practically implements the admissible ordering as defined in Section~\ref{sec:fluted-resolution}, returning if the first literal is lesser, greater, or equal to the second one.
+It starts comparing arity, to then check the maximal subterms and finally the polarity. In fluted clauses that are not (FL2)-clauses, all subterms are variables, incomparable under the super term relation.
+In those cases, the second criteria of the ordering is irrelevant.
+
+For (FL2)-clauses, the situation is different. As shown in Figure~\ref{fig:fluted-sequence-dag}, in a fluted sequence the last functional subterm is always the maximal one w.r.t the super term relation.
+Therefore, to check the second criteria of the ordering for two literals in (FL2)-clauses, it suffices to compare their last subterms and checking if one is a super term of the other.
+Clearly, this check is trivial unless both subterms are functional terms, in which case the check is performed recursively.
+
+It is not to be forgotten that the ordering, to be admissible, has to be \textbf{total and well-founded} on ground literals.
+Therefore, alongside the previously mentioned comparison, ground literals are compared lexicographically.
+
+\begin{algorithm}[H]
+  \algnotext{EndIf}
+  \algnotext{EndFunction}
+  \algnotext{EndWhile}
+  \algnotext{EndFor}
+  \algnotext{EndCase}
+  \algnotext{EndSwitch}
+  \caption{Literal Comparison}\label{alg:literal-comparison}
+  \begin{algorithmic}[1]
+    \Statex{} \bold{signature} \(\textsc{compareLiterals:}\quad Literal \times Literal \to ComparisonOrdering\)
+    \Function{\(\textsc{compareLiterals}\)}{$l_1,l_2$}%chktex 46
+      \If{\(l_1 = l_2\)}
+        \State{} \Return{\(EQUAL\)}
+      \EndIf{}
+
+      \If{\(l_1.arity \neq l_2.arity\)}
+        \If{\(l_1.arity < l_2.arity\)}
+          \State{} \Return{\(LESSER\)}
+        \Else{}
+          \State{} \Return{\(GREATER\)}
+        \EndIf{}
+      \EndIf{}
+      \State{} \(t_1 \gets l_1.args[l_1.arity - 1]\)
+      \State{} \(t_2 \gets l_2.args[l_2.arity - 1]\)
+      \If{\(isVar(t_1) \land isVar(t_2)\)}
+        \If{\(isNegative(l_1) \neq isNegative(l_2)\)}
+          \If{\(isNegative(l_1)\)}
+            \State{} \Return{\(GREATER\)}
+          \Else{}
+            \State{} \Return{\(LESSER\)}
+          \EndIf{}
+        \EndIf{}
+        \State{} \Return{\(EQUAL\)}
+      \EndIf{}
+      \If{\(isVar(t_1) \neq isVar(t_2)\)}
+        \If{\(isVar(t_1)\)}
+          \State{} \Return{\(LESSER\)}
+        \Else{}
+          \State{} \Return{\(GREATER\)}
+        \EndIf{}
+      \EndIf{}
+      \State{} \(stComp \gets superTermRelation(t_1,t_2)\)
+      \If{\(stComp = INCOMPARABLE \land (isGround(l_1) \lor isGround(l_2))\)}
+        \If{\(l_1.functor() = l_2.functor()\)}
+          \State{} \(stComp\gets groundLitComparison(l_1,l_2)\)
+        \ElsIf{\(l_1.functor() < l_2.functor()\)}
+          \State{} \(stComp \gets LESSER\)
+        \Else{}
+          \State{} \(stComp \gets GREATER\)
+        \EndIf{}
+      \EndIf{}
+      \If{\(stComp \neq EQUAL\)}
+        \State{} \Return{\(stComp\)}
+      \EndIf{}
+      \If{\(isNegative(l_1) \neq isNegative(l_2)\)}
+        \If{\(isNegative(l_1)\)}
+          \State{} \Return{\(GREATER\)}
+        \Else{}
+          \State{} \Return{\(LESSER\)}
+        \EndIf{}
+      \Else{}
+        \State{} \Return{\(EQUAL\)}
+      \EndIf{}
+    \EndFunction{}
+  \end{algorithmic}
+\end{algorithm}
