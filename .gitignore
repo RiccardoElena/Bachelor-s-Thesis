@@ -1,4 +1,5 @@
 # LaTeX auxiliary files
+*.loa
 *.aux
 *.bbl
 *.bcf
@@ -34,6 +35,7 @@
 *.sav
 
 # Output files (comment if you want to track PDFs)
+!_figures/**/*.pdf
 *.pdf
 *.dvi
 *.ps

@@ -1,10 +1,43 @@
 \newpage\pagestyle{conclusions}
-\chapter*{Conclusions}\label{chap:conclusions}
+\chapter*{Conclusions and Future Work}\label{chap:conclusions}
 
-% \blindtext
+This thesis has implemented and evaluated a decision procedure for the fluted fragment of first-order logic within the Vampire theorem prover, successfully integrating theoretical foundations with practical implementation and achieving the main objectives while revealing several interesting areas for future research.
 
-\unnumberedsection{Some section}
-% \blindtext
+\section*{Main Results}
 
-\unnumberedsection{Some other section}
-% \blindtext
+The experimental evaluation demonstrates that our fluted logic decision procedure performs well in practice. Although we found only 23 CNF and 128 FOF fluted problems in the TPTP library—a limitation that makes assessing real-world applicability challenging—our implementation achieves competitive performance with standard Vampire on these naturally occurring problems.
+
+The large-scale evaluation across 15,000 generated problems reveals more compelling results: the fluted implementation frequently outperforms standard Vampire resolution. Particularly noteworthy is the hybrid mode, which applies fluted preprocessing followed by standard resolution, as this approach demonstrates that preprocessing optimizations contribute significantly to the observed performance improvements.
+
+These findings challenge common assumptions about specialized reasoning systems. Rather than sacrificing performance for specificity, our specialized decision procedure often provides computational advantages by exploiting structural properties inherent in fluted problems, suggesting that targeting decidable fragments can be practically worthwhile beyond their theoretical interest.
+
+\section*{Key Insights}
+
+The strong performance of hybrid mode reveals an important insight: techniques developed for specific fragments can benefit general-purpose reasoning as well. The preprocessing transformations we developed for fluted logic provide advantages even when falling back to standard resolution, indicating that fragment-specific optimizations may have broader applicability than initially expected.
+
+Given the natural connection between fluted logic and modal logic systems, this implementation also provides a foundation for developing reasoning tools in modal and description logic applications, potentially avoiding the complexity explosion that occurs when translating modal problems into standard first-order logic.
+
+\section*{Limitations and Open Questions}
+
+Several important limitations emerged during this work that point toward areas requiring further investigation. The scarcity of naturally occurring fluted problems in standard benchmark libraries makes it difficult to assess whether the structural properties that render fluted logic theoretically attractive actually arise frequently in practical reasoning tasks.
+
+Our problem generation methodology revealed counterintuitive patterns—sometimes increasing variable counts improved rather than degraded performance—suggesting unintended biases that contradict both theoretical expectations and practical experience with automated reasoning systems. This indicates that a more sophisticated understanding of the relationship between syntactic parameters and computational complexity would significantly improve our evaluation framework.
+
+
+\section*{Future Directions}
+
+Several promising directions emerge from this work that could substantially advance the field. The problem generation methodology requires improvement to better separate variable quantification costs from formula complexity, while developing domain-specific generators for modal logic, description logic, and natural language processing applications would provide more realistic test cases reflecting problems where fluted logic naturally arises.
+
+From an implementation perspective, trying to use more well-integrated literal selection strategies could enhance performance. The current implementation takes a conservative approach to simplifications, so investigating the safe application of additional simplification rules, in addition to AVATAR splitting, to non-strongly fluted clauses might yield performance improvements while maintaining termination guarantees.
+
+Theoretically, exploring relationships between fluted logic and other decidable fragments could reveal opportunities for unified approaches, while analysing complexity characteristics of different fluted clause types could inform adaptive strategy selection during resolution.
+
+Additional technical improvements and suggestions for improvements have been mentioned throughout this thesis in the relevant sections.
+
+\section*{Final Thoughts}
+
+This work demonstrates that the fluted fragment represents a meaningful balance between expressiveness and computational tractability, with the successful implementation within Vampire showing that theoretical insights about decidable fragments can translate effectively into practical computational tools.
+
+While representing just one specialized reasoning technique, this work illustrates the broader potential for enhancing modern theorem provers through optimizations that respect structural characteristics of specific problem classes. As automated reasoning assumes increasingly important roles in computer science applications, techniques that exploit structural properties of input problems become correspondingly more valuable.
+
+The methodology combining theoretical study, practical implementation, and systematic experimental evaluation provides a reusable approach for investigating other fragments and developing targeted optimizations. This contribution advances that goal by demonstrating that specialized reasoning can achieve both theoretical soundness and practical benefits.

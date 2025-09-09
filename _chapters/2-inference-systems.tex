@@ -12,13 +12,14 @@ It is possible to generalize this notation to the entire inference system \(R\) 
 Moreover, it is possible to characterize the effectiveness of inference systems with various properties:
 
 \begin{itemize}
-    \item \bold{Soundness}: An inference system is sound if it only derives conclusions that are true in the model. Formally, \(R\) is \bold{sound} if for all \(\Gamma\) and \(\phi\), if \(\Gamma \vdash_{R} \phi\), then \(\Gamma\models\phi\).
-    \item \bold{Completeness}: An inference system is complete if it can derive all conclusions that are true in the model. Formally, \(R\) is \bold{complete} if for all \(\Gamma\) and \(\phi\), if \(\Gamma\models\phi\), then \(\Gamma \vdash_{R} \phi\).
+    \item \bold{Soundness}: An inference system is sound if it only derives conclusions that are true in the models. Formally, \(R\) is \bold{sound} if for all \(\Gamma\) and \(\phi\), if \(\Gamma \vdash_{R} \phi\), then \(\Gamma\models\phi\).
+    \item \bold{Completeness}: An inference system is complete if it can derive all conclusions that are true in the models. Formally, \(R\) is \bold{complete} if for all \(\Gamma\) and \(\phi\), if \(\Gamma\models\phi\), then \(\Gamma \vdash_{R} \phi\).
     \item \bold{Correctness}: An inference system is correct if it is both \bold{sound} and \bold{complete}.
     \item \bold{Consistency}: An inference system is consistent if it does not derive contradictory conclusions from any set of premises. Formally, \(R\) is \bold{consistent} if for all \(\Gamma\) and \(\phi\), it is not the case that both \(\Gamma \vdash_{R} \phi\) and \(\Gamma \vdash_{R} \neg \phi\).
 \end{itemize}
 A weaker form of completeness is \bold{refutational completeness} which requires that if \(\Gamma \models \bot\), then \(\Gamma \vdash_{R} \bot\).  Practically, this means that if a set of premises is unsatisfiable, the inference system can derive a contradiction.
 By theorem~\ref{thm:validity_satisfiability_reduction}, a refutational complete inference system can show that a formula is valid by proving that its negation is unsatisfiable.
+
 A first example of an inference rule is \bold{Modus Ponens}, which states that if we have a conditional statement \(A \implies B\), and we know that \(A\) is true, then we can conclude that \(B\) is also true. Formally, it can be expressed as:
 \begin{equation}  
   \infer{B}{A & A \implies B}
@@ -34,19 +35,19 @@ An example of a syllogism is:
 \end{quote}
 The premises can be formalized as:
 \begin{equation}
-  \forall x \ms H(x) \implies M(x), \qquad H(s)
+  \forall x \ms (H(x) \implies M(x)), \qquad H(s)
 \end{equation}
 These can be converted into CNF as:
 \begin{equation}
     \neg H(x) \lor M(x), \qquad H(s)
 \end{equation}
-In FOL, before applying Modus Ponens, we must ensure that the premises contain a matching literal. To do this, we need to find the MGU \(\sigma\) that makes the literals match that, in this case, is \(\sigma = \{x\mapsto s\}\).
+In FOL, before applying Modus Ponens, we must ensure that the premises contain a matching literal. To do this, we need to find the MGU \(\sigma\) that makes the literals match, in this case being \(\sigma = \{x\mapsto s\}\).
 Finally, we can apply Modus Ponens for deriving the conclusion \(M(s)\) (Socrates is mortal) as follows:
 \begin{equation}
   \infer{M(s)}{H(s) & \neg H(x) \lor M(x)}
 \end{equation}
 
-From this xample, we can define a more specific form of Modus Ponens for FOL, which takes into account the need for matching literals and the use of MGUs.
+From this example, we can define a more specific form of Modus Ponens for FOL, which takes into account the need for matching literals and the use of MGUs.
 \begin{equation}  
   \infer{B\sigma}{A_1 & A_2 \implies B} \qquad \text{or} \qquad \infer{B\sigma}{A_1 & \neg A_2 \lor B}
 \end{equation}
@@ -57,25 +58,25 @@ In particular:
 \begin{itemize}
   \item It is \bold{sound} because any conclusion derived is logically entailed.
   \item It is \bold{not complete} because there are valid conclusions that cannot be derived using this rule alone.
-  \item It is \bold{not refutationally complete} because there are unsatisfiable sets of clauses that cannot be shown to be unsatisfiable using this rule alone.
+  \item It is \bold{neither refutationally complete} because there are unsatisfiable sets of clauses that cannot be shown to be unsatisfiable using this rule alone.
 \end{itemize}
 For example, the set of clauses
 \begin{equation}\label{eq:example_unsat}  
   \{\{\neg A, B\},\{\neg A , \neg B\}, \{\neg C , A\}, \{A , C\}\}
 \end{equation}
-This set is unsatisfiable:
+can be shown to be unsatisfiable by considering the two possible cases for \(A\):
 \begin{description}
-  \item[Assuming \(A\) true] From clause 1 we have \(B\) true, and from clause 2 we have \(\neg B\) true, leading to a contradiction.
-  \item[Assuming \(A\) false] From clause 3 we have \(\neg C\) true, and from clause 4 we have \(C\) true, leading to a contradiction.
+  \item[Assuming \(A\) true:] From clause 1 we have \(B\) true, and from clause 2 we have \(\neg B\) true, leading to a contradiction.
+  \item[Assuming \(A\) false:] From clause 3 we have \(\neg C\) true, and from clause 4 we have \(C\) true, leading to a contradiction.
 \end{description}
-However, Modus Ponens alone cannot derive this contradiction because there are no atomic clauses to trigger the inference.
+However, Modus Ponens alone cannot derive this contradiction because there are no unit clauses (single literal) to trigger the inference.
 This limitation of Modus Ponens motivates the need for more general inference rules that can handle cases where no unit clauses are available to trigger inferences.
-The resolution rule addresses this limitation by allowing inferences between any clauses containing complementary literals, regardless of their structure.
+The \bold{resolution} rule addresses this limitation by allowing inferences between any clauses containing complementary literals, regardless of their structure.
 
 \section{Resolution and Factoring}\label{sec:resolution-factoring}
 
 A common inference system used in FOL is based on the \bold{resolution} rule, which allows for the derivation of new clauses from existing ones, with the addition of the \bold{factoring} rule, that allows for the simplification of clauses by removing redundant literals.
-The key insight is that Modus Ponens requires one premise to be a unit clause (single literal) to match against a conditional.
+The key insight is that Modus Ponens requires one premise to be a unit clause to match against a conditional.
 Resolution generalizes this by allowing any two clauses containing literals that become complementary after unification to be combined, making it much more powerful for systematic proof search in clause form.
 
 \subsection{Resolution}\label{subsec:resolution}
@@ -89,8 +90,8 @@ Formally, resolution in FOL can be defined as:
 \end{equation}
 \indent where \(\sigma\) is the MGU of \(A_1\) and \(A_2\).
 
-\noindent Intuitively, resolution is justifiable noticing that, for \(A_1 \lor B\) and \(A_2 \lor C\) to be true, at least one of \(A_1\) and \(B\) must be true, and at least one of \(A_2\) and \(C\) must be true.
-Being \(A_1\) and \(A_2\) complementary, it is impossible for both to be true at the same time, so at least one of \(B\) and \(C\) must be true. Thus, we can conclude that \(B \lor C\) must be true.
+\noindent Intuitively, resolution is justifiable noticing that, for \(A_1 \lor B\) and \(\neg A_2 \lor C\) to be true, at least one of \(A_1\) and \(B\) must be true, and at least one of \(\neg A_2\) and \(C\) must be true.
+Being \(A_1\) and \(\neg A_2\) complementary, it is impossible for both to be true at the same time, so at least one of \(B\) and \(C\) must be true. Thus, we can conclude that \(B \lor C\) must be true.
 
 From this consideration, we can see that resolution is \bold{sound} because it only derives conclusions that are logically entailed by the premises.
 However, resolution is \bold{not complete} because there are valid conclusions that cannot be derived using this rule alone.
@@ -111,7 +112,7 @@ Using resolution, we can easily show that the previous example set of clauses~\r
   \end{aligned}
 \end{equation}
 
-This can be achieved by \bold{saturating} the set of clauses. A set of clauses \(S\) is \bold{saturated} under an inference system \(R\) if all the conclusions that can be derived from premises in \(S\) using inferences in \(R\) are also included in \(S\) (up to redundancy).
+In general, the proof of unsatisfiability can be achieved by \bold{saturating} the set of clauses. A set of clauses \(S\) is \bold{saturated} under an inference system \(R\) if all the conclusions that can be derived from premises in \(S\) using inferences in \(R\) are also included in \(S\) (up to redundancy).
 If the saturation of a set of clause \(S\) does contain \(\varnothing\), then \(S\) is unsatisfiable.
 
 \subsection{Factoring}\label{subsec:factoring}
@@ -142,7 +143,7 @@ The foundation of ordered inferences is an \bold{admissible ordering} on literal
 
 An ordering \(\succ\) on literals is \bold{admissible} if it satisfies:
 \begin{itemize}
-    \item \bold{Well-foundedness and totality on ground literals}: for any two ground literals \(L_1\) and \(L_2\), either \(L_1 \succ L_2\), \(L_2 \succ L_1\), or \(L_1 = L_2\) (totality), and each subset of ground literals has a minimal element (well-foundedness).
+    \item \bold{Well-foundedness and totality on ground literals}: for any two ground literals \(L_1\) and \(L_2\), either \(L_1 \succ L_2\), \(L_2 \succ L_1\), or \(L_1 = L_2\) (totality), and each subset of ground literals contains a minimal element (well-foundedness).
     \item \bold{Atom constraints}: for any atoms \(A\) and \(B\), it satisfies \(\neg A \succ A\) and \(B \succ A\) implies \(B \succ \neg A\).
     \item \bold{Stability under substitution (Liftable)}: if \(L_1 \succ L_2\), then \(L_1\sigma \succ L_2\sigma\) for any substitution \(\sigma\)
 \end{itemize}
@@ -164,7 +165,7 @@ Formally, ordered resolution can be defined as:
 \begin{equation}
   \infer{(B\lor C)\sigma}{C\lor A_1 & \neg A_2 \lor B}
 \end{equation}
-\indent provided (i) \(\sigma\) is the MGU of \(A_1\) and \(A_2\), (ii) \(A_1\sigma\) is strictly maximal respect to \(B\sigma\), and (iii) \(\neg A_2\) is maximal with respect to \(D\sigma\).
+\indent provided (i) \(\sigma\) is the MGU of \(A_1\) and \(A_2\), (ii) \(A_1\sigma\) is strictly maximal respect to \(B\sigma\), \indent and (iii) \(\neg A_2\) is maximal with respect to \(D\sigma\).
 The intuition is that we only resolve on the \dquote{largest} literals in each clause according to our ordering. This prevents resolution on smaller literals that might lead to unnecessarily complex derived clauses.
 
 Consider the clauses:
@@ -173,7 +174,7 @@ If our ordering satisfies \(P(f(x)) \succ Q(x)\) and \(P(y) \succ R(y)\), then o
 \[Q(x) \lor R(f(x))\]
 However, if \(Q(x) \succ P(f(x))\), then ordered resolution would be blocked, as \(P(f(x))\) is not maximal in the first clause.
 While maintaining refutational completeness, ordered resolution, in practice, can reduce the number of generated clauses by several orders of magnitude, making automated theorem proving feasible for larger problems.
-Moreover, using ordered resolution in a saturation process, can lead to termination on inputs that standard resolution cannot handle.
+Moreover, using ordered resolution in a saturation process can lead to termination on inputs that standard resolution cannot handle.
 
 \subsection{Ordered Factoring}\label{subsec:ordered-factoring}
 
@@ -189,7 +190,7 @@ For example, consider the clause:
 If \(P(f(x)) \succ P(x) \succ Q(y)\) and we can unify \(P(f(x))\) and \(P(x)\) with \(\sigma = \{(x , f(x))\}\), then ordered factoring produces:
 \[P(f(x)) \lor Q(y)\]
 
-The combination of ordered resolution and ordered factoring creates a highly efficient inference system that maintains the theoretical guarantees of refutational completeness while achieving practical performance suitable for real-world theorem proving applications.
-The ordering strategies are particularly effective because they tend to eliminate smaller, more general literals first, leading toward the specific contradictions needed for refutation more directly than unrestricted search.
+The combination of ordered resolution and ordered factoring creates a highly efficient inference system that maintains the theoretical guarantees of refutational completeness while achieving practical performance suitable for real-world applications.
+
 
 

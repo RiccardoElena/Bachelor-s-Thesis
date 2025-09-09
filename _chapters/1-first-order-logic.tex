@@ -1,6 +1,6 @@
 \chapter{First Order Logic}\label{chap:first-order-logic}
 
-\inlineminitoc{}
+%\inlineminitoc{}
 
 \noindent First-order logic (FOL), or predicate logic, is a formal system used in mathematics, philosophy, linguistics, and computer science to express statements about objects and their relationships.
 It uses \bold{terms} for the representation of objects in the domain of discourse and \bold{predicates} to express properties of these objects or relationships between them.
@@ -26,7 +26,7 @@ Moreover, the universal quantifier \(\forall\) indicates that the statement appl
 The connective \(\implies\) is the \emph{material implication} of \emph{propositional logic}, indicating that if the first part is true, then the second part must also be true.
 
 As we can see, using FOL we can divide the statement into its syntactic and semantic components, which allows us to reason about its structure separately from its meaning.
-This separation permits us to generalize the reasoning process to other statements with similar structures and to deduce new statements solely from the syntactic structure.
+This separation permits us to generalize the reasoning process to other syntactically similar statements and to deduce new statements solely from their structure.
 This makes FOL particularly suitable for computational treatment: automated systems can manipulate the syntactic form of statements while guaranteeing that these manipulations reflect valid semantic consequences in all interpretations — a property known as \emph{soundness}~\cite{enderton2001}.
 As we will see later, this clear separation is crucial for the development of automated reasoning systems, such as the Vampire theorem prover, because it allows us to convert the reasoning task into a syntactic manipulation task, treating statements as symbolic strings with a specific syntax, without the need to explicitly encode the meaning of each statement.
 
@@ -38,7 +38,7 @@ A full exploration of these rules, which form the core of automated reasoning, i
 
 First and foremost, we need to rigorously define the structure of first-order logic.
 The most basic building blocks of FOL are \bold{terms}, which represent objects in the domain of discourse.
-Those are variables (\(x,y,z\)), functions (\(f,g,h\)) and  symbols (\(a,b,c\)), sometimes viewed as function symbols with arity 0.
+Those are variables (\(x,y,z\)), functions (\(f,g,h\)) and constants (\(a,b,c\)), sometimes viewed as function symbols with arity 0.
 Variables are placeholders that can represent any object in the domain, while constants refer to specific objects. Functions map objects to other objects, allowing for more complex expressions.
 
 Terms alone do not constitute statements in FOL, as they lack an associated \emph{truth value}.
@@ -62,6 +62,7 @@ In particular, the principal connectives used in FOL are:
   \item \bold{Biconditional} (\(\iff\)): This connective expresses an equivalence between two formulae. The new formula is \bold{true} if both formulae have the same truth value.
 \end{itemize}
 
+Commonly, we refer as \emph{literals} to atomic formulae or their negations.
 \subsection{Syntax}\label{subsec:syntax}
 
 The syntax of FOL formulae can be formalized with a \emph{context free grammar} (CFG).
@@ -109,7 +110,8 @@ An example of a syntactic tree for the formula \(\forall x \left(\text{H}(x) \im
 \end{figure}
 
 In this representation, it is possible to omit the parentheses around the subformulae, as the tree structure already encodes the necessary grouping.
-Moreover, is possible to isolate a \emph{subgrammar} by considering only the rules that generate atomic formulae (excluding so the ones deriving from \(\phi\)). Doing this easily allows to define the concept of \bold{subterm} as a \emph{proper subtree} of the syntactic tree that represents an atomic formula (or by extension a literal).
+For the sake of brevity, in formulae tree representations, atoms will be represented collapsed into single nodes, as shown in the example above.
+Moreover, is possible to isolate a \emph{subgrammar} by considering only the rules that generate atomic formulae (excluding so the ones deriving from \(\phi\)). Doing this easily allows to define the concept of \bold{subterm} as a \emph{proper subtree} of the syntactic tree that represents an atomic formula.
 An example of such a tree is shown in Figure~\ref{fig:subterm_tree} for the atomic formula \(P(f(x, g(y)))\).
 \begin{figure}[H]
     \centering
@@ -125,7 +127,7 @@ An example of such a tree is shown in Figure~\ref{fig:subterm_tree} for the atom
     \caption{Syntactic tree for the atomic formula \(P(f(x, g(y)))\) showing nested function structure}\label{fig:subterm_tree}
 \end{figure}
 
-If we consider multiple atomic formulae (or literals), is possible to represent them as a \bold{forest} of syntactic trees, where each tree represents an atomic formula.
+If we consider multiple atomic formulae, is possible to represent them as a \bold{forest} of syntactic trees, where each tree represents an atomic formula.
 
 \begin{figure}[H]
     \centering
@@ -154,7 +156,7 @@ If we consider multiple atomic formulae (or literals), is possible to represent 
                   };
         \end{tikzpicture}
     \end{minipage}
-    \caption{Forest of the literals \(P(f(x, g(y)))\) and \(\neg P(f(x, g(y)))\)}\label{fig:subterm_forest}
+    \caption{Forest of the atomic formulae \(P(f(x, g(y)))\) and \(\neg P(f(x, g(y)))\)}\label{fig:subterm_forest}
 \end{figure}
 
 
@@ -260,8 +262,8 @@ The \bold{satisfaction} of a formula \(\phi\) in model \(M\) under assignment \(
 A formula \(\phi\) is:
 \begin{itemize}
   \item \bold{Satisfiable} if there exists a model \(M\) and assignment \(\sigma\) such that \(M, \sigma \models \phi\).
-  \item \bold{Valid} (sometimes called a \bold{tautology}) if for all models \(M\) and assignments \(\sigma\), \(M, \sigma \models \phi\). We write \(\models \phi\).
-  \item \bold{Unsatisfiable} (or \bold{contradictory}) if for all models \(M\) and assignments \(\sigma\), \(M, \sigma \not\models \phi\).
+  \item \bold{Valid} (sometimes called a \bold{tautology}) if for all models \(M\) and assignments \(\sigma\): \(M, \sigma \models \phi\). We write \(\models \phi\).
+  \item \bold{Unsatisfiable} (or \bold{contradictory}) if for all models \(M\) and assignments \(\sigma\): \(M, \sigma \not\models \phi\).
 \end{itemize}
 
 For a set of formulae \(\Gamma\) and a formula \(\phi\), we say \(\Gamma\) \bold{semantically entails} \(\phi\), written \(\Gamma \models \phi\), if for all models \(M\) and assignments \(\sigma\):
@@ -269,15 +271,16 @@ For a set of formulae \(\Gamma\) and a formula \(\phi\), we say \(\Gamma\) \bold
 It is worth noticing that satisfiability and validity are closely related:
 \begin{theorem}[Validity-Satisfiability Reduction]\label{thm:validity_satisfiability_reduction}
 A formula \(\phi\) is valid if and only if \(\neg\phi\) is unsatisfiable. Formally:
-\[\models \phi \iff \neg\phi \text{ is unsatisfiable}\]
+\[\models \phi \iff M,\sigma\not\models\neg\phi \text{, for all } M,\sigma\]
 \end{theorem}
 
 \begin{proof}[Proof Sketch]
 To prove this theorem, we need to show both directions of the equivalence.
   \begin{description}
-    \item[(\(\Rightarrow\))] If \(\phi\) is valid, then \(M, \sigma \models \phi\) for all models \(M\) and assignments \(\sigma\). Therefore, \(M, \sigma \not\models \neg\phi\) for all \(M, \sigma\), making \(\neg\phi\) unsatisfiable.
-    \item[(\(\Leftarrow\))] If \(\neg\phi\) is unsatisfiable, then there is no model \(M\) and assignment \(\sigma\) such that \(M, \sigma \models \neg\phi\). Therefore, for all \(M, \sigma\), we have \(M, \sigma \models \phi\), making \(\phi\) valid.
+    \item[(\(\Rightarrow\))] If \(\phi\) is valid, then \(M, \sigma \models \phi\) for all models \(M\) and assignments \(\sigma\). Therefore, assuming tertium non datur, \(M, \sigma \not\models \neg\phi\) for all \(M, \sigma\), making \(\neg\phi\) unsatisfiable.
+    \item[(\(\Leftarrow\))] If \(\neg\phi\) is unsatisfiable, then there is no model \(M\) and assignment \(\sigma\) such that \(M, \sigma \models \neg\phi\). Therefore, for all \(M, \sigma\), again assuming tertium non datur we have \(M, \sigma \models \phi\), making \(\phi\) valid.
   \end{description}
+\qed{}
 \end{proof}
 
 
@@ -313,7 +316,7 @@ If there is a substitution \(\sigma\) with:
 \tau_1\sigma = \tau_2\sigma
 \end{equation}
 then \(\tau_1\) and \(\tau_2\) are said to be \bold{unifiable}, and \(\sigma\) is called a \bold{unifier}.
-A unifier \(\sigma\) for two terms \(\tau_1\) and \(\tau_2\) is called a \bold{most general unifier} (MGU) if it is more general than any other unifier of \(\tau_1\) and \(\tau_2\).
+A unifier \(\sigma\) for two terms \(\tau_1\) and \(\tau_2\) is called the \bold{most general unifier} (MGU) if it is more general than any other unifier of \(\tau_1\) and \(\tau_2\).
 
 \subsection{Unification Beyond Single Terms}\label{subsec:unification-beyond-single-terms}
 The unification concept extends to sets of terms, literals, and sets of literals.  
@@ -323,7 +326,7 @@ Two literals with the same arity:
 \begin{equation}
 L_1 = P(\tau_1, \ldots, \tau_n), \quad L_2 = \neg P(\tau'_1, \ldots, \tau'_n)
 \end{equation}
-are unifiable if there is a substitution making them identical, disregarding negation. Equivalently, if \(f\) is a fresh \(n\)-ary function symbol, then \(L_1\) and \(L_2\) are unifiable if and only if \(f(\tau_1, \ldots, \tau_n)\) and \(f(\tau'_1, \ldots, \tau'_n)\) are unifiable.  
+are unifiable if there is a substitution making them identical, disregarding negation.
 Literals of different arities are never unifiable.
 
 \subsection{Obstructions to Unification}\label{subsec:obstructions-to-unification}
@@ -355,7 +358,7 @@ Early approaches exhibited worst-case exponential behaviour due to the difficult
 However, significant theoretical advances in the 1970s led to the development of linear-time unification algorithms that achieve \(O(n)\) complexity, where \(n\) is the combined size of the input terms~\cite{martelli1976, paterson1978}.
 
 These linear-time bounds represent optimal complexity for the unification problem, as any algorithm must examine all symbols in the input terms at least once.
-Modern implementations incorporate various optimization techniques such as term indexing and specialized handling for common cases to improve average-case performance~\cite{baader2001}.
+Modern implementations incorporate various optimization techniques such as term indexing and specialized handling for common cases to improve average-case performance~\cite{martelli1976}.
 The unification problem belongs to complexity class \bold{P}, making it tractable for practical applications in automated reasoning and logic programming systems.
 
 
@@ -371,9 +374,8 @@ The first transformation applied is to convert the formula into \bold{negated no
 
 A formula is in NNF if it is described by the following CFG\@:
 \begin{equation}
-  \nu \to \top  \ms | \ms  \bot  \ms | \ms  L  \ms | \ms  \nu \land \nu  \ms | \ms  \nu \lor \nu  \ms | \ms  \forall x  \ms  \nu  \ms | \ms  \exists x  \ms  \nu \quad\quad \text{where } L \text{is a literal}
+  \nu \to \top  \ms | \ms  \bot  \ms | \ms  L  \ms | \ms  \nu \land \nu  \ms | \ms  \nu \lor \nu  \ms | \ms  \forall x  \ms  \nu  \ms | \ms  \exists x  \ms  \nu \quad\quad \text{where } L \text{ is a literal}
 \end{equation}
-where \(L\) is a \emph{literal}, that is defined as an atomic formula or its negation.
 In a practical sense, NNF transformation involves pushing negations inward and eliminating implications and biconditionals.
 In fact, every formula can be brought into this form by replacing implications (\(\implies\)) and equivalences (\(\iff\)) by their definitions, using De Morgan's laws to push negation inwards, and eliminating double negations. This process can be represented using the following rewrite rules:
 
@@ -392,32 +394,31 @@ The NNF version of a formula is \emph{equivalent} to the original formula, meani
 
 \subsection{Skolemization}\label{subsec:skolemization}
 In the context of automated reasoning, \bold{Skolemization} is the process of eliminating existential quantifiers from a formula by introducing new symbols called \bold{Skolem functions} or \bold{Skolem constants}~\cite{skolem1920}.  
-The result of Skolemization is not logically equivalent to the original formula, but it is \bold{equisatisfiable}: both formulae are satisfiable in exactly the same set of interpretations.
+The result of Skolemization is not logically equivalent to the original formula but, relying on the axiom of choice, it is \bold{equisatisfiable}: the original formula is satisfiable if and only if the Skolemized version is satisfiable.
 The process of Skolemization goes as follows:
 
 Let \(\phi\) be a formula in NNF\@. For every existential quantifier \(\exists x_k\) in \(\phi\):
 \begin{itemize}
   \item If \(x_k\) is not in the scope of any universal quantifier, replace it with a new constant symbol \(c\) (a \emph{Skolem constant}).
-  \item If \(x_k\) is in the scope of universal quantifiers over variables \(y_1, \dots, y_m\), replace \(x_k\) with a new function symbol \(f(y_1, \dots, y_m)\) (a \emph{Skolem function}) of arity \(m\), where \(y_1, \dots, y_m\) are all the universally quantified variables whose quantifiers appear in positions that bind variables free in the scope of \(\exists x_k\).
+  \item If \(x_k\) is in the scope of universal quantifiers over variables \(y_1, \dots, y_m\), replace \(x_k\) with a new function symbol \(f(y_1, \dots, y_m)\) (a \emph{Skolem function}) of arity \(m\).
 \end{itemize}
-All Skolem symbols introduced must be fresh, i.e., not present in the original signature.
+All Skolem symbols introduced must be fresh, i.e., not present in the original formulae.
 An example of this process is as follows:
 
 Consider the formula:
 \[
 \forall x \: \exists y \: P(x, y)
 \]
-Since \(y\) is existentially quantified within the scope of \(\forall x\), we introduce a Skolem function \(f(x)\):
+Since \(y\) is existentially quantified within the scope of \(\forall x\), we introduce a function \(f(x)\):
 \[
 \forall x \: P(x, f(x))
 \]
 
-The Skolemization process fundamentally transforms the logical structure of a formula while preserving its essential satisfiability characteristics.
-Most notably, it completely eliminates all existential quantifiers from the formula, replacing them with concrete function or constant symbols that capture the dependencies between variables.
-This transformation is particularly valuable because it preserves satisfiability—meaning that the original formula has a model if and only if the Skolemized version does—but it does not preserve validity in the reverse direction.
+The Skolemization process fundamentally transforms the logical structure of a formula completely eliminating all existential quantifiers from it, replacing them with concrete function or constant symbols that capture the dependencies between variables.
+As mentioned before though, this transformation preserves satisfiability, but it does not preserve validity in the reverse direction.
 A formula that is valid before Skolemization may lose this property afterward, since the introduction of Skolem functions can create additional constraints that were not present in the original formula.
 However, the resulting formula contains only universal quantifiers, which significantly simplifies the reasoning process by enabling purely universal reasoning techniques. 
-This uniform quantifier structure is especially advantageous for automated theorem provers, as it eliminates the need to handle the complex interactions between universal and existential quantifiers during proof search.
+This uniform quantifier structure is especially advantageous for automated theorem provers, as it eliminates the need to handle the complex interactions between universal and existential quantifiers% during proof search.
 
 \subsection{Clausal Normal Form}\label{subsec:clausal_normal_form}
 A formula is in CNF if it is a conjunction of one or more \bold{clauses}, each clause being a disjunction of literals.  
@@ -427,17 +428,15 @@ As NNF, CNF can be described by a CFG too:
     CNF &\to D  \ms | \ms  D \land CNF \\
       D &\to L  \ms | \ms  L \lor D
   \end{aligned}
+  \qquad \text{where } L \text{ is a literal}
 \end{equation}
-where \(L\) is a literal.
-
 Every NNF formula, after undergoing Skolemization, can be transformed into CNF by applying \(\land\) and \(\lor\) distribution rules and dropping universal quantifiers.
 Often, CNF formulae are represented as sets of clauses with the following notation:
 \[
 (A \lor B) \land (C \lor D) \equiv \{\{A , B\} \ms , \ms \{C , D\}\}
 \]
 
-As an example of the full pipeline of the transformation from general formula to CNF, for the formula \( \forall x  \ms \big( \ms (\exists y  \ms   P(x,y)) \leftrightarrow Q(x)  \ms  \big)\)
-is the following:
+As an example of the full pipeline of the transformation from general formula to CNF, we consider the formula \( \forall x  \ms \big( \ms (\exists y  \ms   P(x,y)) \iff Q(x)  \ms  \big)\):
 
 \begin{enumerate}
     \item \bold{Convert to NNF:}
@@ -514,7 +513,7 @@ This pipeline of transformations, combined with \emph{naming}, is also called \b
 
 \section{Auxiliary Predicate Introduction}\label{sec:auxiliary_predicate_introduction}
 
-In the transformation of first-order logic (FOL) formulas, particularly when converting to clausal form, it is often advantageous to introduce \emph{auxiliary predicates} to represent complex subformulae. The general idea is to replace a subformula \(\psi(\bar{x})\) with\footnote{Here the notation \(\bar{x}\) is used as usual to indicate a sequence of variables} a fresh predicate symbol \(P(\bar{x})\) that does not occur in the original vocabulary, and to accompany this replacement with a \emph{defining axiom} of the form
+In the transformation of first-order logic (FOL) formulas, particularly when converting to clausal form, it is often advantageous to introduce \emph{auxiliary predicates} to represent complex subformulae. The general idea is to replace a subformula \(\psi(\bar{x})\) with\footnote{Here the notation \(\bar{x}\) is used as usual to indicate a sequence of variables, while the notation \(\psi(\bar{x})\) indicates a formula with \(\bar{x}\) as free variables.} a fresh predicate symbol \(P(\bar{x})\) that does not occur in the original vocabulary, and to accompany this replacement with a \emph{defining axiom} of the form
 \[
 \forall \bar{x}\ \big(P(\bar{x}) \iff \psi(\bar{x})\big).
 \]
@@ -566,11 +565,11 @@ Here, \(+\) denotes positive polarity, \(-\) denotes negative polarity, and \(0\
 
 Polarity analysis allows for an optimization of auxiliary predicate introduction. If a subformula \(\psi(\bar{x})\) occurs only positively in the formula, it is sufficient to introduce the fresh predicate \(P(\bar{x})\) together with the implication
 \[
-\forall \bar{x}\ \big(P(\bar{x}) \rightarrow \psi(\bar{x})\big),
+\forall \bar{x}\ \big(P(\bar{x}) \implies \psi(\bar{x})\big),
 \]
 rather than the full biconditional. Conversely, if \(\psi(\bar{x})\) occurs only negatively, it suffices to add
 \[
-\forall \bar{x}\ \big(\psi(\bar{x}) \rightarrow P(\bar{x})\big).
+\forall \bar{x}\ \big(\psi(\bar{x}) \implies P(\bar{x})\big).
 \]
 The full biconditional is necessary only when \(\psi(\bar{x})\) occurs with zero polarity.
 

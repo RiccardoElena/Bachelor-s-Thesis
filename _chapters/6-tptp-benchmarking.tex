@@ -44,7 +44,6 @@ For this purpose, two specific classes, \code{FormulaClassifier} and \code{Claus
 \subsection{Formulae Classification}\label{subsec:formulae-classification}
 As for formulae classification, we followed the approach mentioned at the end of Section~\ref{sec:fluted-formulae}, following the top-down depicted there.
 Basically, the algorithm is a pre-order traversal of the formula tree, where in quantifier nodes variables are accumulated into a sequence, and in leaf nodes the argument list of the literal is checked against the accumulated sequence of variables to ensure it is a suffix of it.
-\uninatodo{When representing empty list in algorithms I used \(\emptyset\). If though it needs to be more than geneal collection, but a traversable one should I use \([]\) instead?}
 
 \begin{algorithm}[H]
     \caption{\code{FormulaClassifier}'s classification methods}\label{alg:formula-classifier}
@@ -161,6 +160,7 @@ Despite these permutations do not always produce equivalent formulae, they prese
   This model \(M'\) is such that \(M' \models \phi'\).
   Suppose now that \(\phi\) is unsatisfiable and, for sake of contradiction, that \(\phi'\) is satisfiable.
   Analogously as described before, we can construct a model \(M\) such that \(M \models \phi\), from the model \(M'\) such that \(M' \models \phi'\), leading to a contradiction.
+  \qed{}
 \end{proof}
 
 As stated in the Definition~\ref{def:flutable-formulae}, the permutation has to be applied homogeneously across all atomic formulae in \(\phi\).
@@ -184,7 +184,7 @@ For doing so, a map data structure is used to store the variable correspondences
             \State{} \Return{} \(False\)
           \EndIf{}
           \State{} \(args \gets reverse(literal.arguments())\)
-          \State{} \((i,arity) \gets (args.size(),args.size())\)
+          \State{} \((i,arity) \gets (|args|,|args|)\)
           \State{} \(perm \gets Array(arity)\)
           \While{\(i > 0 \land vars \neq \emptyset\)}
               \State{} \(i \gets i - 1\)
@@ -560,11 +560,13 @@ Finally, exclusively for fluted resolution, we had to use \code{any} as literal 
 
 As for the saturation algorithm used, having very few test cases, we had the opportunity to experiment with both \emph{Otter} and \emph{LRS} strategies, to analyse potential performance differences.
 
+The tests have been run on a machine with an Apple M1 Pro CPU with 8 cores and 8 GB of RAM, with a timeout of \(300\) seconds.
+For each problem, we run the solver 5 times to average out any variability in execution time, taking the average of these runs as the final result.
+In addition, for problems that lead to an error or crash, we used the symbolic value of \(330\) seconds to indicate that the problem was not solved, allowing us to include these cases in the performance charts.
+
 \section{Results and Analysis}\label{sec:tptp-results-analysis}
 
 The following graphs show the general trends of the experiments, confronting both Vampire and fluted resolution, using either \emph{Otter} or \emph{LRS} as saturation algorithm.
-
-The tests have been run on a machine with an Apple M1 Pro CPU with 8 cores and 8 GB of RAM, with a timeout of 300 seconds. For each problem, we run the solver 5 times to average out any variability in execution time, taking the average of these runs as the final result.
 A complete table of the results is available in Appendix~\ref{app:benchmark-results}.
 
 The first comparison is between Vampire and fluted resolution using the \emph{LRS} strategy for FOF problems, shown in Figure~\ref{fig:fof-lrs}.
@@ -587,7 +589,7 @@ That problem is actually full of biconditionals, which are ignored by the versio
 
 
 
-Continuing with the analysis of the results, we have the comparison between Vampire and fluted resolution using the \emph{Otter} strategy.
+Continuing with the analysis of the results, we have the comparison between Vampire and fluted resolution using the \emph{Otter} strategy, shown in Figures~\ref{fig:fof-otter} and~\ref{fig:cnf-otter}.
 
 \begin{figure}[H]
   \centering

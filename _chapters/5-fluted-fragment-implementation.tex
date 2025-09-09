@@ -180,8 +180,8 @@ The function \code{axiomatize} instead, is responsible for generating the fresh 
         \Statex{} \bold{signature} \(\textsc{axiomatize:}\quad Formula*\times Polarity\times Unit*\times Problem\&\to Formula*\)
         \Function{\(\textsc{axiomatize}\)}{$formula,pol,u,prb$} % chktex 46
             \State{} \(freeVars \gets formula.freeVars()\)
-            \State{} \(freshPred \gets signature.addFreshPredicate(freeVars.size(), \text{\dquoteit{def}})\)
-            \State{} \(freshLit \gets Literal(freshPred, freeVars.size(), True, freeVars)\)
+            \State{} \(freshPred \gets signature.addFreshPredicate(|freeVars|, \text{\dquoteit{def}})\)
+            \State{} \(freshLit \gets Literal(freshPred, |freeVars|, True, freeVars)\)
             \State{} \(freshAtom \gets AtomicFormula(freshLit,freshAtom,freeVars,pol)\)
             \State{} \(definition \gets generateDefinition(formula,freshAtom,freeVars,pol)\)
             \State{} \(newUnit \gets FormulaUnit(definition, FormulaTransformation(Def,u))\)
@@ -433,7 +433,7 @@ The function \(createClauses\), responsible for creating the two resulting claus
     \Statex{} \bold{signature} \(\textsc{createClauses:}\quad varRange \times [Literal] \times [Literal] \to ClauseList\)
     \Function{\(\textsc{createClauses}\)}{$vRange,sepResC,sepResD$} % chktex 46
       \State{} \(args \gets \{vRange.first,\ldots,vRange.last\}\)
-      \State{} \((arity,name) \gets(args.size(),signature.addNamePredicate(args))\)
+      \State{} \((arity,name) \gets(|args|,signature.addNamePredicate(args))\)
       \State{} \(negL \gets Literal(name,arity,false,args)\)
       \State{} \(sepResC.push(negL)\)
       \State{} \(posL \gets Literal(name,arity,true,args)\)

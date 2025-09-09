@@ -2,7 +2,7 @@
 Having established the theoretical foundations of first-order logic, resolution-based inference systems, and the fluted fragment in the preceding chapters, we now turn to the practical implementation aspects of our decision procedure.
 The implementation described in this thesis is built as an extension to Vampire~\cite{kovacs2013vampire,AVATAR,riazanov2002design}, a state-of-the-art first-order theorem prover written in C++ that employs a sophisticated array of techniques to automate reasoning tasks, including resolution-based methods, superposition calculus, and various preprocessing strategies.
 It is widely used in both academic research and industrial applications for its efficiency and effectiveness in solving complex logical problems across diverse domains.
-Its open-source nature and carefully designed modular architecture allow for easy integration of new techniques and algorithms, making it a flexible and extensible platform for researchers and practitioners in automated reasoning.
+Its open-source nature and carefully designed modular architecture allow for seamless integration of new techniques and algorithms, making it a flexible and extensible platform for researchers and practitioners in automated reasoning.
 
 The system's development began in 1998 as a research project by \citeauthor{riazanov2002design} at the University of Manchester, and it is currently maintained by a broader team in the Computer Science department.
 Over more than two decades of active development, Vampire has evolved into one of the most sophisticated theorem provers available, incorporating numerous theoretical advances from the automated reasoning community and practical optimizations derived from extensive empirical evaluation.
@@ -20,7 +20,7 @@ The situation is further complicated by recent development efforts that, while a
 This creates additional challenges for researchers who have invested effort in developing custom modifications to the system.
 
 This chapter provides a high-level overview of the Vampire components that are essential for understanding our implementation.
-We focus particularly on the preprocessing pipeline (Section~\ref{sec:preprocessor}), the saturation algorithm (Section~\ref{sec:saturation-algorithm}) with its literal selection mechanisms (Section~\ref{subsec:literal-selection}), and the AVATAR architecture (Section~\ref{sec:avatar-architecture}), which we had to disable during our experimental evaluation.
+We focus particularly on the preprocessing pipeline (Section~\ref{sec:preprocessing}), the saturation algorithm (Section~\ref{sec:saturation-algorithm}) with its literal selection mechanisms (Section~\ref{subsec:literal-selection}), and the AVATAR architecture (Section~\ref{sec:avatar-architecture}), which we had to disable during our experimental evaluation.
 While Vampire encompasses many additional sophisticated features, we limit our discussion to those aspects that directly influence or interact with our fluted fragment decision procedure.
 It should be noted that both this description and the development work are based on Vampire version 4.9, which is the latest version available at the time of writing.
 
@@ -113,7 +113,6 @@ The resulting logical system becomes \(A_1 \land A_2 \land \ldots \land A_n \lan
 If unsatisfiability is detected, this constitutes a proof that the original conjecture \(C\) follows logically from the given axioms.
 
 The individual \code{Unit} objects within the \code{UnitList} can take one of two distinct forms.
-It can  be a \code{Clause} object, which directly contains a list of \code{Literal} objects representing a clause in conjunctive normal form.
 
 \begin{figure}[H]
   \centering
@@ -122,10 +121,10 @@ It can  be a \code{Clause} object, which directly contains a list of \code{Liter
 \end{figure}
 
 
-Alternatively, it may be a \code{FormulaUnit}, which contains a pointer to a separate \code{Formula} object that a formula that have not yet been converted to clausal form.
-
+It can  be a \code{Clause} object, which directly contains a list of \code{Literal} objects representing a clause in conjunctive normal form.
+Alternatively, it may be a \code{FormulaUnit}, which contains a pointer to a separate \code{Formula} object.
 \code{Formula} objects resemble closely the syntactic tree representation of logical formulae showed in Figure~\ref{fig:syntactic_tree}.\ \code{Formula} class is in fact \emph{abstract}, specialized into several subclasses representing different syntactic constructs.
-Each subclass represents a subtree of the formula's syntactic tree, where the root node corresponds to the logical construct handled by that subclass.
+Each subclass embodies a subtree of the formula's syntactic tree, where the root node corresponds to the logical construct handled by that subclass.
 These subclasses are:
 
 \begin{description}

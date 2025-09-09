@@ -1,6 +1,12 @@
 \chapter*{Abstract}
 
-% This is the abstract.\blindtext[2]
+First-order logic is undecidable, but several decidable fragments have been identified that retain useful expressive power while guaranteeing termination. The fluted fragment is one such subset, characterized by specific variable ordering constraints in quantified formulae.
+
+This thesis implements and evaluates a decision procedure for the fluted fragment within the Vampire theorem prover. The implementation required three main components: a preprocessing stage that transforms input formulae into the required fluted clause form through structural naming, an adapted literal selection strategy compatible with fluted resolution, and a separation inference rule for handling non-strongly fluted clauses applying dynamic renaming.
+
+The experimental evaluation used both existing TPTP benchmark problems and a custom test generator producing 15,000 synthetic problems. While only 151 naturally occurring fluted problems were found in TPTP, testing revealed that the fluted implementation often matches or outperforms standard Vampire resolution on these problems. The synthetic benchmarks provided more extensive evaluation, showing that specialized preprocessing optimizations can benefit performance even when falling back to standard resolution techniques.
+
+The work demonstrates that implementing decision procedures for specific fragments within general-purpose theorem provers is feasible and can provide computational advantages by exploiting structural properties of the input problems.
 
 % \chapter*{Sommario}
 % Qui puoi inserire il sommario (la traduzione dell'abstract in italiano).
