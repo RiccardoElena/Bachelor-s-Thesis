@@ -14,9 +14,9 @@ In knowledge representation, FOL underpins semantic web technologies and ontolog
 Meanwhile, in verification, it serves as the logical foundation for model checkers and theorem provers that ensure software correctness, while in artificial intelligence, it historically powered automated reasoning systems and planning algorithms, though modern AI has largely shifted toward statistical and neural approaches that often lack the transparency and formal guarantees that FOL-based systems provide.
 
 However, the expressive power of FOL comes at a cost: undecidability.
-This was established independently in the 1930s by \citeauthor{church1936}~\cite{church1936} using the lambda calculus, and by \citeauthor{turing1936}~\cite{turing1936} via Turing machines---two distinct formalisms that captured the limits of computation.
+This was established independently in the 1930s by \citeauthor{church1936}~\cite{church1936} using the lambda calculus, and by \citeauthor{turing1936}~\cite{turing1936} via Turing machines, two distinct formalisms that captured the limits of computation.
 Their results demonstrated that no algorithm can, in general, determine whether an arbitrary FOL formula is valid. This fundamental limitation creates a significant computational barrier for automated reasoning.
-In response, two complementary research directions have emerged: the systematic identification of decidable fragments that retain sufficient expressiveness for practical applications, and the development of automated theorem provers (ATPs) that---while unable to guarantee termination on all inputs---employ sophisticated heuristics and optimizations to solve many real-world problems efficiently.
+In response, two complementary research directions have emerged: the systematic identification of decidable fragments that retain sufficient expressiveness for practical applications, and the development of automated theorem provers (ATPs) that, while unable to guarantee termination on all inputs, employ sophisticated heuristics and optimizations to solve many real-world problems efficiently.
 
 Among the most prominent ATPs for FOL is \emph{Vampire}~\cite{kovacs2013vampire}, a high-performance prover built on advanced saturation-based reasoning.
 Vampire combines ordered resolution with literal selection, term indexing, and clause simplification techniques to explore the space of logical consequences efficiently.
@@ -31,7 +31,7 @@ Applications have emerged in areas such as knowledge representation, database lo
 These properties make it a compelling candidate for specialized reasoning techniques that can outperform general ATPs in relevant domains.
 
 A specialized reasoning technique for the Fluted Fragment is presented by \citeauthor{schmidt2000resolution} in their resolution-based decision procedure~\cite{schmidt2000resolution}.
-Their approach characterizes fluted logic through a novel class of \emph{fluted clauses}, and introduces a calculus ---\textsc{R\textsuperscript{sep}}--- which extends ordered resolution with a dynamic renaming rule called \emph{separation}.
+Their approach characterizes fluted logic through a novel class of \emph{fluted clauses}, and introduces a calculus , \textsc{R\textsuperscript{sep}},  which extends ordered resolution with a dynamic renaming rule called \emph{separation}.
 This rule enables the transformation of non-strongly fluted clauses into strongly fluted ones, thereby preserving a bounded number of variables and ensuring closure under resolution.
 Crucially, the authors prove that their calculus is sound, complete, and terminating.
 

@@ -572,7 +572,7 @@ A complete table of the results is available in Appendix~\ref{app:benchmark-resu
 The first comparison is between Vampire and fluted resolution using the \emph{LRS} strategy for FOF problems, shown in Figure~\ref{fig:fof-lrs}.
 
 As it is possible to see from the charts, both Vampire and fluted resolution alternate between immediate terminations with timeouts.
-Regarding CNF problems, shown in Figure~\ref{fig:cnf-lrs}, the two are nearly identical in performance, with the only difference being in Vampire performing sufficiently better on problem SYN328--1.
+Regarding CNF problems, shown in Figure~\ref{fig:cnf-lrs}, the two are nearly identical in performance, with the only difference being in Vampire performing sufficiently better on problem SYN328-1. %chktex 8
 Contrarily, for FOF problems, Vampire is outperformed by fluted resolution in most cases, with the only exception being problems KRS019+1 and SYN007+1, where the cause of the failure seems to be the preprocessing step.
 That problem is actually full of biconditionals, which are ignored by the version of structural transformation we implemented. This lead to a blow-up in the number of clauses generated, running out of resources quickly.
 \begin{figure}[H]

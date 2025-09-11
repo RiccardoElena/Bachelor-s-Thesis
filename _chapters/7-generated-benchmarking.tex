@@ -51,7 +51,7 @@ All these parameters are given during the initialization of the generator and ca
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{Placeholder.png}
+  \includegraphics[width=0.8\textwidth]{7-generated-benchmarking/FlutedGenerator.pdf}
   \caption{Class diagram of the \code{FlutedGenerator} Class.}\label{fig:fluted-generator-architecture}
 \end{figure}
 
@@ -64,7 +64,7 @@ To improve code quality and reusability, we encapsulated the random sampling fun
 The first distribution used for sampling is the uniform distribution \(\mathcal{U}(A,B)\) on a discrete range.
 \begin{figure}[H]
   \centering
-  \begin{tikzpicture}
+  \begin{tikzpicture}[scale=0.8,transform shape]
     % Parameters
     \def\a{2}
     \def\b{7}
@@ -170,16 +170,10 @@ For binary samplings, such as deciding whether to negate an atomic formula or wh
 Lastly, there was another occasion of random sampling not yet covered.
 After choosing to generate a binary formula, to increase the variability of the structures of the generated trees, we decided to randomly choose how many symbols to allocate to the left and right subformulae.
 This is done by sampling a real coefficient \(c\) from a normal distribution \(\mathcal{N}(\mu, \sigma^2)\) with mean \(\mu = 0.5\) and standard deviation \(\sigma = \frac{1}{18}\), which is then used to proportionally split the available symbols between the two subformulae.
-This value of \(\sigma\) was chosen to ensure that the vast majority of the sampled values fall within the range \([\frac{1}{3}, \frac{2}{3}]\), thus avoiding excessively unbalanced splits.
-Furthermore, avoiding sampling outside a specified range is mandatory, due to the discrete nature of the length parameter, which would not allow allocating at least one symbol to each subformula.
-The natural base case of the recursion, which occurs when the length is \(3\), where the only possible split is 1 symbol for one subformula and 1 for the other, with the remaining symbol being used for the connective.
-Being the number of symbols always greater than \(3\) when sampling this coefficient, we can safely use the range \([\frac{1}{3}, \frac{2}{3}]\) for sampling, as it guarantees that both subformulae will always receive at least one symbol.
-To achieve this, we implemented a rejection sampling approach, where values outside the specified range are discarded and resampled until a valid value is obtained.
-The values of \(\mu\) and \(\sigma\) were chosen to ensure that the vast majority of the sampled values fall within the desired range, thus minimizing the number of rejections and ensuring efficient sampling.
 
 \begin{figure}[H]
   \centering
-  \begin{tikzpicture}
+  \begin{tikzpicture}[scale=0.9, transform shape]
 \begin{axis}[
     width=12cm,
     height=8cm,
@@ -247,10 +241,17 @@ The values of \(\mu\) and \(\sigma\) were chosen to ensure that the vast majorit
   \caption{Normal distribution \(\mathcal{N}(0.5,\,{(\frac{1}{18})}^2)\) truncated to the interval \([\frac{1}{3}, \frac{2}{3}]\).}\label{fig:truncated-normal-distribution}
 \end{figure}
 
+This value of \(\sigma\) was chosen to ensure that the vast majority of the sampled values fall within the range \([\frac{1}{3}, \frac{2}{3}]\), thus avoiding excessively unbalanced splits.
+Furthermore, avoiding sampling outside a specified range is mandatory, due to the discrete nature of the length parameter, which would not allow allocating at least one symbol to each subformula.
+The natural base case of the recursion, which occurs when the length is \(3\), where the only possible split is 1 symbol for one subformula and 1 for the other, with the remaining symbol being used for the connective.
+Being the number of symbols always greater than \(3\) when sampling this coefficient, we can safely use the range \([\frac{1}{3}, \frac{2}{3}]\) for sampling, as it guarantees that both subformulae will always receive at least one symbol.
+To achieve this, we implemented a rejection sampling approach, where values outside the specified range are discarded and resampled until a valid value is obtained.
+The values of \(\mu\) and \(\sigma\) were chosen to ensure that the vast majority of the sampled values fall within the desired range, thus minimizing the number of rejections and ensuring efficient sampling.
 
 \subsection{Generator Algorithms}\label{subsec:generator-algorithms}
 
 The entry point method of the \code{FlutedGenerator} class is \code{generateProblem}, which generates a fluted problem according to the specified parameters.
+Its sole purpose is to call the \code{generateUnit} method the specified number of times, collecting the generated units in a list, and finally returning a \code{Problem} object containing them.
 
 \begin{algorithm}[H]
   \caption{Generate fluted problem}\label{alg:generate-fluted-problem}
@@ -268,7 +269,7 @@ The entry point method of the \code{FlutedGenerator} class is \code{generateProb
 \end{algorithm}
 
 
-Its sole purpose is to call the \code{generateUnit} method the specified number of times, collecting the generated units in a list, and finally returning a \code{Problem} object containing them.
+
 The \code{generateUnit} method is responsible for generating a single fluted \code{FormulaUnit}.
 To try to generete more diverse and realistic problems, in this method a random number of usable variables, ranging from 1 to half of the maximum arity specified, is chosen to be quantified in advance.
 This is to simulate the common situation in real-world problems where some variables are quantified at the beginning of the formula, as well as allowing proper formula generation to freely even literals from the start, having already some variables available.
@@ -592,6 +593,7 @@ In particular, we can see that the fluted mode of consistently outperforms the v
 
 These charts do not reveal much more than the CNF problems from TPTP, as the number of problems in each chart is still relatively small.
 They, however, confirm the polarization of the results, with most problems being solved very quickly and a few taking a long time or timing out.
+Another interesting observation is that the hybrid mode often performs very similarly to the fluted mode, being identical in cases like the second chart, where the two lines overlap completely.
 To get a more comprehensive view of the performance across all generated problems, we turn to aggregated results.
 The first family of aggregated charts we present are the ones fixing the number of variables, varying on the encoded triple \((\text{\code{_predNum}}, \text{\code{_maxLen}}, \text{\code{_unitsNum}})\).
 To better highlight the differences between vampire and the other two modes (hybrid and fluted), we decided to provide two versions of each chart: one with a logarithmic scale including vampire mode, for highlighting the differences from the other two modes, and one with a normal scale excluding vampire mode, to emphasize the differences between hybrid and fluted modes.
