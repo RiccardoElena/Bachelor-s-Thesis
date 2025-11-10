@@ -15,18 +15,28 @@ A Bachelor's thesis project in Computer Science at the University of Naples "Fed
 
 ## Abstract
 
-[Add your thesis abstract here - a brief summary of your research, methodology, and key findings]
+First-order logic is undecidable, but several decidable fragments have been identified that retain useful expressive power while guaranteeing termination. The fluted fragment is one such subset, characterized by specific variable ordering constraints in quantified formulae.
+
+This thesis implements and evaluates a decision procedure for the fluted fragment within the Vampire theorem prover. The implementation required three main components: a preprocessing stage that transforms input formulae into the required fluted clause form through structural naming, an adapted literal selection strategy compatible with fluted resolution, and a separation inference rule for handling non-strongly fluted clauses applying dynamic renaming.
+
+The experimental evaluation used both existing TPTP benchmark problems and a custom test generator producing 15,000 synthetic problems. While only 151 naturally occurring fluted problems were found in TPTP, testing revealed that the fluted implementation often matches or outperforms standard Vampire resolution on these problems. The synthetic benchmarks provided more extensive evaluation, showing that specialized preprocessing optimizations can benefit performance even when falling back to standard resolution techniques.
+
+The work demonstrates that implementing decision procedures for specific fragments within general-purpose theorem provers is feasible and can provide computational advantages by exploiting structural properties of the input problems.
 
 ## Structure
 
 The thesis is organized as follows:
 
-- **Abstract** - Summary of the work
-- **Introduction** - Context and motivation
-- **Chapter 1** - [Your first chapter title]
-- **Chapter 2** - [Your second chapter title]
+- **Introduction** - Context and motivation of the work
+- **Chapter 1** - Introduction to First Order Logic
+- **Chapter 2** - Introduction to Resolution Calculu
+- **Chapter 3** - In-depth analysis of the decision procedure for the Fluted Fragment implemented
+- **Chapter 4** - Overview on the Vampire Theorem Prover Architecture and core feature
+- **Chapter 5** - Detailed analysis of the implementation of the procedure
+- **Chapter 6** - Implementation benchmarking using the TPTP library
+- **Chapter 7** - Implementation of a problem generator for further benchmarking
 - **Conclusions** - Summary and future work
-- **Appendix** - Additional materials
+- **Appendix** - Additional Charts and tables reporting specific datas
 - **Bibliography** - References and citations
 
 ## Building the Document
